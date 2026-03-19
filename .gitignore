@@ -12,3 +12,5 @@ npm-debug.log
 .env
 migrate.log
 usage-data-config.json
+
+test-results
