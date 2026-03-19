@@ -4,7 +4,7 @@ The flow to update is specified as an argument (e.g. `/update-prototype expressi
 
 If no argument is provided, list the available flows from `docs/flows/` and ask the user which one to update.
 
-- Read the flow definition file at `docs/flows/<argument>.md`, ignoring anything above the heading "User Flows for Spike"
+- Read the flow definition file at `docs/flows/<argument>.md`
 - Compare this with the existing implementation and tests for that flow
 - Summarise the differences and request approval to plan
 - If approval to plan is given create a test and implementation plan and request approval to implement
