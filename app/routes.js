@@ -39,7 +39,33 @@ router.post('/expression-of-interest/check-answers', (req, res) => {
 // Invitation flow
 // ============================================================
 
+const invitationMockData = {
+  'ABC-111': {
+    farmName: '1st Farm',
+    cphNumber: '11/111/1111',
+    addressLine1: '1 Farm Lane',
+    town: 'Farmington',
+    county: 'Herefordshire',
+    postcode: 'HR1 1AB',
+    herdSize: '50',
+    herdType: 'beef'
+  },
+  default: {
+    farmName: 'Random Farm',
+    cphNumber: '12/345/6789',
+    addressLine1: '99 Farm Avenue',
+    town: 'Leeds',
+    county: 'West Yorkshire',
+    postcode: 'LS21 2AB',
+    herdSize: '100',
+    herdType: 'dairy'
+  }
+}
+
 router.post('/invitation/start', (req, res) => {
+  const ref = req.session.data['invitationReference']
+  const farm = invitationMockData[ref] || invitationMockData.default
+  Object.assign(req.session.data, farm)
   res.redirect('/invitation/confirm-details')
 })
 

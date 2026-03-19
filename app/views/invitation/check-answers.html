@@ -14,14 +14,14 @@
     <dl class="govuk-summary-list govuk-!-margin-bottom-9">
       <div class="govuk-summary-list__row">
         <dt class="govuk-summary-list__key">Farm name</dt>
-        <dd class="govuk-summary-list__value">Example Farm</dd>
+        <dd class="govuk-summary-list__value">{{ data['farmName'] }}</dd>
         <dd class="govuk-summary-list__actions">
           <a class="govuk-link" href="/invitation/confirm-details">Change<span class="govuk-visually-hidden"> farm details</span></a>
         </dd>
       </div>
       <div class="govuk-summary-list__row">
         <dt class="govuk-summary-list__key">CPH number</dt>
-        <dd class="govuk-summary-list__value">12/345/6789</dd>
+        <dd class="govuk-summary-list__value">{{ data['cphNumber'] }}</dd>
         <dd class="govuk-summary-list__actions">
           <a class="govuk-link" href="/invitation/confirm-details">Change<span class="govuk-visually-hidden"> CPH number</span></a>
         </dd>
@@ -29,10 +29,10 @@
       <div class="govuk-summary-list__row">
         <dt class="govuk-summary-list__key">Address</dt>
         <dd class="govuk-summary-list__value">
-          1 Farm Lane<br>
-          Farmington<br>
-          Gloucestershire<br>
-          GL1 2AB
+          {{ data['addressLine1'] }}<br>
+          {{ data['town'] }}<br>
+          {{ data['county'] }}<br>
+          {{ data['postcode'] }}
         </dd>
         <dd class="govuk-summary-list__actions">
           <a class="govuk-link" href="/invitation/confirm-details">Change<span class="govuk-visually-hidden"> address</span></a>
@@ -45,14 +45,14 @@
     <dl class="govuk-summary-list govuk-!-margin-bottom-9">
       <div class="govuk-summary-list__row">
         <dt class="govuk-summary-list__key">Herd size</dt>
-        <dd class="govuk-summary-list__value">{{ data['herdSize'] or '50' }}</dd>
+        <dd class="govuk-summary-list__value">{{ data['herdSize'] }}</dd>
         <dd class="govuk-summary-list__actions">
           <a class="govuk-link" href="/invitation/herd-details">Change<span class="govuk-visually-hidden"> herd size</span></a>
         </dd>
       </div>
       <div class="govuk-summary-list__row">
         <dt class="govuk-summary-list__key">Herd type</dt>
-        <dd class="govuk-summary-list__value">{{ data['herdType'] | capitalize or 'Beef' }}</dd>
+        <dd class="govuk-summary-list__value">{{ data['herdType'] | capitalize }}</dd>
         <dd class="govuk-summary-list__actions">
           <a class="govuk-link" href="/invitation/herd-details">Change<span class="govuk-visually-hidden"> herd type</span></a>
         </dd>

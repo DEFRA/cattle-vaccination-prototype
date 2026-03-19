@@ -18,7 +18,7 @@
         <label class="govuk-label" for="herd-size">
           How many cattle are in your herd?
         </label>
-        <input class="govuk-input govuk-input--width-5" id="herd-size" name="herdSize" type="number" min="1" value="{{ data['herdSize'] or '50' }}">
+        <input class="govuk-input govuk-input--width-5" id="herd-size" name="herdSize" type="number" min="1" value="{{ data['herdSize'] }}">
       </div>
 
       <div class="govuk-form-group">
@@ -28,7 +28,7 @@
           </legend>
           <div class="govuk-radios" data-module="govuk-radios">
             <div class="govuk-radios__item">
-              <input class="govuk-radios__input" id="herd-type-beef" name="herdType" type="radio" value="beef" {% if data['herdType'] == 'beef' or not data['herdType'] %}checked{% endif %}>
+              <input class="govuk-radios__input" id="herd-type-beef" name="herdType" type="radio" value="beef" {% if data['herdType'] == 'beef' %}checked{% endif %}>
               <label class="govuk-label govuk-radios__label" for="herd-type-beef">Beef</label>
             </div>
             <div class="govuk-radios__item">

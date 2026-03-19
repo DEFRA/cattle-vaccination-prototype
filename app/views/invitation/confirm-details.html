@@ -14,19 +14,19 @@
     <dl class="govuk-summary-list govuk-!-margin-bottom-6">
       <div class="govuk-summary-list__row">
         <dt class="govuk-summary-list__key">Farm name</dt>
-        <dd class="govuk-summary-list__value">Example Farm</dd>
+        <dd class="govuk-summary-list__value">{{ data['farmName'] }}</dd>
       </div>
       <div class="govuk-summary-list__row">
         <dt class="govuk-summary-list__key">CPH number</dt>
-        <dd class="govuk-summary-list__value">12/345/6789</dd>
+        <dd class="govuk-summary-list__value">{{ data['cphNumber'] }}</dd>
       </div>
       <div class="govuk-summary-list__row">
         <dt class="govuk-summary-list__key">Address</dt>
         <dd class="govuk-summary-list__value">
-          1 Farm Lane<br>
-          Farmington<br>
-          Gloucestershire<br>
-          GL1 2AB
+          {{ data['addressLine1'] }}<br>
+          {{ data['town'] }}<br>
+          {{ data['county'] }}<br>
+          {{ data['postcode'] }}
         </dd>
       </div>
     </dl>
