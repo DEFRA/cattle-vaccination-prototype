@@ -1,0 +1,39 @@
+{% extends "layouts/main.html" %}
+
+{% set pageName="Registration complete" %}
+
+{% block content %}
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+    <div class="govuk-panel govuk-panel--confirmation">
+      <h1 class="govuk-panel__title">Registration complete</h1>
+      <div class="govuk-panel__body">
+        Your reference number<br>
+        <strong>{{ data['invitationReference'] or 'ABC-XXX' }}</strong>
+      </div>
+    </div>
+
+    <p class="govuk-body">You have successfully registered for the cattle TB vaccination programme.</p>
+
+    <h2 class="govuk-heading-m">What happens next</h2>
+
+    <p class="govuk-body">We will:</p>
+
+    <ul class="govuk-list govuk-list--bullet">
+      <li>arrange a vaccination visit based on your preferred dates</li>
+      <li>send you confirmation of your appointment by email</li>
+      <li>provide details of what to expect on the day</li>
+    </ul>
+
+    <p class="govuk-body">If you need to change or cancel your registration, contact us using the reference number above.</p>
+
+    <p class="govuk-body">
+      <a href="/" class="govuk-link">Return to the prototype home page</a>
+    </p>
+
+  </div>
+</div>
+
+{% endblock %}
