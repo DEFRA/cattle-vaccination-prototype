@@ -1,0 +1,73 @@
+{% extends "layouts/main.html" %}
+
+{% set pageName="Preferred vaccination dates" %}
+
+{% block content %}
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+    <form method="post" action="/invitation/preferred-dates">
+      <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+
+      <h1 class="govuk-heading-l">Preferred vaccination dates</h1>
+
+      <p class="govuk-body">Tell us when it would suit you for a vet to visit your farm to carry out vaccinations.</p>
+
+      <div class="govuk-form-group">
+        <fieldset class="govuk-fieldset" aria-describedby="preferred-months-hint">
+          <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+            Which months would you prefer for vaccination visits?
+          </legend>
+          <div id="preferred-months-hint" class="govuk-hint">
+            Select all that apply.
+          </div>
+          <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+            <div class="govuk-checkboxes__item">
+              <input class="govuk-checkboxes__input" id="month-april" name="preferredMonths" type="checkbox" value="april">
+              <label class="govuk-label govuk-checkboxes__label" for="month-april">April</label>
+            </div>
+            <div class="govuk-checkboxes__item">
+              <input class="govuk-checkboxes__input" id="month-may" name="preferredMonths" type="checkbox" value="may">
+              <label class="govuk-label govuk-checkboxes__label" for="month-may">May</label>
+            </div>
+            <div class="govuk-checkboxes__item">
+              <input class="govuk-checkboxes__input" id="month-june" name="preferredMonths" type="checkbox" value="june">
+              <label class="govuk-label govuk-checkboxes__label" for="month-june">June</label>
+            </div>
+            <div class="govuk-checkboxes__item">
+              <input class="govuk-checkboxes__input" id="month-july" name="preferredMonths" type="checkbox" value="july">
+              <label class="govuk-label govuk-checkboxes__label" for="month-july">July</label>
+            </div>
+            <div class="govuk-checkboxes__item">
+              <input class="govuk-checkboxes__input" id="month-august" name="preferredMonths" type="checkbox" value="august">
+              <label class="govuk-label govuk-checkboxes__label" for="month-august">August</label>
+            </div>
+            <div class="govuk-checkboxes__item">
+              <input class="govuk-checkboxes__input" id="month-september" name="preferredMonths" type="checkbox" value="september">
+              <label class="govuk-label govuk-checkboxes__label" for="month-september">September</label>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="govuk-form-group">
+        <label class="govuk-label govuk-label--m" for="additional-info">
+          Is there anything we should know when arranging your visit? (optional)
+        </label>
+        <div id="additional-info-hint" class="govuk-hint">
+          For example, days when access to your farm is not possible.
+        </div>
+        <textarea class="govuk-textarea" id="additional-info" name="additionalInfo" rows="4" aria-describedby="additional-info-hint">{{ data['additionalInfo'] }}</textarea>
+      </div>
+
+      <div class="govuk-button-group">
+        <button class="govuk-button" data-module="govuk-button">Continue</button>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
+{% endblock %}

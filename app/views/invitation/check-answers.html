@@ -1,0 +1,99 @@
+{% extends "layouts/main.html" %}
+
+{% set pageName="Check your answers" %}
+
+{% block content %}
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+    <h1 class="govuk-heading-l">Check your answers before submitting</h1>
+
+    <h2 class="govuk-heading-m">Farm details</h2>
+
+    <dl class="govuk-summary-list govuk-!-margin-bottom-9">
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">Farm name</dt>
+        <dd class="govuk-summary-list__value">Example Farm</dd>
+        <dd class="govuk-summary-list__actions">
+          <a class="govuk-link" href="/invitation/confirm-details">Change<span class="govuk-visually-hidden"> farm details</span></a>
+        </dd>
+      </div>
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">CPH number</dt>
+        <dd class="govuk-summary-list__value">12/345/6789</dd>
+        <dd class="govuk-summary-list__actions">
+          <a class="govuk-link" href="/invitation/confirm-details">Change<span class="govuk-visually-hidden"> CPH number</span></a>
+        </dd>
+      </div>
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">Address</dt>
+        <dd class="govuk-summary-list__value">
+          1 Farm Lane<br>
+          Farmington<br>
+          Gloucestershire<br>
+          GL1 2AB
+        </dd>
+        <dd class="govuk-summary-list__actions">
+          <a class="govuk-link" href="/invitation/confirm-details">Change<span class="govuk-visually-hidden"> address</span></a>
+        </dd>
+      </div>
+    </dl>
+
+    <h2 class="govuk-heading-m">Herd details</h2>
+
+    <dl class="govuk-summary-list govuk-!-margin-bottom-9">
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">Herd size</dt>
+        <dd class="govuk-summary-list__value">{{ data['herdSize'] or '50' }}</dd>
+        <dd class="govuk-summary-list__actions">
+          <a class="govuk-link" href="/invitation/herd-details">Change<span class="govuk-visually-hidden"> herd size</span></a>
+        </dd>
+      </div>
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">Herd type</dt>
+        <dd class="govuk-summary-list__value">{{ data['herdType'] | capitalize or 'Beef' }}</dd>
+        <dd class="govuk-summary-list__actions">
+          <a class="govuk-link" href="/invitation/herd-details">Change<span class="govuk-visually-hidden"> herd type</span></a>
+        </dd>
+      </div>
+    </dl>
+
+    <h2 class="govuk-heading-m">Preferred dates</h2>
+
+    <dl class="govuk-summary-list govuk-!-margin-bottom-9">
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">Preferred months</dt>
+        <dd class="govuk-summary-list__value">
+          {% if data['preferredMonths'] %}
+            {% if data['preferredMonths'] is string %}
+              {{ data['preferredMonths'] | capitalize }}
+            {% else %}
+              {% for month in data['preferredMonths'] %}{{ month | capitalize }}{% if not loop.last %}, {% endif %}{% endfor %}
+            {% endif %}
+          {% else %}
+            Not provided
+          {% endif %}
+        </dd>
+        <dd class="govuk-summary-list__actions">
+          <a class="govuk-link" href="/invitation/preferred-dates">Change<span class="govuk-visually-hidden"> preferred months</span></a>
+        </dd>
+      </div>
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">Additional information</dt>
+        <dd class="govuk-summary-list__value">{{ data['additionalInfo'] or 'None' }}</dd>
+        <dd class="govuk-summary-list__actions">
+          <a class="govuk-link" href="/invitation/preferred-dates">Change<span class="govuk-visually-hidden"> additional information</span></a>
+        </dd>
+      </div>
+    </dl>
+
+    <form method="post" action="/invitation/check-answers">
+      <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+      <button class="govuk-button" data-module="govuk-button">Confirm and submit</button>
+    </form>
+
+  </div>
+</div>
+
+{% endblock %}

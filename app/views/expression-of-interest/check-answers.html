@@ -1,0 +1,96 @@
+{% extends "layouts/main.html" %}
+
+{% set pageName="Check your answers" %}
+
+{% block content %}
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+    <h1 class="govuk-heading-l">Check your answers before submitting</h1>
+
+    <h2 class="govuk-heading-m">Farm details</h2>
+
+    <dl class="govuk-summary-list govuk-!-margin-bottom-9">
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">Farm name</dt>
+        <dd class="govuk-summary-list__value">{{ data['farmName'] or 'Not provided' }}</dd>
+        <dd class="govuk-summary-list__actions">
+          <a class="govuk-link" href="/expression-of-interest/farm-details">Change<span class="govuk-visually-hidden"> farm name</span></a>
+        </dd>
+      </div>
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">CPH number</dt>
+        <dd class="govuk-summary-list__value">{{ data['cphNumber'] or 'Not provided' }}</dd>
+        <dd class="govuk-summary-list__actions">
+          <a class="govuk-link" href="/expression-of-interest/farm-details">Change<span class="govuk-visually-hidden"> CPH number</span></a>
+        </dd>
+      </div>
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">Farm address</dt>
+        <dd class="govuk-summary-list__value">
+          {{ data['farmAddressLine1'] }}<br>
+          {% if data['farmAddressLine2'] %}{{ data['farmAddressLine2'] }}<br>{% endif %}
+          {{ data['farmTown'] }}<br>
+          {{ data['farmPostcode'] }}
+        </dd>
+        <dd class="govuk-summary-list__actions">
+          <a class="govuk-link" href="/expression-of-interest/farm-details">Change<span class="govuk-visually-hidden"> farm address</span></a>
+        </dd>
+      </div>
+    </dl>
+
+    <h2 class="govuk-heading-m">Herd details</h2>
+
+    <dl class="govuk-summary-list govuk-!-margin-bottom-9">
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">Herd size</dt>
+        <dd class="govuk-summary-list__value">{{ data['herdSize'] or 'Not provided' }}</dd>
+        <dd class="govuk-summary-list__actions">
+          <a class="govuk-link" href="/expression-of-interest/herd-details">Change<span class="govuk-visually-hidden"> herd size</span></a>
+        </dd>
+      </div>
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">Herd type</dt>
+        <dd class="govuk-summary-list__value">{{ data['herdType'] | capitalize or 'Not provided' }}</dd>
+        <dd class="govuk-summary-list__actions">
+          <a class="govuk-link" href="/expression-of-interest/herd-details">Change<span class="govuk-visually-hidden"> herd type</span></a>
+        </dd>
+      </div>
+    </dl>
+
+    <h2 class="govuk-heading-m">Contact details</h2>
+
+    <dl class="govuk-summary-list govuk-!-margin-bottom-9">
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">Full name</dt>
+        <dd class="govuk-summary-list__value">{{ data['fullName'] or 'Not provided' }}</dd>
+        <dd class="govuk-summary-list__actions">
+          <a class="govuk-link" href="/expression-of-interest/contact-details">Change<span class="govuk-visually-hidden"> full name</span></a>
+        </dd>
+      </div>
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">Email address</dt>
+        <dd class="govuk-summary-list__value">{{ data['email'] or 'Not provided' }}</dd>
+        <dd class="govuk-summary-list__actions">
+          <a class="govuk-link" href="/expression-of-interest/contact-details">Change<span class="govuk-visually-hidden"> email address</span></a>
+        </dd>
+      </div>
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">Phone number</dt>
+        <dd class="govuk-summary-list__value">{{ data['phone'] or 'Not provided' }}</dd>
+        <dd class="govuk-summary-list__actions">
+          <a class="govuk-link" href="/expression-of-interest/contact-details">Change<span class="govuk-visually-hidden"> phone number</span></a>
+        </dd>
+      </div>
+    </dl>
+
+    <form method="post" action="/expression-of-interest/check-answers">
+      <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+      <button class="govuk-button" data-module="govuk-button">Submit expression of interest</button>
+    </form>
+
+  </div>
+</div>
+
+{% endblock %}

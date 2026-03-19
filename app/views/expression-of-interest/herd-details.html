@@ -1,0 +1,53 @@
+{% extends "layouts/main.html" %}
+
+{% set pageName="Your herd details" %}
+
+{% block content %}
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+    <form method="post" action="/expression-of-interest/herd-details">
+      <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+
+      <h1 class="govuk-heading-l">Your herd details</h1>
+
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="herd-size">
+          How many cattle are in your herd?
+        </label>
+        <input class="govuk-input govuk-input--width-5" id="herd-size" name="herdSize" type="number" min="1" value="{{ data['herdSize'] }}">
+      </div>
+
+      <div class="govuk-form-group">
+        <fieldset class="govuk-fieldset">
+          <legend class="govuk-fieldset__legend">
+            What type of herd do you have?
+          </legend>
+          <div class="govuk-radios" data-module="govuk-radios">
+            <div class="govuk-radios__item">
+              <input class="govuk-radios__input" id="herd-type-beef" name="herdType" type="radio" value="beef" {% if data['herdType'] == 'beef' %}checked{% endif %}>
+              <label class="govuk-label govuk-radios__label" for="herd-type-beef">Beef</label>
+            </div>
+            <div class="govuk-radios__item">
+              <input class="govuk-radios__input" id="herd-type-dairy" name="herdType" type="radio" value="dairy" {% if data['herdType'] == 'dairy' %}checked{% endif %}>
+              <label class="govuk-label govuk-radios__label" for="herd-type-dairy">Dairy</label>
+            </div>
+            <div class="govuk-radios__item">
+              <input class="govuk-radios__input" id="herd-type-mixed" name="herdType" type="radio" value="mixed" {% if data['herdType'] == 'mixed' %}checked{% endif %}>
+              <label class="govuk-label govuk-radios__label" for="herd-type-mixed">Mixed</label>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="govuk-button-group">
+        <button class="govuk-button" data-module="govuk-button">Continue</button>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
+{% endblock %}

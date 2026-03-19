@@ -1,0 +1,42 @@
+{% extends "layouts/main.html" %}
+
+{% set pageName="Check your eligibility" %}
+
+{% block content %}
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+    <form method="post" action="/expression-of-interest/eligibility">
+      <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+
+      <fieldset class="govuk-fieldset">
+        <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+          <h1 class="govuk-fieldset__heading">
+            Is your herd located in England?
+          </h1>
+        </legend>
+
+        <div class="govuk-radios" data-module="govuk-radios">
+          <div class="govuk-radios__item">
+            <input class="govuk-radios__input" id="herd-in-england" name="herdInEngland" type="radio" value="yes">
+            <label class="govuk-label govuk-radios__label" for="herd-in-england">Yes</label>
+          </div>
+          <div class="govuk-radios__item">
+            <input class="govuk-radios__input" id="herd-in-england-2" name="herdInEngland" type="radio" value="no">
+            <label class="govuk-label govuk-radios__label" for="herd-in-england-2">No</label>
+          </div>
+        </div>
+
+      </fieldset>
+
+      <div class="govuk-button-group govuk-!-margin-top-6">
+        <button class="govuk-button" data-module="govuk-button">Continue</button>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
+{% endblock %}

@@ -8,8 +8,17 @@
     "dev": "govuk-prototype-kit dev",
     "serve": "govuk-prototype-kit serve",
     "start": "govuk-prototype-kit start",
+    "test": "jest",
     "format": "prettier --write \"**/*.{cjs,js,json,md}\"",
     "format:check": "prettier --check \"**/*.{cjs,js,json,md}\""
+  },
+  "jest": {
+    "testMatch": [
+      "**/test/**/*.test.js"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/"
+    ]
   },
   "dependencies": {
     "@govuk-prototype-kit/common-templates": "2.0.1",
@@ -17,6 +26,9 @@
     "govuk-prototype-kit": "13.18.0"
   },
   "devDependencies": {
-    "prettier": "3.6.2"
+    "express": "5.2.1",
+    "jest": "30.3.0",
+    "prettier": "3.6.2",
+    "supertest": "7.2.2"
   }
 }

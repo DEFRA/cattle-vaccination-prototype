@@ -7,13 +7,29 @@
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
 
-    {% include "govuk-prototype-kit/includes/homepage-top.njk" %}
+    <h1 class="govuk-heading-xl">Cattle TB vaccination prototype</h1>
 
-    <h1 class="govuk-heading-xl">
-      {{ serviceName }}
-    </h1>
+    <p class="govuk-body">Select a user journey to prototype:</p>
 
-    {% include "govuk-prototype-kit/includes/homepage-bottom.njk" %}
+    <ul class="govuk-list govuk-list--spaced">
+      <li>
+        <a href="/expression-of-interest/start" class="govuk-link govuk-!-font-size-19">
+          Expression of interest
+        </a>
+        <p class="govuk-body govuk-!-color-secondary">
+          For herd owners who have found the service and want to sign up for TB vaccination.
+        </p>
+      </li>
+      <li>
+        <a href="/invitation/start" class="govuk-link govuk-!-font-size-19">
+          Invitation to vaccinate
+        </a>
+        <p class="govuk-body govuk-!-color-secondary">
+          For herd owners who have received an invitation to participate in the TB vaccination programme.
+        </p>
+      </li>
+    </ul>
+
   </div>
 </div>
 

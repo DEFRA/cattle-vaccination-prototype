@@ -1,0 +1,64 @@
+{% extends "layouts/main.html" %}
+
+{% set pageName="Confirm your farm details" %}
+
+{% block content %}
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+    <h1 class="govuk-heading-l">Confirm your farm details</h1>
+
+    <p class="govuk-body">We have the following details on record for your holding. Check these are correct before continuing.</p>
+
+    <dl class="govuk-summary-list govuk-!-margin-bottom-6">
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">Farm name</dt>
+        <dd class="govuk-summary-list__value">Example Farm</dd>
+      </div>
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">CPH number</dt>
+        <dd class="govuk-summary-list__value">12/345/6789</dd>
+      </div>
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">Address</dt>
+        <dd class="govuk-summary-list__value">
+          1 Farm Lane<br>
+          Farmington<br>
+          Gloucestershire<br>
+          GL1 2AB
+        </dd>
+      </div>
+    </dl>
+
+    <form method="post" action="/invitation/confirm-details">
+      <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+
+      <div class="govuk-form-group">
+        <fieldset class="govuk-fieldset">
+          <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+            Are these details correct?
+          </legend>
+          <div class="govuk-radios" data-module="govuk-radios">
+            <div class="govuk-radios__item">
+              <input class="govuk-radios__input" id="details-correct-yes" name="detailsCorrect" type="radio" value="yes">
+              <label class="govuk-label govuk-radios__label" for="details-correct-yes">Yes, these are correct</label>
+            </div>
+            <div class="govuk-radios__item">
+              <input class="govuk-radios__input" id="details-correct-no" name="detailsCorrect" type="radio" value="no">
+              <label class="govuk-label govuk-radios__label" for="details-correct-no">No, I need to update them</label>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="govuk-button-group">
+        <button class="govuk-button" data-module="govuk-button">Continue</button>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends "layouts/main.html" %}
+
+{% set pageName="Your farm details" %}
+
+{% block content %}
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+    <form method="post" action="/expression-of-interest/farm-details">
+      <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+
+      <h1 class="govuk-heading-l">Your farm details</h1>
+
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="farm-name">
+          Farm name
+        </label>
+        <input class="govuk-input" id="farm-name" name="farmName" type="text" value="{{ data['farmName'] }}">
+      </div>
+
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="cph-number">
+          County Parish Holding (CPH) number
+        </label>
+        <div id="cph-hint" class="govuk-hint">
+          For example, 12/345/6789
+        </div>
+        <input class="govuk-input govuk-input--width-10" id="cph-number" name="cphNumber" type="text" value="{{ data['cphNumber'] }}" aria-describedby="cph-hint">
+      </div>
+
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="farm-address-line1">
+          Address line 1
+        </label>
+        <input class="govuk-input" id="farm-address-line1" name="farmAddressLine1" type="text" autocomplete="address-line1" value="{{ data['farmAddressLine1'] }}">
+      </div>
+
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="farm-address-line2">
+          Address line 2 (optional)
+        </label>
+        <input class="govuk-input" id="farm-address-line2" name="farmAddressLine2" type="text" autocomplete="address-line2" value="{{ data['farmAddressLine2'] }}">
+      </div>
+
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="farm-town">
+          Town or city
+        </label>
+        <input class="govuk-input govuk-input--width-two-thirds" id="farm-town" name="farmTown" type="text" autocomplete="address-level2" value="{{ data['farmTown'] }}">
+      </div>
+
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="farm-postcode">
+          Postcode
+        </label>
+        <input class="govuk-input govuk-input--width-10" id="farm-postcode" name="farmPostcode" type="text" autocomplete="postal-code" value="{{ data['farmPostcode'] }}">
+      </div>
+
+      <div class="govuk-button-group">
+        <button class="govuk-button" data-module="govuk-button">Continue</button>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
+{% endblock %}
