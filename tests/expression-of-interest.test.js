@@ -1,9 +1,7 @@
 const { test, expect } = require('@playwright/test')
 
 test.describe('Expression of Interest journey', () => {
-  test('completes the full journey for an eligible herd in England', async ({
-    page,
-  }) => {
+  test('completes the full journey for an eligible herd in England', async ({ page }) => {
     // Start page
     await page.goto('/expression-of-interest/start')
     await expect(page).toHaveTitle(/Apply for cattle TB vaccination/i)
@@ -17,7 +15,7 @@ test.describe('Expression of Interest journey', () => {
     // Farm details
     await expect(page).toHaveURL(/farm-details/)
     await page.getByLabel('Farm name').fill('Test Farm')
-    await page.getByLabel('County Parish Holding (CPH) number').fill('12/345/6789')
+    await page.getByLabel('County Parish Holding (CPH) number').fill('06/036/0006')
     await page.getByLabel('Address line 1').fill('1 Farm Lane')
     await page.getByLabel('Town or city').fill('Farmington')
     await page.getByLabel('Postcode').fill('GL1 2AB')
@@ -39,29 +37,23 @@ test.describe('Expression of Interest journey', () => {
     // Check answers
     await expect(page).toHaveURL(/check-answers/)
     await expect(page.getByText('Test Farm')).toBeVisible()
-    await expect(page.getByText('12/345/6789')).toBeVisible()
+    await expect(page.getByText('06/036/0006')).toBeVisible()
     await expect(page.getByText('Dairy')).toBeVisible()
     await expect(page.getByText('jane@example.com')).toBeVisible()
     await page.getByRole('button', { name: /submit/i }).click()
 
     // Confirmation
     await expect(page).toHaveURL(/confirmation/)
-    await expect(
-      page.getByText('Expression of interest submitted'),
-    ).toBeVisible()
+    await expect(page.getByText('Expression of interest submitted')).toBeVisible()
     await expect(page.getByText(/EOI-/)).toBeVisible()
   })
 
-  test('redirects to ineligible page for a herd outside England', async ({
-    page,
-  }) => {
+  test('redirects to ineligible page for a herd outside England', async ({ page }) => {
     await page.goto('/expression-of-interest/eligibility')
     await page.getByLabel('No').check()
     await page.getByRole('button', { name: 'Continue' }).click()
 
     await expect(page).toHaveURL(/ineligible/)
-    await expect(
-      page.getByText(/only available for herds located in England/i),
-    ).toBeVisible()
+    await expect(page.getByText(/only available for herds located in England/i)).toBeVisible()
   })
 })

@@ -35,7 +35,7 @@ For herd owners who have been pre-selected and received a formal invitation to p
 **User sees:**
 - Pre-populated farm details from government records:
   - Farm name (e.g., "Example Farm")
-  - CPH number (e.g., "12/345/6789")
+  - CPH number (e.g., "06/036/0006")
   - Full address (line 1, town, county, postcode)
 - Question: "Are these details correct?"
 - Radio buttons: "Yes, these are correct" / "No, I need to update them"
@@ -116,27 +116,26 @@ For herd owners who have been pre-selected and received a formal invitation to p
 
 For invitation reference ABC-111:
 
-| Field | Example Value |
-|-------|---------------|
-| Farm name | 1st Farm |
-| CPH number | 11/111/1111 |
-| Address line 1 | 1 Farm Lane |
-| Town | Farmington |
-| County | Herefordshire |
-| Postcode | HR1 1AB |
-| Herd size | 50 |
-| Herd type | Beef |
+| Field          | Example Value |
+| -------------- | ------------- |
+| Farm name      | 1st Farm      |
+| CPH number     | 11/111/1111   |
+| Address line 1 | 1 Farm Lane   |
+| Town           | Farmington    |
+| County         | Herefordshire |
+| Postcode       | HR1 1AB       |
+| Herd size      | 50            |
+| Herd type      | Beef          |
 
 For all other invitation references:
 
-| Field | Example Value |
-|-------|---------------|
-| Farm name | Random Farm |
-| CPH number | 12/345/6789 |
+| Field          | Example Value  |
+| -------------- | -------------- |
+| Farm name      | Random Farm    |
+| CPH number     | 06/036/0006    |
 | Address line 1 | 99 Farm Avenue |
-| Town | Leeds |
-| County | West Yorkshire |
-| Postcode | LS21 2AB |
-| Herd size | 100 |
-| Herd type | Dairy |
-
+| Town           | Leeds          |
+| County         | West Yorkshire |
+| Postcode       | LS21 2AB       |
+| Herd size      | 100            |
+| Herd type      | Dairy          |
