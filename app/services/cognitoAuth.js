@@ -10,15 +10,15 @@ async function getCognitoToken() {
 
   const clientId = process.env.COGNITO_CLIENT_ID
   const clientSecret = process.env.COGNITO_CLIENT_SECRET
-  const aphaUrl = process.env.APHA_URL
+  const aphaCognitoUrl = process.env.APHA_COGNITO_URL
 
-  if (!clientId || !clientSecret || !aphaUrl) {
-    throw new Error('Missing required env vars: COGNITO_CLIENT_ID, COGNITO_CLIENT_SECRET, APHA_URL')
+  if (!clientId || !clientSecret || !aphaCognitoUrl) {
+    throw new Error('Missing required env vars: COGNITO_CLIENT_ID, COGNITO_CLIENT_SECRET, APHA_COGNITO_URL')
   }
 
   const encodedCredentials = Buffer.from(`${clientId}:${clientSecret}`).toString('base64')
 
-  const response = await fetch(aphaUrl, {
+  const response = await fetch(aphaCognitoUrl, {
     method: 'POST',
     headers: {
       Authorization: `Basic ${encodedCredentials}`,
