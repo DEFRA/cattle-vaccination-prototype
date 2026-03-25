@@ -58,7 +58,7 @@ For herd owners who discover the service independently and want to register thei
 **User sees:**
 - Form with fields:
   - Farm name (text, required)
-  - County Parish Holding (CPH) number (text, required, format: 12/345/6789)
+  - County Parish Holding (CPH) number (text, required, format: 06/036/0006)
   - Address line 1 (text, required)
   - Address line 2 (text, optional)
   - Town or city (text, required)
@@ -137,7 +137,7 @@ For herd owners who discover the service independently and want to register thei
 |-------|------|----------|
 | Herd in England | Boolean (yes/no) | Yes |
 | Farm name | Text | Yes |
-| CPH number | Text (format: 12/345/6789) | Yes |
+| CPH number | Text (format: 06/036/0006) | Yes |
 | Address line 1 | Text | Yes |
 | Address line 2 | Text | No |
 | Town or city | Text | Yes |

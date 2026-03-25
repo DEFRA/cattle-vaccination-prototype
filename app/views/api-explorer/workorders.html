@@ -1,0 +1,104 @@
+{% extends "layouts/main.html" %}
+
+{% set pageName="Work orders - API explorer" %}
+
+{% block content %}
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-full">
+
+    <h1 class="govuk-heading-l">Work orders explorer</h1>
+
+    <form method="post" action="/api-explorer/workorders">
+      <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+
+      <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-quarter">
+          <div class="govuk-form-group">
+            <label class="govuk-label" for="country">Country</label>
+            <select class="govuk-select" id="country" name="country">
+              <option value="England" {% if data['country'] === 'England' or not data['country'] %}selected{% endif %}>England</option>
+              <option value="Scotland" {% if data['country'] === 'Scotland' %}selected{% endif %}>Scotland</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="govuk-grid-column-one-quarter">
+          <div class="govuk-form-group">
+            <label class="govuk-label" for="startDate">Start date</label>
+            <input class="govuk-input" id="startDate" name="startDate" type="date" value="{{ data['startDate'] or defaultStartDate }}">
+          </div>
+        </div>
+
+        <div class="govuk-grid-column-one-quarter">
+          <div class="govuk-form-group">
+            <label class="govuk-label" for="endDate">End date</label>
+            <input class="govuk-input" id="endDate" name="endDate" type="date" value="{{ data['endDate'] or defaultEndDate }}">
+          </div>
+        </div>
+
+        <div class="govuk-grid-column-one-quarter">
+          <div class="govuk-form-group">
+            <label class="govuk-label" for="submit">&nbsp;</label>
+            <button class="govuk-button" data-module="govuk-button">Fetch work orders</button>
+          </div>
+        </div>
+      </div>
+
+    </form>
+
+    {% if error %}
+      <div class="govuk-error-summary" data-module="govuk-error-summary">
+        <div role="alert">
+          <h2 class="govuk-error-summary__title">There was a problem fetching work orders</h2>
+          <div class="govuk-error-summary__body">
+            <p class="govuk-body">{{ error }}</p>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    {% if workorders !== undefined %}
+      <h2 class="govuk-heading-m">
+        Results
+        <span class="govuk-tag govuk-tag--blue govuk-!-margin-left-2">{{ workorders | length }}</span>
+      </h2>
+
+      {% if workorders | length === 0 %}
+        <p class="govuk-body">No work orders found for the selected filters.</p>
+      {% else %}
+        <table class="govuk-table govuk-!-font-size-16">
+          <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+              <th class="govuk-table__header">ID</th>
+              <th class="govuk-table__header">Activation date</th>
+              <th class="govuk-table__header">Business area</th>
+              <th class="govuk-table__header">Work area</th>
+              <th class="govuk-table__header">Purpose</th>
+              <th class="govuk-table__header">Species</th>
+              <th class="govuk-table__header">Phase</th>
+              <th class="govuk-table__header">Country</th>
+            </tr>
+          </thead>
+          <tbody class="govuk-table__body">
+            {% for wo in workorders %}
+              <tr class="govuk-table__row">
+                <td class="govuk-table__cell"><code>{{ wo.id }}</code></td>
+                <td class="govuk-table__cell">{{ wo.activationDate | replace("T", " ") | truncate(10, true, "") }}</td>
+                <td class="govuk-table__cell">{{ wo.businessArea }}</td>
+                <td class="govuk-table__cell">{{ wo.workArea }}</td>
+                <td class="govuk-table__cell">{{ wo.purpose }}</td>
+                <td class="govuk-table__cell">{{ wo.species }}</td>
+                <td class="govuk-table__cell">{{ wo.phase }}</td>
+                <td class="govuk-table__cell">{{ wo.country }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endif %}
+    {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}

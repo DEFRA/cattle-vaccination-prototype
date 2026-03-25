@@ -1,9 +1,6 @@
-//
-// For guidance on how to create routes see:
-// https://prototype-kit.service.gov.uk/docs/create-routes
-//
-
 const govukPrototypeKit = require('govuk-prototype-kit')
+const { aphaRequest } = require('./services/aphaApi')
+
 const router = govukPrototypeKit.requests.setupRouter()
 
 // ============================================================
@@ -52,7 +49,7 @@ const invitationMockData = {
   },
   default: {
     farmName: 'Random Farm',
-    cphNumber: '12/345/6789',
+    cphNumber: '06/036/0006',
     addressLine1: '99 Farm Avenue',
     town: 'Leeds',
     county: 'West Yorkshire',
@@ -84,3 +81,72 @@ router.post('/invitation/preferred-dates', (req, res) => {
 router.post('/invitation/check-answers', (req, res) => {
   res.redirect('/invitation/confirmation')
 })
+
+// ============================================================
+// API explorer
+// ============================================================
+
+router.get('/api-explorer/cph', (_req, res) => {
+  res.render('api-explorer/cph')
+})
+
+router.post('/api-explorer/cph', async (req, res) => {
+  const { cph } = req.body
+
+  req.session.data.cph = cph
+
+  try {
+    const result = await aphaRequest('/holdings/find', 'POST', { ids: [cph] })
+    res.locals.cphData = JSON.stringify(result, null, 2)
+  } catch (err) {
+    res.locals.error = err.message
+  }
+
+  res.render('api-explorer/cph')
+})
+
+router.get('/api-explorer/workorders', (_req, res) => {
+  const today = new Date().toISOString().slice(0, 10)
+  res.render('api-explorer/workorders', { defaultStartDate: '2026-01-01', defaultEndDate: today })
+})
+
+router.post('/api-explorer/workorders', async (req, res) => {
+  const { country, startDate, endDate } = req.body
+
+  req.session.data.country = country
+  req.session.data.startDate = startDate
+  req.session.data.endDate = endDate
+
+  const uri = `/workorders?startActivationDate=${startDate}T00:00:00.000Z&endActivationDate=${endDate}T00:00:00.000Z&country=${country}`
+
+  try {
+    const result = await aphaRequest(uri)
+    res.locals.workorders = result.data
+  } catch (err) {
+    res.locals.error = err.message
+  }
+
+  res.render('api-explorer/workorders')
+})
+
+// EXAMPLE WORK ORDER
+// {
+//     type: 'workorders',
+//     id: 'WS-24953',
+//     activationDate: '2014-05-01T00:00:00',
+//     businessArea: 'Endemic Notifiable Disease',
+//     workArea: 'Brucellosis (Brucella abortus)',
+//     country: 'ENGLAND',
+//     aim: 'Contain / Control / Eradicate Endemic Disease',
+//     purpose: 'RHT TB Skin Test - Surveillance 48M',
+//     earliestActivityStartDate: '2014-06-30T01:00:00',
+//     species: 'Cattle',
+//     activities: [ [Object], [Object] ],
+//     phase: 'SURVLLANCEMONITORING',
+//     relationships: {
+//       customerOrOrganisation: [Object],
+//       holding: [Object],
+//       facilities: [Object],
+//       location: [Object],
+//       livestockUnits: [Object]
+// }

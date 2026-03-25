@@ -1,9 +1,7 @@
 const { test, expect } = require('@playwright/test')
 
 test.describe('Invitation to vaccinate journey', () => {
-  test('completes the full journey using reference ABC-111 (1st Farm)', async ({
-    page,
-  }) => {
+  test('completes the full journey using reference ABC-111 (1st Farm)', async ({ page }) => {
     // Start page - enter invitation reference
     await page.goto('/invitation/start')
     await expect(page).toHaveTitle(/invited to vaccinate/i)
@@ -27,9 +25,7 @@ test.describe('Invitation to vaccinate journey', () => {
     await expect(page).toHaveURL(/preferred-dates/)
     await page.getByLabel('May').check()
     await page.getByLabel('June').check()
-    await page
-      .getByLabel(/Is there anything we should know/i)
-      .fill('No access on bank holidays')
+    await page.getByLabel(/Is there anything we should know/i).fill('No access on bank holidays')
     await page.getByRole('button', { name: 'Continue' }).click()
 
     // Check answers
@@ -46,9 +42,7 @@ test.describe('Invitation to vaccinate journey', () => {
     await expect(page.getByText('ABC-111')).toBeVisible()
   })
 
-  test('completes the full journey using an unknown reference (Random Farm)', async ({
-    page,
-  }) => {
+  test('completes the full journey using an unknown reference (Random Farm)', async ({ page }) => {
     // Start page - enter any other reference
     await page.goto('/invitation/start')
     await page.getByLabel(/invitation reference/i).fill('ABC-999')
@@ -57,7 +51,7 @@ test.describe('Invitation to vaccinate journey', () => {
     // Confirm farm details - should show default data
     await expect(page).toHaveURL(/confirm-details/)
     await expect(page.getByText('Random Farm')).toBeVisible()
-    await expect(page.getByText('12/345/6789')).toBeVisible()
+    await expect(page.getByText('06/036/0006')).toBeVisible()
     await page.getByLabel('Yes, these are correct').check()
     await page.getByRole('button', { name: 'Continue' }).click()
 
