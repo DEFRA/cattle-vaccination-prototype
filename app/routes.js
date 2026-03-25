@@ -123,6 +123,9 @@ router.post('/api-explorer/workorders', async (req, res) => {
     const result = await aphaRequest(uri)
     res.locals.workorders = result.data
   } catch (err) {
+    const error = JSON.stringify(err)
+    console.log(error)
+    console.error(error)
     res.locals.error = err.message
   }
 
