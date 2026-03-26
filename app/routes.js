@@ -1,5 +1,6 @@
 const govukPrototypeKit = require('govuk-prototype-kit')
 const { aphaRequest } = require('./services/aphaApi')
+const { errorToPlainObject } = require('./misc')
 
 const router = govukPrototypeKit.requests.setupRouter()
 
@@ -123,10 +124,9 @@ router.post('/api-explorer/workorders', async (req, res) => {
     const result = await aphaRequest(uri)
     res.locals.workorders = result.data
   } catch (err) {
-    const error = JSON.stringify(err)
-    console.log(error)
-    console.error(error)
-    res.locals.error = err.message
+    const plainError = errorToPlainObject(err)
+    console.log(JSON.stringify(plainError, null, 2));
+    res.locals.error = plainError.stack
   }
 
   res.render('api-explorer/workorders')
