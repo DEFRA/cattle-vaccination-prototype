@@ -1,5 +1,5 @@
 const govukPrototypeKit = require('govuk-prototype-kit')
-const { aphaRequest } = require('./services/aphaApi')
+const { cattleVaxApiRequest } = require('./services/cattleVaxApi')
 const { errorToPlainObject } = require('./misc')
 
 const router = govukPrototypeKit.requests.setupRouter()
@@ -97,7 +97,7 @@ router.post('/api-explorer/cph', async (req, res) => {
   req.session.data.cph = cph
 
   try {
-    const result = await aphaRequest('/holdings/find', 'POST', { ids: [cph] })
+    const result = await cattleVaxApiRequest('/holdings', 'POST', { ids: [cph] })
     res.locals.cphData = JSON.stringify(result, null, 2)
   } catch (err) {
     res.locals.error = err.message
@@ -118,10 +118,10 @@ router.post('/api-explorer/workorders', async (req, res) => {
   req.session.data.startDate = startDate
   req.session.data.endDate = endDate
 
-  const uri = `/workorders?startActivationDate=${startDate}T00:00:00.000Z&endActivationDate=${endDate}T00:00:00.000Z&country=${country}`
+  const uri = `/workorders?startDate=${startDate}&endDate=${endDate}&country=${country}`
 
   try {
-    const result = await aphaRequest(uri)
+    const result = await cattleVaxApiRequest(uri)
     res.locals.workorders = result.data
   } catch (err) {
     const plainError = errorToPlainObject(err)
