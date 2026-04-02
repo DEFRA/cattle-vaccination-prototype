@@ -1,0 +1,99 @@
+{% extends "layouts/main.html" %}
+
+{% set pageName="Cattle on holding - API explorer" %}
+
+{% block content %}
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-full">
+
+    <span class="govuk-caption-l">API explorer — Livestock</span>
+    <h1 class="govuk-heading-l">Cattle on holding</h1>
+
+    <form method="post" action="/api-explorer/livestock/cattle-on-holding">
+      <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+
+      <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-half">
+          <div class="govuk-form-group">
+            <label class="govuk-label" for="holdingId">Holding ID</label>
+            <div id="holdingId-hint" class="govuk-hint">For example, 06/036/0006</div>
+            <input class="govuk-input govuk-input--width-10" id="holdingId" name="holdingId" type="text"
+              value="{{ data['holdingId'] }}" aria-describedby="holdingId-hint" spellcheck="false">
+          </div>
+        </div>
+
+        <div class="govuk-grid-column-one-quarter">
+          <div class="govuk-form-group">
+            <label class="govuk-label" for="submit">&nbsp;</label>
+            <button class="govuk-button" data-module="govuk-button">Fetch cattle</button>
+          </div>
+        </div>
+      </div>
+
+    </form>
+
+    {% if error %}
+      <div class="govuk-error-summary" data-module="govuk-error-summary">
+        <div role="alert">
+          <h2 class="govuk-error-summary__title">There was a problem fetching cattle on holding</h2>
+          <div class="govuk-error-summary__body">
+            <p class="govuk-body">{{ error }}</p>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    {% if cattleData !== undefined %}
+      {% set cattle = cattleData if cattleData is iterable and cattleData | length > 0 and cattleData[0] is defined else null %}
+
+      <h2 class="govuk-heading-m">
+        Results
+        {% if cattleData is iterable and cattleData[0] is defined %}
+          <span class="govuk-tag govuk-tag--blue govuk-!-margin-left-2">{{ cattleData | length }}</span>
+        {% endif %}
+      </h2>
+
+      {% if cattleData is iterable and cattleData[0] is defined %}
+        {% if cattleData | length === 0 %}
+          <p class="govuk-body">No cattle found on this holding.</p>
+        {% else %}
+          <table class="govuk-table govuk-!-font-size-16">
+            <thead class="govuk-table__head">
+              <tr class="govuk-table__row">
+                <th class="govuk-table__header">Ear tag</th>
+                <th class="govuk-table__header">Breed</th>
+                <th class="govuk-table__header">Sex</th>
+                <th class="govuk-table__header">Date of birth</th>
+                <th class="govuk-table__header">Date arrived</th>
+              </tr>
+            </thead>
+            <tbody class="govuk-table__body">
+              {% for animal in cattleData %}
+                <tr class="govuk-table__row">
+                  <td class="govuk-table__cell"><code>{{ animal.earTagNumber or animal.earTag or animal.id or '—' }}</code></td>
+                  <td class="govuk-table__cell">{{ animal.breed or animal.breedDescription or '—' }}</td>
+                  <td class="govuk-table__cell">{{ animal.sex or animal.gender or '—' }}</td>
+                  <td class="govuk-table__cell">{{ animal.dateOfBirth or animal.dob or '—' }}</td>
+                  <td class="govuk-table__cell">{{ animal.dateArrived or animal.arrivalDate or '—' }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% endif %}
+      {% endif %}
+
+      <details class="govuk-details govuk-!-margin-top-4">
+        <summary class="govuk-details__summary">
+          <span class="govuk-details__summary-text">Raw API response</span>
+        </summary>
+        <div class="govuk-details__text">
+          <pre class="govuk-body" style="background: #f3f2f1; padding: 1rem; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-family: monospace; font-size: 14px;">{{ cattleDataJson }}</pre>
+        </div>
+      </details>
+    {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}
