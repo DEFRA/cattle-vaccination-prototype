@@ -132,24 +132,95 @@ router.post('/api-explorer/workorders', async (req, res) => {
   res.render('api-explorer/workorders')
 })
 
+// ============================================================
+// API explorer — Livestock
+// ============================================================
+
+router.get('/api-explorer/livestock/cattle-on-holding', (_req, res) => {
+  res.render('api-explorer/livestock/cattle-on-holding')
+})
+
+router.post('/api-explorer/livestock/cattle-on-holding', async (req, res) => {
+  const { holdingId } = req.body
+
+  req.session.data.holdingId = holdingId
+
+  try {
+    const result = await cattleVaxApiRequest(`/cattle-on-holding?holdingId=${encodeURIComponent(holdingId)}`)
+    res.locals.cattleData = result
+    res.locals.cattleDataJson = JSON.stringify(result, null, 2)
+  } catch (err) {
+    const plainError = errorToPlainObject(err)
+    console.log(JSON.stringify(plainError, null, 2))
+    res.locals.error = err.message
+  }
+
+  res.render('api-explorer/livestock/cattle-on-holding')
+})
+
 // EXAMPLE WORK ORDER
 // {
-//     type: 'workorders',
-//     id: 'WS-24953',
-//     activationDate: '2014-05-01T00:00:00',
-//     businessArea: 'Endemic Notifiable Disease',
-//     workArea: 'Brucellosis (Brucella abortus)',
-//     country: 'ENGLAND',
-//     aim: 'Contain / Control / Eradicate Endemic Disease',
-//     purpose: 'RHT TB Skin Test - Surveillance 48M',
-//     earliestActivityStartDate: '2014-06-30T01:00:00',
-//     species: 'Cattle',
-//     activities: [ [Object], [Object] ],
-//     phase: 'SURVLLANCEMONITORING',
-//     relationships: {
-//       customerOrOrganisation: [Object],
-//       holding: [Object],
-//       facilities: [Object],
-//       location: [Object],
-//       livestockUnits: [Object]
+//     "type": "workorders",
+//     "id": "WS-76867",
+//     "activationDate": "2026-01-02T00:00:00",
+//     "targetDate": "2026-02-01T23:59:59",
+//     "businessArea": "Endemic Notifiable Disease",
+//     "workArea": "Tuberculosis",
+//     "country": "ENGLAND",
+//     "aim": "Contain / Control / Eradicate Endemic Disease",
+//     "purpose": "Overdue TB Test Stage 1 (Surveillance)",
+//     "earliestActivityStartDate": null,
+//     "species": "Cattle",
+//     "activities": [
+//         {
+//             "type": "activities",
+//             "id": "WSA-109545",
+//             "activityName": "Assessment Of Overdue Status - Stage 1",
+//             "sequenceNumber": 1
+//         },
+//         {
+//             "type": "activities",
+//             "id": "WSA-109547",
+//             "activityName": "Issue 1st Warning Letter",
+//             "sequenceNumber": 2
+//         },
+//         {
+//             "type": "activities",
+//             "id": "WSA-109549",
+//             "activityName": "Hand Delivery Of Notices",
+//             "sequenceNumber": 3
+//         }
+//     ],
+//     "phase": "FOLLOWUP",
+//     "relationships": {
+//         "customerOrOrganisation": {
+//             "data": {
+//                 "type": "customers",
+//                 "id": "C108906"
+//             }
+//         },
+//         "holding": {
+//             "data": {
+//                 "type": "holdings",
+//                 "id": "55/063/0382"
+//             }
+//         },
+//         "facilities": {
+//             "data": []
+//         },
+//         "location": {
+//             "data": {
+//                 "type": "locations",
+//                 "id": "L65192"
+//             }
+//         },
+//         "livestockUnits": {
+//             "data": [
+//                 {
+//                     "type": "animal-commodities",
+//                     "id": "U1006276"
+//                 }
+//             ]
+//         }
+//     }
 // }
