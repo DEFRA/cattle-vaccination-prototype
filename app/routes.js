@@ -133,6 +133,83 @@ router.post('/api-explorer/workorders', async (req, res) => {
 })
 
 // ============================================================
+// API explorer — Cases
+// ============================================================
+
+router.get('/api-explorer/cases', (_req, res) => {
+  res.render('api-explorer/cases')
+})
+
+router.post('/api-explorer/cases', async (req, res) => {
+  const {
+    cphNumber, reasonForTest, testWindowStart, testWindowEnd,
+    testPart_day1, testPart_day2, testPart_certifyingVet, testPart_tester,
+    result_testType, result_earTagNo,
+    result_batchAvian, result_batchBovine, result_batchDiva,
+    result_day1Avian, result_day1Bovine, result_day1Diva,
+    result_day2Avian, result_day2Bovine, result_day2Diva,
+    result_resultAfterReview
+  } = req.body
+
+  Object.assign(req.session.data, {
+    cphNumber, reasonForTest, testWindowStart, testWindowEnd,
+    testPart_day1, testPart_day2, testPart_certifyingVet, testPart_tester,
+    result_testType, result_earTagNo,
+    result_batchAvian, result_batchBovine, result_batchDiva,
+    result_day1Avian, result_day1Bovine, result_day1Diva,
+    result_day2Avian, result_day2Bovine, result_day2Diva,
+    result_resultAfterReview
+  })
+
+  const parseOptionalNumber = (val) => (val !== '' && val !== undefined ? Number(val) : null)
+  const parseOptionalString = (val) => (val !== '' && val !== undefined ? val : null)
+
+  const payload = {
+    cphNumber,
+    reasonForTest,
+    testWindowStart,
+    testWindowEnd,
+    testParts: [
+      {
+        day1: testPart_day1,
+        day2: testPart_day2,
+        certifyingVet: testPart_certifyingVet,
+        tester: testPart_tester,
+        results: [
+          {
+            testType: result_testType,
+            earTagNo: result_earTagNo,
+            batchAvian: parseOptionalString(result_batchAvian),
+            batchBovine: parseOptionalString(result_batchBovine),
+            batchDiva: parseOptionalString(result_batchDiva),
+            day1Avian: parseOptionalNumber(result_day1Avian),
+            day1Bovine: parseOptionalNumber(result_day1Bovine),
+            day1Diva: parseOptionalNumber(result_day1Diva),
+            day2Avian: parseOptionalNumber(result_day2Avian),
+            day2Bovine: parseOptionalNumber(result_day2Bovine),
+            day2Diva: parseOptionalNumber(result_day2Diva),
+            resultAfterReview: parseOptionalString(result_resultAfterReview)
+          }
+        ]
+      }
+    ]
+  }
+
+  res.locals.requestPayload = JSON.stringify(payload, null, 2)
+
+  try {
+    const result = await cattleVaxApiRequest('/cases', 'POST', payload)
+    res.locals.caseData = JSON.stringify(result, null, 2)
+  } catch (err) {
+    const plainError = errorToPlainObject(err)
+    console.log(JSON.stringify(plainError, null, 2))
+    res.locals.error = err.message
+  }
+
+  res.render('api-explorer/cases')
+})
+
+// ============================================================
 // API explorer — Livestock
 // ============================================================
 
