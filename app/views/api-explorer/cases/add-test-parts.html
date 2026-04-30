@@ -1,0 +1,260 @@
+{% extends "layouts/main.html" %}
+
+{% set pageName="Add test parts - API explorer" %}
+
+{% block content %}
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+    <span class="govuk-caption-l">API explorer — Cases</span>
+    <h1 class="govuk-heading-l">Add test parts</h1>
+    <p class="govuk-body">Case: {{ caseNumber }}</p>
+
+    <form method="post" action="/api-explorer/cases/{{ caseId }}/add-test-parts?caseNumber={{ caseNumber }}">
+      <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+
+      <h2 class="govuk-heading-m">Test part</h2>
+
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="testPart_day1">Day 1 date</label>
+        <input class="govuk-input govuk-input--width-10" id="testPart_day1" name="testPart_day1" type="date"
+          value="{{ data['testPart_day1'] }}" required>
+      </div>
+
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="testPart_day2">Day 2 date</label>
+        <input class="govuk-input govuk-input--width-10" id="testPart_day2" name="testPart_day2" type="date"
+          value="{{ data['testPart_day2'] }}" required>
+      </div>
+
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="testPart_certifyingVet">Certifying vet</label>
+        <input class="govuk-input" id="testPart_certifyingVet" name="testPart_certifyingVet" type="text"
+          value="{{ data['testPart_certifyingVet'] }}" required>
+      </div>
+
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="testPart_tester">Tester</label>
+        <input class="govuk-input" id="testPart_tester" name="testPart_tester" type="text"
+          value="{{ data['testPart_tester'] }}" required>
+      </div>
+
+      <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+
+      <h2 class="govuk-heading-m">Results</h2>
+
+      <div id="results-container">
+        <div class="result-row">
+          <h3 class="govuk-heading-s result-row-heading">Result 1</h3>
+          <button type="button" class="govuk-button govuk-button--secondary remove-result-btn" style="display:none">Remove this result</button>
+
+          <div class="govuk-form-group">
+            <label class="govuk-label">Test type</label>
+            <select class="govuk-select" name="result_testType[]">
+              <option value="DIVA">DIVA</option>
+              <option value="SICCT">SICCT</option>
+            </select>
+          </div>
+
+          <div class="govuk-form-group">
+            <label class="govuk-label">Ear tag number</label>
+            <input class="govuk-input govuk-input--width-10" name="result_earTagNo[]" type="text"
+              spellcheck="false" maxlength="20">
+          </div>
+
+          <details class="govuk-details">
+            <summary class="govuk-details__summary">
+              <span class="govuk-details__summary-text">Optional batch and measurement fields</span>
+            </summary>
+            <div class="govuk-details__text">
+
+              <div class="govuk-form-group">
+                <label class="govuk-label">Batch — Avian</label>
+                <input class="govuk-input govuk-input--width-10" name="result_batchAvian[]" type="text" maxlength="20">
+              </div>
+
+              <div class="govuk-form-group">
+                <label class="govuk-label">Batch — Bovine</label>
+                <input class="govuk-input govuk-input--width-10" name="result_batchBovine[]" type="text" maxlength="20">
+              </div>
+
+              <div class="govuk-form-group">
+                <label class="govuk-label">Batch — DIVA</label>
+                <input class="govuk-input govuk-input--width-10" name="result_batchDiva[]" type="text" maxlength="20">
+              </div>
+
+              <div class="govuk-form-group">
+                <label class="govuk-label">Day 1 — Avian (mm)</label>
+                <input class="govuk-input govuk-input--width-5" name="result_day1Avian[]" type="number" min="0" max="999" step="1">
+              </div>
+
+              <div class="govuk-form-group">
+                <label class="govuk-label">Day 1 — Bovine (mm)</label>
+                <input class="govuk-input govuk-input--width-5" name="result_day1Bovine[]" type="number" min="0" max="999" step="1">
+              </div>
+
+              <div class="govuk-form-group">
+                <label class="govuk-label">Day 1 — DIVA (mm)</label>
+                <input class="govuk-input govuk-input--width-5" name="result_day1Diva[]" type="number" min="0" max="999" step="1">
+              </div>
+
+              <div class="govuk-form-group">
+                <label class="govuk-label">Day 2 — Avian (mm)</label>
+                <input class="govuk-input govuk-input--width-5" name="result_day2Avian[]" type="number" min="0" max="999" step="1">
+              </div>
+
+              <div class="govuk-form-group">
+                <label class="govuk-label">Day 2 — Bovine (mm)</label>
+                <input class="govuk-input govuk-input--width-5" name="result_day2Bovine[]" type="number" min="0" max="999" step="1">
+              </div>
+
+              <div class="govuk-form-group">
+                <label class="govuk-label">Day 2 — DIVA (mm)</label>
+                <input class="govuk-input govuk-input--width-5" name="result_day2Diva[]" type="number" min="0" max="999" step="1">
+              </div>
+
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <template id="result-row-template">
+        <div class="result-row">
+          <h3 class="govuk-heading-s result-row-heading"></h3>
+          <button type="button" class="govuk-button govuk-button--secondary remove-result-btn">Remove this result</button>
+
+          <div class="govuk-form-group">
+            <label class="govuk-label">Test type</label>
+            <select class="govuk-select" name="result_testType[]">
+              <option value="DIVA">DIVA</option>
+              <option value="SICCT">SICCT</option>
+            </select>
+          </div>
+
+          <div class="govuk-form-group">
+            <label class="govuk-label">Ear tag number</label>
+            <input class="govuk-input govuk-input--width-10" name="result_earTagNo[]" type="text"
+              spellcheck="false" maxlength="20">
+          </div>
+
+          <details class="govuk-details">
+            <summary class="govuk-details__summary">
+              <span class="govuk-details__summary-text">Optional batch and measurement fields</span>
+            </summary>
+            <div class="govuk-details__text">
+
+              <div class="govuk-form-group">
+                <label class="govuk-label">Batch — Avian</label>
+                <input class="govuk-input govuk-input--width-10" name="result_batchAvian[]" type="text" maxlength="20">
+              </div>
+
+              <div class="govuk-form-group">
+                <label class="govuk-label">Batch — Bovine</label>
+                <input class="govuk-input govuk-input--width-10" name="result_batchBovine[]" type="text" maxlength="20">
+              </div>
+
+              <div class="govuk-form-group">
+                <label class="govuk-label">Batch — DIVA</label>
+                <input class="govuk-input govuk-input--width-10" name="result_batchDiva[]" type="text" maxlength="20">
+              </div>
+
+              <div class="govuk-form-group">
+                <label class="govuk-label">Day 1 — Avian (mm)</label>
+                <input class="govuk-input govuk-input--width-5" name="result_day1Avian[]" type="number" min="0" max="999" step="1">
+              </div>
+
+              <div class="govuk-form-group">
+                <label class="govuk-label">Day 1 — Bovine (mm)</label>
+                <input class="govuk-input govuk-input--width-5" name="result_day1Bovine[]" type="number" min="0" max="999" step="1">
+              </div>
+
+              <div class="govuk-form-group">
+                <label class="govuk-label">Day 1 — DIVA (mm)</label>
+                <input class="govuk-input govuk-input--width-5" name="result_day1Diva[]" type="number" min="0" max="999" step="1">
+              </div>
+
+              <div class="govuk-form-group">
+                <label class="govuk-label">Day 2 — Avian (mm)</label>
+                <input class="govuk-input govuk-input--width-5" name="result_day2Avian[]" type="number" min="0" max="999" step="1">
+              </div>
+
+              <div class="govuk-form-group">
+                <label class="govuk-label">Day 2 — Bovine (mm)</label>
+                <input class="govuk-input govuk-input--width-5" name="result_day2Bovine[]" type="number" min="0" max="999" step="1">
+              </div>
+
+              <div class="govuk-form-group">
+                <label class="govuk-label">Day 2 — DIVA (mm)</label>
+                <input class="govuk-input govuk-input--width-5" name="result_day2Diva[]" type="number" min="0" max="999" step="1">
+              </div>
+
+            </div>
+          </details>
+        </div>
+      </template>
+
+      <p>
+        <button type="button" class="govuk-button govuk-button--secondary" id="add-result-btn">Add another result</button>
+      </p>
+
+      {% if error %}
+        <div class="govuk-error-summary" data-module="govuk-error-summary">
+          <div role="alert">
+            <h2 class="govuk-error-summary__title">There was a problem submitting test parts</h2>
+            <div class="govuk-error-summary__body">
+              <p class="govuk-body">{{ error }}</p>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
+      <button class="govuk-button" data-module="govuk-button">Submit test parts</button>
+      <p class="govuk-body"><a class="govuk-link" href="/api-explorer/cases/{{ caseId }}">Back to case</a></p>
+
+    </form>
+
+  </div>
+</div>
+
+<script>
+  const MAX_RESULTS = 20
+  const container = document.getElementById('results-container')
+  const addBtn = document.getElementById('add-result-btn')
+  const template = document.getElementById('result-row-template')
+
+  function getRows() {
+    return container.querySelectorAll('.result-row')
+  }
+
+  function updateUI() {
+    const rows = getRows()
+    rows.forEach((row, i) => {
+      row.querySelector('.result-row-heading').textContent = 'Result ' + (i + 1)
+      row.querySelector('.remove-result-btn').style.display = rows.length > 1 ? '' : 'none'
+    })
+    addBtn.disabled = rows.length >= MAX_RESULTS
+  }
+
+  function wireRemoveButton(row) {
+    row.querySelector('.remove-result-btn').addEventListener('click', function () {
+      row.remove()
+      updateUI()
+    })
+  }
+
+  wireRemoveButton(container.querySelector('.result-row'))
+
+  addBtn.addEventListener('click', function () {
+    if (getRows().length >= MAX_RESULTS) return
+    const clone = template.content.cloneNode(true)
+    const row = clone.querySelector('.result-row')
+    wireRemoveButton(row)
+    container.appendChild(row)
+    updateUI()
+  })
+
+  updateUI()
+</script>
+
+{% endblock %}

@@ -1,226 +1,46 @@
 {% extends "layouts/main.html" %}
 
-{% set pageName="Create case - API explorer" %}
+{% set pageName="Cases - API explorer" %}
 
 {% block content %}
 
 <div class="govuk-grid-row">
-  <div class="govuk-grid-column-full">
+  <div class="govuk-grid-column-two-thirds">
 
-    <span class="govuk-caption-l">API explorer — Cases</span>
-    <h1 class="govuk-heading-l">Create case</h1>
+    <span class="govuk-caption-l">API explorer</span>
+    <h1 class="govuk-heading-l">Cases</h1>
 
-    <form method="post" action="/api-explorer/cases">
-      <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+    <h2 class="govuk-heading-m">Create a new case</h2>
+    <p class="govuk-body">Create a Salesforce case with case details only. You can add test parts after creation.</p>
+    <a href="/api-explorer/cases/create" role="button" draggable="false" class="govuk-button">
+      Create a case
+    </a>
 
-      <h2 class="govuk-heading-m">Case details</h2>
+    <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
 
-      <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-half">
+    <h2 class="govuk-heading-m">Look up an existing case</h2>
+    <p class="govuk-body">Enter a case number to view the case and add test parts.</p>
 
-          <div class="govuk-form-group">
-            <label class="govuk-label" for="cphNumber">CPH number</label>
-            <div id="cphNumber-hint" class="govuk-hint">For example, 01/001/0006</div>
-            <input class="govuk-input govuk-input--width-10" id="cphNumber" name="cphNumber" type="text"
-              value="{{ data['cphNumber'] }}" aria-describedby="cphNumber-hint" spellcheck="false">
-          </div>
-
-          <div class="govuk-form-group">
-            <label class="govuk-label" for="reasonForTest">Reason for test</label>
-            <select class="govuk-select" id="reasonForTest" name="reasonForTest">
-              <option value="Radial" {% if data['reasonForTest'] === 'Radial' %}selected{% endif %}>Radial</option>
-              <option value="6W" {% if data['reasonForTest'] === '6W' %}selected{% endif %}>6W</option>
-              <option value="6M" {% if data['reasonForTest'] === '6M' %}selected{% endif %}>6M</option>
-              <option value="12M" {% if data['reasonForTest'] === '12M' %}selected{% endif %}>12M</option>
-              <option value="48M" {% if data['reasonForTest'] === '48M' %}selected{% endif %}>48M</option>
-              <option value="Pre-Movement" {% if data['reasonForTest'] === 'Pre-Movement' %}selected{% endif %}>Pre-Movement</option>
-              <option value="Post-Movement" {% if data['reasonForTest'] === 'Post-Movement' %}selected{% endif %}>Post-Movement</option>
-            </select>
-          </div>
-
-          <div class="govuk-form-group">
-            <label class="govuk-label" for="testWindowStart">Test window start</label>
-            <div id="testWindowStart-hint" class="govuk-hint">ISO date, for example 2026-01-01</div>
-            <input class="govuk-input govuk-input--width-10" id="testWindowStart" name="testWindowStart" type="date"
-              value="{{ data['testWindowStart'] }}" aria-describedby="testWindowStart-hint">
-          </div>
-
-          <div class="govuk-form-group">
-            <label class="govuk-label" for="testWindowEnd">Test window end</label>
-            <div id="testWindowEnd-hint" class="govuk-hint">ISO date, for example 2026-02-01</div>
-            <input class="govuk-input govuk-input--width-10" id="testWindowEnd" name="testWindowEnd" type="date"
-              value="{{ data['testWindowEnd'] }}" aria-describedby="testWindowEnd-hint">
-          </div>
-
-        </div>
-      </div>
-
-      <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-
-      <h2 class="govuk-heading-m">Test part</h2>
-      <p class="govuk-body govuk-hint">This form supports a single test part with a single result.</p>
-
-      <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-half">
-
-          <div class="govuk-form-group">
-            <label class="govuk-label" for="testPart_day1">Day 1 date</label>
-            <input class="govuk-input govuk-input--width-10" id="testPart_day1" name="testPart_day1" type="date"
-              value="{{ data['testPart_day1'] }}">
-          </div>
-
-          <div class="govuk-form-group">
-            <label class="govuk-label" for="testPart_day2">Day 2 date</label>
-            <input class="govuk-input govuk-input--width-10" id="testPart_day2" name="testPart_day2" type="date"
-              value="{{ data['testPart_day2'] }}">
-          </div>
-
-          <div class="govuk-form-group">
-            <label class="govuk-label" for="testPart_certifyingVet">Certifying vet</label>
-            <input class="govuk-input" id="testPart_certifyingVet" name="testPart_certifyingVet" type="text"
-              value="{{ data['testPart_certifyingVet'] }}">
-          </div>
-
-          <div class="govuk-form-group">
-            <label class="govuk-label" for="testPart_tester">Tester</label>
-            <input class="govuk-input" id="testPart_tester" name="testPart_tester" type="text"
-              value="{{ data['testPart_tester'] }}">
-          </div>
-
-        </div>
-      </div>
-
-      <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-
-      <h2 class="govuk-heading-m">Test Part Results</h2>
-
-      <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-half">
-
-          <div class="govuk-form-group">
-            <label class="govuk-label" for="result_testType">Test type</label>
-            <select class="govuk-select" id="result_testType" name="result_testType">
-              <option value="DIVA" {% if data['result_testType'] === 'DIVA' %}selected{% endif %}>DIVA</option>
-              <option value="SICCT" {% if data['result_testType'] === 'SICCT' %}selected{% endif %}>SICCT</option>
-            </select>
-          </div>
-
-          <div class="govuk-form-group">
-            <label class="govuk-label" for="result_earTagNo">Ear tag number</label>
-            <input class="govuk-input govuk-input--width-10" id="result_earTagNo" name="result_earTagNo" type="text"
-              value="{{ data['result_earTagNo'] }}" spellcheck="false" maxlength="20" required>
-          </div>
-
-          <details class="govuk-details">
-            <summary class="govuk-details__summary">
-              <span class="govuk-details__summary-text">Optional batch and measurement fields</span>
-            </summary>
-            <div class="govuk-details__text">
-
-              <div class="govuk-form-group">
-                <label class="govuk-label" for="result_batchAvian">Batch — Avian</label>
-                <input class="govuk-input govuk-input--width-10" id="result_batchAvian" name="result_batchAvian" type="text"
-                  value="{{ data['result_batchAvian'] }}" maxlength="20">
-              </div>
-
-              <div class="govuk-form-group">
-                <label class="govuk-label" for="result_batchBovine">Batch — Bovine</label>
-                <input class="govuk-input govuk-input--width-10" id="result_batchBovine" name="result_batchBovine" type="text"
-                  value="{{ data['result_batchBovine'] }}" maxlength="20">
-              </div>
-
-              <div class="govuk-form-group">
-                <label class="govuk-label" for="result_batchDiva">Batch — DIVA</label>
-                <input class="govuk-input govuk-input--width-10" id="result_batchDiva" name="result_batchDiva" type="text"
-                  value="{{ data['result_batchDiva'] }}" maxlength="20">
-              </div>
-
-              <div class="govuk-form-group">
-                <label class="govuk-label" for="result_day1Avian">Day 1 — Avian (mm)</label>
-                <input class="govuk-input govuk-input--width-5" id="result_day1Avian" name="result_day1Avian" type="number"
-                  value="{{ data['result_day1Avian'] }}" min="0" max="999" step="1">
-              </div>
-
-              <div class="govuk-form-group">
-                <label class="govuk-label" for="result_day1Bovine">Day 1 — Bovine (mm)</label>
-                <input class="govuk-input govuk-input--width-5" id="result_day1Bovine" name="result_day1Bovine" type="number"
-                  value="{{ data['result_day1Bovine'] }}" min="0" max="999" step="1">
-              </div>
-
-              <div class="govuk-form-group">
-                <label class="govuk-label" for="result_day1Diva">Day 1 — DIVA (mm)</label>
-                <input class="govuk-input govuk-input--width-5" id="result_day1Diva" name="result_day1Diva" type="number"
-                  value="{{ data['result_day1Diva'] }}" min="0" max="999" step="1">
-              </div>
-
-              <div class="govuk-form-group">
-                <label class="govuk-label" for="result_day2Avian">Day 2 — Avian (mm)</label>
-                <input class="govuk-input govuk-input--width-5" id="result_day2Avian" name="result_day2Avian" type="number"
-                  value="{{ data['result_day2Avian'] }}" min="0" max="999" step="1">
-              </div>
-
-              <div class="govuk-form-group">
-                <label class="govuk-label" for="result_day2Bovine">Day 2 — Bovine (mm)</label>
-                <input class="govuk-input govuk-input--width-5" id="result_day2Bovine" name="result_day2Bovine" type="number"
-                  value="{{ data['result_day2Bovine'] }}" min="0" max="999" step="1">
-              </div>
-
-              <div class="govuk-form-group">
-                <label class="govuk-label" for="result_day2Diva">Day 2 — DIVA (mm)</label>
-                <input class="govuk-input govuk-input--width-5" id="result_day2Diva" name="result_day2Diva" type="number"
-                  value="{{ data['result_day2Diva'] }}" min="0" max="999" step="1">
-              </div>
-
-              <div class="govuk-form-group">
-                <label class="govuk-label" for="result_resultAfterReview">Result after review</label>
-                <input class="govuk-input" id="result_resultAfterReview" name="result_resultAfterReview" type="text"
-                  value="{{ data['result_resultAfterReview'] }}">
-              </div>
-
-            </div>
-          </details>
-
-        </div>
-      </div>
-
-      <button class="govuk-button" data-module="govuk-button">Create case</button>
-
-    </form>
-
-    {% if error %}
+    {% if searchError %}
       <div class="govuk-error-summary" data-module="govuk-error-summary">
         <div role="alert">
-          <h2 class="govuk-error-summary__title">There was a problem creating the case</h2>
+          <h2 class="govuk-error-summary__title">There was a problem finding the case</h2>
           <div class="govuk-error-summary__body">
-            <p class="govuk-body">{{ error }}</p>
+            <p class="govuk-body">{{ searchError }}</p>
           </div>
         </div>
       </div>
     {% endif %}
 
-    {% if requestPayload !== undefined %}
-      <details class="govuk-details">
-        <summary class="govuk-details__summary">
-          <span class="govuk-details__summary-text">Request payload sent</span>
-        </summary>
-        <div class="govuk-details__text">
-          <pre class="govuk-body" style="background: #f3f2f1; padding: 1rem; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-family: monospace; font-size: 14px;">{{ requestPayload }}</pre>
-        </div>
-      </details>
-    {% endif %}
-
-    {% if caseData !== undefined %}
-      <h2 class="govuk-heading-m">Response</h2>
-      <div class="govuk-notification-banner govuk-notification-banner--success" role="alert" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
-        <div class="govuk-notification-banner__header">
-          <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">Success</h2>
-        </div>
-        <div class="govuk-notification-banner__content">
-          <p class="govuk-body">Case created successfully.</p>
-        </div>
+    <form method="post" action="/api-explorer/cases/search">
+      <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="caseNumber">Case number</label>
+        <input class="govuk-input govuk-input--width-20" id="caseNumber" name="caseNumber" type="text"
+          spellcheck="false">
       </div>
-      <pre class="govuk-body" style="background: #f3f2f1; padding: 1rem; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-family: monospace; font-size: 14px;">{{ caseData }}</pre>
-    {% endif %}
+      <button class="govuk-button govuk-button--secondary" data-module="govuk-button">Look up case</button>
+    </form>
 
   </div>
 </div>
