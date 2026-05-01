@@ -1,0 +1,69 @@
+{% extends "layouts/main.html" %}
+
+{% set pageName="Create case - API explorer" %}
+
+{% block content %}
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+    <span class="govuk-caption-l">API explorer — Cases</span>
+    <h1 class="govuk-heading-l">Create case</h1>
+
+    <form method="post" action="/api-explorer/cases/create">
+      <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="cphNumber">CPH number</label>
+        <div id="cphNumber-hint" class="govuk-hint">For example, 01/001/0006</div>
+        <input class="govuk-input govuk-input--width-10" id="cphNumber" name="cphNumber" type="text"
+          value="{{ data['cphNumber'] }}" aria-describedby="cphNumber-hint" spellcheck="false" required>
+      </div>
+
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="reasonForTest">Reason for test</label>
+        <select class="govuk-select" id="reasonForTest" name="reasonForTest">
+          <option value="Radial" {% if data['reasonForTest'] === 'Radial' %}selected{% endif %}>Radial</option>
+          <option value="6W" {% if data['reasonForTest'] === '6W' %}selected{% endif %}>6W</option>
+          <option value="6M" {% if data['reasonForTest'] === '6M' %}selected{% endif %}>6M</option>
+          <option value="12M" {% if data['reasonForTest'] === '12M' %}selected{% endif %}>12M</option>
+          <option value="48M" {% if data['reasonForTest'] === '48M' %}selected{% endif %}>48M</option>
+          <option value="Pre-Movement" {% if data['reasonForTest'] === 'Pre-Movement' %}selected{% endif %}>Pre-Movement</option>
+          <option value="Post-Movement" {% if data['reasonForTest'] === 'Post-Movement' %}selected{% endif %}>Post-Movement</option>
+        </select>
+      </div>
+
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="testWindowStart">Test window start</label>
+        <div id="testWindowStart-hint" class="govuk-hint">ISO date, for example 2026-01-01</div>
+        <input class="govuk-input govuk-input--width-10" id="testWindowStart" name="testWindowStart" type="date"
+          value="{{ data['testWindowStart'] }}" aria-describedby="testWindowStart-hint" required>
+      </div>
+
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="testWindowEnd">Test window end</label>
+        <div id="testWindowEnd-hint" class="govuk-hint">ISO date, for example 2026-02-01</div>
+        <input class="govuk-input govuk-input--width-10" id="testWindowEnd" name="testWindowEnd" type="date"
+          value="{{ data['testWindowEnd'] }}" aria-describedby="testWindowEnd-hint" required>
+      </div>
+
+      {% if error %}
+        <div class="govuk-error-summary" data-module="govuk-error-summary">
+          <div role="alert">
+            <h2 class="govuk-error-summary__title">There was a problem creating the case</h2>
+            <div class="govuk-error-summary__body">
+              <p class="govuk-body">{{ error }}</p>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
+      <button class="govuk-button" data-module="govuk-button">Create case</button>
+      <p class="govuk-body"><a class="govuk-link" href="/api-explorer/cases">Back to cases</a></p>
+
+    </form>
+
+  </div>
+</div>
+
+{% endblock %}
