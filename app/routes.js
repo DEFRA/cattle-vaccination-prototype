@@ -161,7 +161,7 @@ router.post('/api-explorer/cases/search', async (req, res) => {
   const { caseNumber } = req.body
   try {
     const result = await cattleVaxApiRequest(`/cases?caseNumber=${encodeURIComponent(caseNumber.trim())}`)
-    res.redirect(`/api-explorer/cases/${encodeURIComponent(result.id)}`)
+    res.redirect(`/api-explorer/cases/${encodeURIComponent(result.caseId)}`)
   } catch (err) {
     res.locals.searchError = err.message
     res.render('api-explorer/cases')
@@ -206,7 +206,6 @@ router.get('/api-explorer/cases/:caseId', async (req, res) => {
       testPart.day2 = formatDate(testPart.day2)
     }
     res.locals.caseData = caseData
-    res.locals.caseDataJson = JSON.stringify(caseData, null, 2)
     if (req.query.success) {
       res.locals.successMessage = req.query.success
     }
@@ -249,7 +248,7 @@ router.post('/api-explorer/cases/:caseId/add-test-parts', async (req, res) => {
 
   const results = earTagNos
     .map((earTagNo, i) => ({
-      testType: testTypes[i] || 'SICCT',
+      testType: testTypes[i],
       earTagNo,
       batchAvian: parseOptionalString(batchAvians[i]),
       batchBovine: parseOptionalString(batchBovines[i]),
