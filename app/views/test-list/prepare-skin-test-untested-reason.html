@@ -1,0 +1,173 @@
+{% extends "layouts/main.html" %}
+
+{% block pageTitle %}
+  Why will this animal not be tested? – GOV.UK
+{% endblock %}
+
+{% block beforeContent %}
+  <a href="{{ backHref }}" class="govuk-back-link">Back</a>
+{% endblock %}
+
+{% block content %}
+<style>
+  .app-progress-summary { margin: 0 0 20px; }
+
+  .app-animal { margin: 0 0 25px; }
+  .app-animal__ear-tag-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0 0 12px;
+  }
+  .app-animal__ear-tag {
+    font-size: 24px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+  .app-animal__ear-tag-prefix { margin-right: 0; }
+  .app-animal__ear-tag-last {
+    padding: 2px 8px;
+    margin-left: 2px;
+    border: 2px solid #0b0c0c;
+  }
+  .app-tag-dark {
+    display: inline-block;
+    background-color: #f3f2f1;
+    color: #505a5f;
+    font-family: "GDS Transport", arial, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 4px 10px;
+    text-transform: uppercase;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+  .app-animal__meta {
+    margin: 0;
+    line-height: 1.5;
+  }
+  .app-animal__meta-item {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 4px 0;
+  }
+  .app-animal__meta dt {
+    color: #505a5f;
+    margin: 0;
+    flex: 0 0 5rem;
+  }
+  .app-animal__meta dd {
+    color: #0b0c0c;
+    font-weight: 700;
+    margin: 0;
+    flex: 1 1 auto;
+    word-break: break-word;
+  }
+</style>
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+    {% if errorSummary %}
+      {{ govukErrorSummary(errorSummary) }}
+    {% endif %}
+
+    {% if data['tl_herd'] %}
+      <span class="govuk-caption-l">{{ data['tl_herd']['farm'] }} - {{ (data['tl_prepareSkinTestType'] or 'Skin test') | replace('Both', 'DIVA and SICCT') }}</span>
+    {% endif %}
+    <h1 class="govuk-heading-l govuk-!-margin-bottom-3">Why will this animal not be tested?</h1>
+
+    <p class="govuk-body app-progress-summary"><strong>Cattle {{ currentPosition }} of {{ totalUntested }}</strong></p>
+
+    <form action="/test-list/prepare-skin-test-untested-reason/{{ currentIndex }}" method="post" novalidate>
+
+      <div class="app-animal" aria-label="Animal details">
+        <div class="app-animal__ear-tag-row">
+          <p class="app-animal__ear-tag">
+            <span class="app-animal__ear-tag-prefix">{{ currentAnimal.earTagParts.prefix }}</span>
+            <span>{{ currentAnimal.earTagParts.herd }}</span>
+            <span>{{ currentAnimal.earTagParts.check }}</span>
+            <span>{{ currentAnimal.earTagParts.individualStart }}</span>
+            <span class="app-animal__ear-tag-last">{{ currentAnimal.earTagParts.last4 }}</span>
+          </p>
+          {% if currentAnimal.isVaccinated %}
+            <strong class="app-tag-dark" title="BCG vaccinated">VAX</strong>
+          {% endif %}
+          {% if currentAnimal.isDuplicate %}
+            <strong class="app-tag-dark" title="Another animal on this farm shares the last 4 digits of this ear tag">DUP</strong>
+          {% endif %}
+        </div>
+
+        <dl class="app-animal__meta govuk-body">
+          <div class="app-animal__meta-item">
+            <dt>Age</dt>
+            <dd>{{ currentAnimal.age }}</dd>
+          </div>
+          <div class="app-animal__meta-item">
+            <dt>DOB</dt>
+            <dd>{{ currentAnimal.dob }}</dd>
+          </div>
+          <div class="app-animal__meta-item">
+            <dt>Sex</dt>
+            <dd>{{ currentAnimal.sex }}</dd>
+          </div>
+          <div class="app-animal__meta-item">
+            <dt>Breed</dt>
+            <dd>{{ currentAnimal.breed }}</dd>
+          </div>
+        </dl>
+      </div>
+
+      {% set reasonValue = formValues['tl_reason'] or savedReason %}
+      {% set reasonOtherValue = formValues['tl_reasonOther'] or savedReasonOther %}
+
+      {% set otherReasonInputHtml %}
+        {{ govukInput({
+          id: "tl_reasonOther",
+          name: "tl_reasonOther",
+          label: { text: "Other reason", classes: "govuk-label--s" },
+          classes: "govuk-!-width-two-thirds",
+          value: reasonOtherValue
+        }) }}
+      {% endset %}
+
+      {{ govukRadios({
+        idPrefix: "tl_reason",
+        name: "tl_reason",
+        fieldset: {
+          legend: {
+            text: "Reason this animal will not be tested",
+            classes: "govuk-fieldset__legend--m"
+          }
+        },
+        value: reasonValue,
+        errorMessage: { text: errors['tl_reason'].text } if errors and errors['tl_reason'],
+        items: [
+          { value: "too-young", text: "Cattle too young",  checked: reasonValue == "too-young" },
+          { value: "deceased",  text: "Cattle deceased",   checked: reasonValue == "deceased" },
+          {
+            value: "other",
+            text: "Other reason",
+            checked: reasonValue == "other",
+            conditional: { html: otherReasonInputHtml }
+          }
+        ]
+      }) }}
+
+      <div class="govuk-button-group govuk-!-margin-top-6">
+        {{ govukButton({ text: "Save and continue" }) }}
+      </div>
+
+    </form>
+
+  </div>
+</div>
+{% endblock %}

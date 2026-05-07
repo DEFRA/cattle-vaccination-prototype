@@ -1,0 +1,65 @@
+{% extends "layouts/main.html" %}
+
+{% block pageTitle %}
+  How would you like to assign cattle to each test? – GOV.UK
+{% endblock %}
+
+{% block beforeContent %}
+  <a href="/test-list/prepare-skin-test-type" class="govuk-back-link">Back</a>
+{% endblock %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+    {% if errorSummary %}
+      {{ govukErrorSummary(errorSummary) }}
+    {% endif %}
+
+    {% if data['tl_herd'] %}
+      <span class="govuk-caption-l">{{ data['tl_herd']['farm'] }} - DIVA and SICCT</span>
+    {% endif %}
+    <h1 class="govuk-heading-l">
+      How would you like to assign cattle to each test?
+    </h1>
+
+    <p class="govuk-body">
+      You're preparing both a SICCT and a DIVA list for this farm. We
+      can split the herd for you based on vaccination status, or you
+      can choose which cattle go on each list yourself.
+    </p>
+
+    <form action="/test-list/prepare-skin-test-assign" method="post" novalidate>
+
+      {{ govukRadios({
+        idPrefix: "tl_prepareAssignMode",
+        name: "tl_prepareAssignMode",
+        value: data['tl_prepareAssignMode'],
+        errorMessage: { text: errors['tl_prepareAssignMode'].text } if errors and errors['tl_prepareAssignMode'],
+        fieldset: {
+          legend: {
+            text: "How would you like to assign cattle?",
+            classes: "govuk-visually-hidden"
+          }
+        },
+        items: [
+          {
+            value: "auto",
+            text: "Assign automatically based on vaccination status",
+            hint: { text: "Vaccinated cattle go on the DIVA list and unvaccinated cattle go on the SICCT list." }
+          },
+          {
+            value: "manual",
+            text: "Choose which cattle go on each list manually",
+            hint: { text: "Pick a test, choose the cattle for it, then choose cattle for the other test from the remaining." }
+          }
+        ]
+      }) }}
+
+      {{ govukButton({ text: "Continue" }) }}
+
+    </form>
+
+  </div>
+</div>
+{% endblock %}

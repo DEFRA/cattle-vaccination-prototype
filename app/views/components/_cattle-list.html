@@ -1,0 +1,520 @@
+{% macro cattleList(params) %}
+{% set p = params %}
+{% set s = p.settings %}
+{% set np = p.namePrefix if p.namePrefix else "" %}
+{% set _emphasise = s.showLastFive or s.emphasiseLastFive %}
+{% set _textSizes = p.textSizeOptions if p.textSizeOptions else ["small", "standard", "large"] %}
+{% set _spacingOpts = p.spacingOptions if p.spacingOptions else ["tight", "standard", "spaced"] %}
+
+<div class="app-page-grid">
+
+  {# ── Settings panel ─────────────────────────────────────── #}
+  <form method="post" action="{{ p.formAction }}" class="app-filter-panel">
+    <input type="hidden" name="_csrf" value="{{ p.csrfToken }}">
+
+    <h2 class="govuk-heading-m govuk-!-margin-bottom-3">List settings</h2>
+
+    {# File format #}
+    {% if p.showFileFormat %}
+    <div class="govuk-form-group">
+      <fieldset class="govuk-fieldset">
+        <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">File format</legend>
+        <div class="govuk-radios govuk-radios--small govuk-!-margin-bottom-2" data-module="govuk-radios">
+          <div class="govuk-radios__item">
+            <input class="govuk-radios__input" id="{{ np }}downloadFormat" name="{{ np }}downloadFormat" type="radio" value="pdf"
+              {% if s.downloadFormat === 'pdf' %}checked{% endif %}>
+            <label class="govuk-label govuk-radios__label" for="{{ np }}downloadFormat">Printable list (PDF)</label>
+          </div>
+          <div class="govuk-radios__item">
+            <input class="govuk-radios__input" id="{{ np }}downloadFormat-2" name="{{ np }}downloadFormat" type="radio" value="csv"
+              {% if s.downloadFormat === 'csv' %}checked{% endif %}>
+            <label class="govuk-label govuk-radios__label" for="{{ np }}downloadFormat-2">CSV</label>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+    {% endif %}
+
+    <div>
+    {# Preview options #}
+    <div class="govuk-form-group govuk-!-margin-bottom-4">
+      <fieldset class="govuk-fieldset">
+        <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">Preview options</legend>
+        <div class="govuk-checkboxes govuk-checkboxes--small">
+          <div class="govuk-checkboxes__item">
+            <input class="govuk-checkboxes__input" id="{{ np }}show-last-five" name="{{ np }}previewOptions" type="checkbox"
+              value="show-last-five" {% if _emphasise %}checked{% endif %}>
+            <label class="govuk-label govuk-checkboxes__label" for="{{ np }}show-last-five">
+              Emphasise the last 4 digits{% if p.tableVariant === "skin-test-full" %} of the ear tag{% endif %}
+            </label>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+
+    {# Line spacing #}
+    <div class="govuk-form-group">
+      <fieldset class="govuk-fieldset">
+        <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">Line spacing</legend>
+        <div class="govuk-radios govuk-radios--small govuk-!-margin-bottom-2" data-module="govuk-radios">
+          {% for sp in _spacingOpts %}
+          <div class="govuk-radios__item">
+            <input class="govuk-radios__input" id="{{ np }}previewSpacing-{{ loop.index }}" name="{{ np }}previewSpacing" type="radio"
+              value="{{ sp }}" {% if s.previewSpacing === sp %}checked{% endif %}>
+            <label class="govuk-label govuk-radios__label" for="{{ np }}previewSpacing-{{ loop.index }}">
+              {%- if sp === "compact" %}Compact
+              {% elif sp === "tight" %}Tight
+              {% elif sp === "standard" %}Standard
+              {% elif sp === "spaced" %}Spaced
+              {% else %}{{ sp }}{% endif -%}
+            </label>
+          </div>
+          {% endfor %}
+        </div>
+      </fieldset>
+    </div>
+    </div>
+
+    {# Columns #}
+    <div class="govuk-form-group govuk-!-margin-bottom-4">
+      <fieldset class="govuk-fieldset">
+        <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">Columns</legend>
+        <div class="govuk-checkboxes govuk-checkboxes--small">
+          {% for col in p.columns %}
+          <div class="govuk-checkboxes__item">
+            <input class="govuk-checkboxes__input" id="{{ np }}column-{{ loop.index }}" name="{{ np }}previewOptions" type="checkbox"
+              value="{{ col }}" data-col-toggle="{{ col }}" {% if col in s.previewOptions %}checked{% endif %}>
+            <label class="govuk-label govuk-checkboxes__label" for="{{ np }}column-{{ loop.index }}">
+              {%- if col === "Test type" %}Test type (SICCT/DIVA){% else %}{{ col }}{% endif -%}
+            </label>
+          </div>
+          {% endfor %}
+          {% if p.extraToggleColumns %}
+          {% for col in p.extraToggleColumns %}
+          <div class="govuk-checkboxes__item">
+            <input class="govuk-checkboxes__input" id="{{ np }}extra-col-{{ loop.index }}" name="{{ np }}previewOptions" type="checkbox"
+              value="{{ col }}" data-col-toggle="{{ col }}" {% if col in s.previewOptions %}checked{% endif %}>
+            <label class="govuk-label govuk-checkboxes__label" for="{{ np }}extra-col-{{ loop.index }}">{{ col }}</label>
+          </div>
+          {% endfor %}
+          {% endif %}
+        </div>
+      </fieldset>
+    </div>
+
+    {# Sort by #}
+    <div class="govuk-form-group">
+      <fieldset class="govuk-fieldset">
+        <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">Sort by</legend>
+        <div class="govuk-radios govuk-radios--small govuk-!-margin-bottom-2" data-module="govuk-radios">
+          {% for opt in p.sortOptions %}
+            {% set optValue = opt.value if opt.value else opt %}
+            {% set optText = opt.text if opt.text else opt %}
+          <div class="govuk-radios__item">
+            <input class="govuk-radios__input" id="{{ np }}sortBy-{{ loop.index }}" name="{{ np }}sortBy" type="radio"
+              value="{{ optValue }}" {% if s.sortBy === optValue %}checked{% endif %}>
+            <label class="govuk-label govuk-radios__label" for="{{ np }}sortBy-{{ loop.index }}">{{ optText }}</label>
+          </div>
+          {% endfor %}
+        </div>
+      </fieldset>
+    </div>
+
+    {# Order #}
+    <div class="govuk-form-group">
+      <fieldset class="govuk-fieldset">
+        <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">Order</legend>
+        <div class="govuk-radios govuk-radios--small govuk-!-margin-bottom-2" data-module="govuk-radios">
+          <div class="govuk-radios__item">
+            <input class="govuk-radios__input" id="{{ np }}sortDirection" name="{{ np }}sortDirection" type="radio" value="asc"
+              {% if s.sortDirection === 'asc' %}checked{% endif %}>
+            <label class="govuk-label govuk-radios__label" for="{{ np }}sortDirection">Ascending</label>
+          </div>
+          <div class="govuk-radios__item">
+            <input class="govuk-radios__input" id="{{ np }}sortDirection-2" name="{{ np }}sortDirection" type="radio" value="desc"
+              {% if s.sortDirection === 'desc' %}checked{% endif %}>
+            <label class="govuk-label govuk-radios__label" for="{{ np }}sortDirection-2">Descending</label>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+
+    {# Text size #}
+    <div class="govuk-form-group">
+      <fieldset class="govuk-fieldset">
+        <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">Text size</legend>
+        <div class="govuk-radios govuk-radios--small govuk-!-margin-bottom-2" data-module="govuk-radios">
+          {% for size in _textSizes %}
+          <div class="govuk-radios__item">
+            <input class="govuk-radios__input" id="{{ np }}previewTextSize-{{ loop.index }}" name="{{ np }}previewTextSize" type="radio"
+              value="{{ size }}" {% if s.previewTextSize === size %}checked{% endif %}>
+            <label class="govuk-label govuk-radios__label" for="{{ np }}previewTextSize-{{ loop.index }}">
+              {%- if size === "compact" %}Compact{% if p.tableVariant === "vaccination" %} (11px){% endif %}
+              {% elif size === "small" %}Smaller{% if p.tableVariant === "vaccination" %} (14px){% endif %}
+              {% elif size === "standard" %}Standard{% if p.tableVariant === "vaccination" %} (16px){% endif %}
+              {% elif size === "large" %}Large{% if p.tableVariant === "vaccination" %} (19px){% endif %}
+              {% else %}{{ size }}{% endif -%}
+            </label>
+          </div>
+          {% endfor %}
+        </div>
+      </fieldset>
+    </div>
+
+    <div class="govuk-button-group">
+      <button type="submit" class="govuk-button" data-module="govuk-button">Apply changes</button>
+      <a class="govuk-link" href="{{ p.resetUrl }}">Clear settings</a>
+    </div>
+  </form>
+
+  {# ── Preview panel ───────────────────────────────────────── #}
+  <div>
+    <div class="app-results-header">
+      <h2 class="govuk-heading-m govuk-!-margin-bottom-2">Preview</h2>
+      <p class="govuk-body govuk-!-margin-bottom-0">
+        {% if p.tableVariant === "skin-test-simple" %}
+          Adjust the list settings to create the layout you want.
+        {% else %}
+          Adjust the list settings to create the layout you want. Orientation, text size, spacing, columns, and emphasis update live &mdash; apply changes to re-sort.
+        {% endif %}
+      </p>
+    </div>
+
+    {% if p.showFileFormat %}
+      <div class="app-results-actions">
+        {% if s.downloadFormat === 'pdf' %}
+          <button type="button" class="govuk-button govuk-button--primary govuk-!-margin-bottom-0"
+            onclick="window.print()">
+            Print this list
+          </button>
+        {% else %}
+          <p class="govuk-body app-csv-note">
+            <strong>CSV download</strong> requires a backend endpoint &mdash; not yet implemented.
+          </p>
+        {% endif %}
+      </div>
+    {% else %}
+      <div class="app-results-actions govuk-!-margin-bottom-4">
+        <button type="button" class="govuk-button govuk-button--primary govuk-!-margin-bottom-0"
+          onclick="window.print()">
+          Print this list
+        </button>
+      </div>
+    {% endif %}
+
+    {# ── Vaccination / skin-test-simple ── #}
+    {% if p.tableVariant !== "skin-test-full" %}
+      <div id="preview-sheet"
+        class="app-sheet app-sheet--{{ s.previewOrientation }} app-sheet--text-{{ s.previewTextSize }} app-sheet--spacing-{{ s.previewSpacing }}">
+
+        <table class="govuk-table govuk-!-margin-bottom-6">
+          <caption class="govuk-table__caption govuk-table__caption--m">{{ p.farmSummary.title }}</caption>
+          <tbody>
+            <tr class="govuk-table__row">
+              <td class="govuk-table__cell"><strong>CPH:</strong><br>{{ p.farmSummary.cph }}</td>
+              <td class="govuk-table__cell"><strong>{{ p.farmSummary.cattleLabel if p.farmSummary.cattleLabel else "Cattle" }}:</strong><br>{{ p.farmSummary.cattleCount }}</td>
+              <td class="govuk-table__cell">
+                <strong>{{ p.farmSummary.dateLabel }}:</strong><br>
+                {% if p.farmSummary.dateValue %}{{ p.farmSummary.dateValue }}{% else %}<span class="js-date-printed"></span>{% endif %}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <table class="app-record-table">
+          <thead>
+            <tr>
+              <th scope="col" class="app-col-ear-tag">Ear tag number</th>
+              {% for col in p.columns %}
+                <th scope="col" class="{% if col === 'Vaccination status' %}app-col-vaccination-status{% else %}app-col-narrow{% endif %}"
+                  data-col="{{ col }}"{% if col not in s.previewOptions %} style="display:none"{% endif %}>
+                  <span class="app-vertical-heading">{{ col }}</span>
+                </th>
+              {% endfor %}
+              <th scope="col" class="app-col-notes">Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for animal in p.cattle %}
+            <tr>
+              <td>
+                <div class="app-ear-tag">
+                  <span class="app-ear-tag__prefix">UK</span>
+                  <span class="app-ear-tag__part app-ear-tag__part--herd">{{ animal.herd }}</span>
+                  <span class="app-ear-tag__part app-ear-tag__part--check">{{ animal.check }}</span>
+                  <span class="app-ear-tag__part app-ear-tag__part--individual-start">{{ animal.indStart }}</span>
+                  <span class="app-ear-tag__part app-ear-tag__part--last4{% if _emphasise %} border-toggle{% endif %}">{{ animal.last4 }}</span>
+                </div>
+              </td>
+              {% for col in p.columns %}
+                <td class="{% if col === 'Vaccination status' %}app-col-vaccination-status{% else %}app-col-narrow{% endif %}"
+                  data-col="{{ col }}"{% if col not in s.previewOptions %} style="display:none"{% endif %}>
+                  {%- if col === 'Age' %}{{ animal.ageDisplay }}
+                  {% elif col === 'DOB' %}{{ animal.dob }}
+                  {% elif col === 'Sex' %}{{ animal.sex }}
+                  {% elif col === 'Breed' %}{{ animal.breed }}
+                  {% elif col === 'Test type' %}{{ 'DIVA' if animal.vaccinationStatus === 'Vaccinated' else 'SICCT' }}
+                  {% endif -%}
+                </td>
+              {% endfor %}
+              <td class="app-col-notes"></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+      </div>{# /preview-sheet #}
+    {% endif %}
+
+    {# ── Skin-test-full ── #}
+    {% if p.tableVariant === "skin-test-full" %}
+      {% for group in p.previewGroups %}
+        {% if group.count == 0 %}
+          <p class="govuk-body">There are no cattle on this farm for the {{ group.label }} list.</p>
+        {% else %}
+          <div class="app-sheet app-sheet--{{ s.previewOrientation or 'portrait' }} app-sheet--text-{{ s.previewTextSize or 'standard' }} app-sheet--spacing-{{ s.previewSpacing or 'standard' }}">
+
+            <table class="govuk-table govuk-!-margin-bottom-6" style="min-width: 900px; table-layout: fixed;">
+              <caption class="govuk-table__caption govuk-table__caption--m">
+                {% if p.farmSummary.title %}{{ p.farmSummary.title }} - {% endif %}{{ group.label }} list
+              </caption>
+              <tr class="govuk-table__row">
+                <td class="govuk-table__cell"><strong>CPH:</strong><br/>{{ p.farmSummary.cph }}</td>
+                <td class="govuk-table__cell"><strong>Cattle on this list:</strong><br/>{{ group.count }}</td>
+                <td class="govuk-table__cell">
+                  <strong>{{ p.farmSummary.dateLabel }}:</strong><br/>
+                  {% if p.farmSummary.dateValue %}{{ p.farmSummary.dateValue }}{% else %}<span class="js-date-printed"></span>{% endif %}
+                </td>
+                {% if group.key === 'diva' and p.farmSummary.showDivaBatchNumber %}
+                  <td class="govuk-table__cell">
+                    <strong>DIVA batch number:</strong><br/>
+                    <span style="display: inline-block; min-width: 120px; border-bottom: 1px solid #0b0c0c; height: 1.2em;"></span>
+                  </td>
+                {% endif %}
+              </tr>
+            </table>
+
+            <table class="govuk-table govuk-!-margin-bottom-6" style="min-width: 900px; table-layout: fixed;">
+              <tr>
+                <td>
+                  <strong>DUP</strong> shows the last 4 digits of ear tag number are duplicates<br>
+                  <strong>VAX</strong> shows the animal is BCG vaccinated
+                </td>
+              </tr>
+            </table>
+
+            <table class="app-record-table">
+              <thead>
+                <tr>
+                  <th scope="col" class="app-col-ear-tag" rowspan="2">Ear tag number</th>
+                  {% for col in p.columns %}
+                    {% set _colClass = "app-col-narrow" %}
+                    {% if col === "Age" %}{% set _colClass = "app-col-age" %}{% endif %}
+                    {% if col === "DOB" %}{% set _colClass = "app-col-dob" %}{% endif %}
+                    {% if col === "Sex" %}{% set _colClass = "app-col-sex" %}{% endif %}
+                    {% if col === "Breed" %}{% set _colClass = "app-col-breed" %}{% endif %}
+                    <th scope="col" class="{{ _colClass }}" rowspan="2" data-col="{{ col }}"{% if col not in s.previewOptions %} style="display:none"{% endif %}>
+                      <span class="app-vertical-heading">{{ col }}</span>
+                    </th>
+                  {% endfor %}
+                  <th scope="col" colspan="4">Skin measurement (mm)</th>
+                  <th scope="col" class="app-col-overall" rowspan="2" data-col="Overall result"{% if 'Overall result' not in s.previewOptions %} style="display:none"{% endif %}>
+                    <span class="app-vertical-heading">Overall<br>result</span>
+                  </th>
+                  <th scope="col" class="app-col-notes" rowspan="2" data-col="Remarks"{% if 'Remarks' not in s.previewOptions %} style="display:none"{% endif %}>Remarks</th>
+                </tr>
+                <tr>
+                  <th scope="col" class="app-col-label"><span class="govuk-visually-hidden">Site</span></th>
+                  <th scope="col" class="app-col-skin"><span class="app-vertical-heading">Pre</span></th>
+                  <th scope="col" class="app-col-skin"><span class="app-vertical-heading">Post</span></th>
+                  <th scope="col" class="app-col-reaction"><span class="app-vertical-heading">Reaction<br>desc.</span></th>
+                </tr>
+              </thead>
+              {% set _isDiva = group.key === 'diva' %}
+              {% for row in group.rows %}
+              <tbody>
+                {% if _isDiva %}
+                  <tr>
+                    <td>
+                      <div class="app-ear-tag-wrapper">
+                        <div class="app-ear-tag">
+                          <span class="app-ear-tag__prefix">{{ row.earTagParts.prefix }}</span>
+                          <span class="app-ear-tag__part app-ear-tag__part--herd">{{ row.earTagParts.herd }}</span>
+                          <span class="app-ear-tag__part app-ear-tag__part--check">{{ row.earTagParts.check }}</span>
+                          <span class="app-ear-tag__part app-ear-tag__part--individual-start">{{ row.earTagParts.individualStart }}</span>
+                          <span class="app-ear-tag__part app-ear-tag__part--last4{% if _emphasise %} border-toggle{% endif %}">{{ row.earTagParts.last4 }}</span>
+                        </div>
+                        {% if row.isDuplicate or row.isVaccinated %}
+                          <div class="app-ear-tag-flags">
+                            {% if row.isVaccinated %}<strong class="app-tag-dark" title="BCG vaccinated">VAX</strong>{% endif %}
+                            {% if row.isDuplicate %}<strong class="app-tag-dark" title="Another animal on this farm shares the last digits of this ear tag">DUP</strong>{% endif %}
+                          </div>
+                        {% endif %}
+                      </div>
+                    </td>
+                    {% for col in p.columns %}
+                      {% set _colClass = "app-col-narrow" %}
+                      {% if col === "Age" %}{% set _colClass = "app-col-age" %}{% endif %}
+                      {% if col === "DOB" %}{% set _colClass = "app-col-dob" %}{% endif %}
+                      {% if col === "Sex" %}{% set _colClass = "app-col-sex" %}{% endif %}
+                      {% if col === "Breed" %}{% set _colClass = "app-col-breed" %}{% endif %}
+                      {% set _cellValue = '' %}
+                      {% for cell in row.cells %}{% if cell.key === col %}{% set _cellValue = cell.value %}{% endif %}{% endfor %}
+                      <td class="{{ _colClass }}" data-col="{{ col }}"{% if col not in s.previewOptions %} style="display:none"{% endif %}>{{ _cellValue }}</td>
+                    {% endfor %}
+                    <th scope="row" class="app-col-label">B</th>
+                    <td class="app-col-skin"></td>
+                    <td class="app-col-skin"></td>
+                    <td class="app-col-reaction"></td>
+                    <td class="app-col-overall" data-col="Overall result"{% if 'Overall result' not in s.previewOptions %} style="display:none"{% endif %}></td>
+                    <td class="app-col-notes" data-col="Remarks"{% if 'Remarks' not in s.previewOptions %} style="display:none"{% endif %}></td>
+                  </tr>
+                {% else %}
+                  <tr>
+                    <td rowspan="2">
+                      <div class="app-ear-tag-wrapper">
+                        <div class="app-ear-tag">
+                          <span class="app-ear-tag__prefix">{{ row.earTagParts.prefix }}</span>
+                          <span class="app-ear-tag__part app-ear-tag__part--herd">{{ row.earTagParts.herd }}</span>
+                          <span class="app-ear-tag__part app-ear-tag__part--check">{{ row.earTagParts.check }}</span>
+                          <span class="app-ear-tag__part app-ear-tag__part--individual-start">{{ row.earTagParts.individualStart }}</span>
+                          <span class="app-ear-tag__part app-ear-tag__part--last4{% if _emphasise %} border-toggle{% endif %}">{{ row.earTagParts.last4 }}</span>
+                        </div>
+                        {% if row.isDuplicate or row.isVaccinated %}
+                          <div class="app-ear-tag-flags">
+                            {% if row.isVaccinated %}<strong class="app-tag-dark" title="BCG vaccinated">VAX</strong>{% endif %}
+                            {% if row.isDuplicate %}<strong class="app-tag-dark" title="Another animal on this farm shares the last digits of this ear tag">DUP</strong>{% endif %}
+                          </div>
+                        {% endif %}
+                      </div>
+                    </td>
+                    {% for col in p.columns %}
+                      {% set _colClass = "app-col-narrow" %}
+                      {% if col === "Age" %}{% set _colClass = "app-col-age" %}{% endif %}
+                      {% if col === "DOB" %}{% set _colClass = "app-col-dob" %}{% endif %}
+                      {% if col === "Sex" %}{% set _colClass = "app-col-sex" %}{% endif %}
+                      {% if col === "Breed" %}{% set _colClass = "app-col-breed" %}{% endif %}
+                      {% set _cellValue = '' %}
+                      {% for cell in row.cells %}{% if cell.key === col %}{% set _cellValue = cell.value %}{% endif %}{% endfor %}
+                      <td class="{{ _colClass }}" rowspan="2" data-col="{{ col }}"{% if col not in s.previewOptions %} style="display:none"{% endif %}>{{ _cellValue }}</td>
+                    {% endfor %}
+                    <th scope="row" class="app-col-label">A</th>
+                    <td class="app-col-skin"></td>
+                    <td class="app-col-skin"></td>
+                    <td class="app-col-reaction"></td>
+                    <td class="app-col-overall" rowspan="2" data-col="Overall result"{% if 'Overall result' not in s.previewOptions %} style="display:none"{% endif %}></td>
+                    <td class="app-col-notes" rowspan="2" data-col="Remarks"{% if 'Remarks' not in s.previewOptions %} style="display:none"{% endif %}></td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="app-col-label">B</th>
+                    <td class="app-col-skin"></td>
+                    <td class="app-col-skin"></td>
+                    <td class="app-col-reaction"></td>
+                  </tr>
+                {% endif %}
+              </tbody>
+              {% endfor %}
+            </table>
+
+          </div>
+        {% endif %}
+      {% endfor %}
+
+      <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          var stamp = new Intl.DateTimeFormat('en-GB', {
+            weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+          }).format(new Date())
+          document.querySelectorAll('.js-date-printed').forEach(function (el) { el.textContent = stamp })
+        })
+      </script>
+
+      {% if p.continueUrl %}
+        <div class="app-results-actions govuk-!-margin-top-4">
+          <a href="{{ p.continueUrl }}" class="govuk-button" data-module="govuk-button">Continue</a>
+        </div>
+      {% endif %}
+
+      {% if p.removeUrl %}
+        <p class="govuk-body govuk-!-margin-top-2">
+          <a class="govuk-link" href="{{ p.removeUrl }}">Remove cattle from list</a>
+        </p>
+      {% endif %}
+
+      {% for link in p.additionalLinks %}
+        <p class="govuk-body govuk-!-margin-top-2">
+          <a class="govuk-link" href="{{ link.href }}">{{ link.text }}</a>
+        </p>
+      {% endfor %}
+    {% endif %}
+
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var np = '{{ np }}';
+
+  if (/[?&]print=1\b/.test(window.location.search)) {
+    window.setTimeout(function () { window.print() }, 200);
+  }
+
+  var sheets = document.querySelectorAll('.app-sheet');
+  if (!sheets.length) return;
+
+  var printOrientationStyle = document.createElement('style');
+  {% if p.tableVariant === "skin-test-full" %}
+  printOrientationStyle.textContent = '@media print { @page { size: A4 {{ s.previewOrientation or "portrait" }}; margin: 10mm; } }';
+  {% else %}
+  printOrientationStyle.textContent = '@media print { @page { size: A4 {{ s.previewOrientation }}; margin: 8mm; } }';
+  {% endif %}
+  document.head.appendChild(printOrientationStyle);
+
+  document.querySelectorAll('[name="' + np + 'previewTextSize"]').forEach(function (radio) {
+    radio.addEventListener('change', function () {
+      sheets.forEach(function (sheet) {
+        sheet.classList.remove('app-sheet--text-compact', 'app-sheet--text-small', 'app-sheet--text-standard', 'app-sheet--text-large');
+        sheet.classList.add('app-sheet--text-' + radio.value);
+      });
+    });
+  });
+
+  document.querySelectorAll('[name="' + np + 'previewSpacing"]').forEach(function (radio) {
+    radio.addEventListener('change', function () {
+      sheets.forEach(function (sheet) {
+        sheet.classList.remove('app-sheet--spacing-compact', 'app-sheet--spacing-tight', 'app-sheet--spacing-standard', 'app-sheet--spacing-spaced');
+        sheet.classList.add('app-sheet--spacing-' + radio.value);
+      });
+    });
+  });
+
+  var emphasiseCheckbox = document.getElementById('{{ np }}show-last-five');
+  if (emphasiseCheckbox) {
+    emphasiseCheckbox.addEventListener('change', function () {
+      document.querySelectorAll('.app-ear-tag__part--last4').forEach(function (span) {
+        span.classList.toggle('border-toggle', emphasiseCheckbox.checked);
+      });
+    });
+  }
+
+  document.querySelectorAll('[data-col-toggle]').forEach(function (checkbox) {
+    var col = checkbox.getAttribute('data-col-toggle');
+    checkbox.addEventListener('change', function () {
+      document.querySelectorAll('[data-col="' + col + '"]').forEach(function (el) {
+        el.style.display = checkbox.checked ? '' : 'none';
+      });
+    });
+  });
+
+  {% if p.showFileFormat %}
+  var printBtn = document.querySelector('[onclick="window.print()"]');
+  document.querySelectorAll('[name="' + np + 'downloadFormat"]').forEach(function (radio) {
+    radio.addEventListener('change', function () {
+      if (printBtn) printBtn.style.display = this.value === 'pdf' ? '' : 'none';
+    });
+  });
+  {% endif %}
+})();
+</script>
+{% endmacro %}

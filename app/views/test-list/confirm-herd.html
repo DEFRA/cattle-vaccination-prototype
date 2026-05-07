@@ -1,0 +1,87 @@
+{% extends "layouts/main.html" %}
+
+{% block pageTitle %}
+  Check herd details – GOV.UK
+{% endblock %}
+
+{% block beforeContent %}
+  <a href="/test-list/search-results" class="govuk-back-link">Back</a>
+{% endblock %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+    {% if data['tl_herd'] %}
+      <h1 class="govuk-heading-l">{{ data['tl_herd']['farm'] }}</h1>
+      <p class="govuk-body">
+        Check the farm details are correct before you continue.
+      </p>
+
+      <dl class="govuk-summary-list">
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">Farm</dt>
+          <dd class="govuk-summary-list__value">{{ data['tl_herd']['farm'] }}</dd>
+        </div>
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">CPH</dt>
+          <dd class="govuk-summary-list__value">{{ data['tl_herd']['cph'] }}</dd>
+        </div>
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">Address</dt>
+          <dd class="govuk-summary-list__value">{{ data['tl_herd']['address'] }}</dd>
+        </div>
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">Number of cattle</dt>
+          <dd class="govuk-summary-list__value">
+            {{ data['tl_herd']['cattle'] }}
+            <p class="govuk-body govuk-!-margin-top-3 govuk-!-margin-bottom-0">
+              This information comes from the
+              <strong><a class="govuk-link" href="https://www.gov.uk/cattle-tracing-online">Cattle Tracing System</a></strong>.
+              It may not be up to date.
+            </p>
+          </dd>
+        </div>
+
+        {% if vaccinatedCount is defined %}
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Vaccinated</dt>
+            <dd class="govuk-summary-list__value">{{ vaccinatedCount }}</dd>
+          </div>
+        {% endif %}
+
+        {% if tbStatus %}
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Status</dt>
+            <dd class="govuk-summary-list__value">
+              <strong>{{ tbStatus.status }}</strong> — {{ tbStatus.statusFullName }}
+            </dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Day 1 of last TB test</dt>
+            <dd class="govuk-summary-list__value">{{ tbStatus.lastTestDate }}</dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Last breakdown</dt>
+            <dd class="govuk-summary-list__value">{{ tbStatus.lastBreakdown }}</dd>
+          </div>
+        {% endif %}
+      </dl>
+
+      {{ govukButton({
+        text: "Continue",
+        href: "/test-list/select-visit-task"
+      }) }}
+
+      <p class="govuk-body govuk-!-margin-top-2">
+        <a class="govuk-link" href="/test-list/search">Choose a different farm</a>
+      </p>
+    {% else %}
+      <h1 class="govuk-heading-l">No herd details found</h1>
+      <p class="govuk-body">
+        <a href="/test-list/search" class="govuk-link">Go back and select a farm</a>
+      </p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "layouts/main.html" %}
+
+{% block pageTitle %}
+  Which skin test are you preparing a list for? – GOV.UK
+{% endblock %}
+
+{% block beforeContent %}
+  <a href="/test-list/select-visit-task" class="govuk-back-link">Back</a>
+{% endblock %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+    {% if errorSummary %}
+      {{ govukErrorSummary(errorSummary) }}
+    {% endif %}
+
+    <h1 class="govuk-heading-l">Which skin test are you preparing a list for?</h1>
+
+    <form action="/test-list/test-type" method="post" novalidate>
+
+      {{ govukRadios({
+        idPrefix: "testType",
+        name: "testType",
+        value: data['testList_testType'],
+        errorMessage: { text: errors['testType'].text } if errors and errors['testType'],
+        fieldset: {
+          legend: {
+            text: "Which skin test are you preparing a list for?",
+            classes: "govuk-visually-hidden"
+          }
+        },
+        items: [
+          {
+            value: "SICCT",
+            text: "SICCT",
+            hint: { text: "For cattle that have not been BCG vaccinated." }
+          },
+          {
+            value: "DIVA",
+            text: "DIVA",
+            hint: { text: "For cattle that have been BCG vaccinated." }
+          },
+          {
+            value: "Both",
+            text: "Both SICCT and DIVA",
+            hint: { text: "The herd has a mix of vaccinated and unvaccinated cattle." }
+          }
+        ]
+      }) }}
+
+      {{ govukButton({ text: "Continue" }) }}
+
+    </form>
+
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "layouts/main.html" %}
+
+{% set pageName = "Select a task" %}
+
+{% block beforeContent %}
+  <a href="/" class="govuk-back-link">Back</a>
+{% endblock %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+    <h1 class="govuk-heading-l">What do you need to do?</h1>
+
+    <p class="govuk-body govuk-!-colour-secondary">Birch Hollow Farm &ndash; CPH 17/221/6804</p>
+
+    <ul class="govuk-list govuk-list--spaced govuk-!-margin-top-6">
+      <li>
+        <a href="/list-print/download-list" class="govuk-link govuk-!-font-size-19">
+          Download vaccination list
+        </a>
+        <p class="govuk-body govuk-!-colour-secondary">
+          Configure and print a list of cattle on this holding to use during vaccination.
+        </p>
+      </li>
+    </ul>
+
+  </div>
+</div>
+{% endblock %}

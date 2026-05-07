@@ -1,0 +1,51 @@
+{% extends "layouts/main.html" %}
+
+{% block pageTitle %}
+  What will you do on this visit? – GOV.UK
+{% endblock %}
+
+{% block beforeContent %}
+  <a href="/test-list/confirm-herd" class="govuk-back-link">Back</a>
+{% endblock %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    {% if errorSummary %}
+      {{ govukErrorSummary(errorSummary) }}
+    {% endif %}
+
+    {% if data['tl_herd'] %}
+      <form action="/test-list/select-journey" method="post" novalidate>
+        {{ govukRadios({
+          idPrefix: "tl_journey",
+          name: "tl_journey",
+          fieldset: {
+            legend: {
+              html: '<span class="govuk-caption-l">' + data['tl_herd']['farm'] + '</span>What do you need to do?',
+              isPageHeading: true,
+              classes: "govuk-fieldset__legend--l"
+            }
+          },
+          value: data['tl_journey'],
+          errorMessage: { text: errors['tl_journey'].text } if errors and errors['tl_journey'],
+          items: [
+            {
+              value: "prepare-skin-test",
+              text: "Prepare a list of cattle for skin tests",
+              hint: { text: "Download or print a list of cattle to support the skin test process." }
+            }
+          ]
+        }) }}
+
+        {{ govukButton({ text: "Continue" }) }}
+      </form>
+    {% else %}
+      <h1 class="govuk-heading-l">No farm selected</h1>
+      <p class="govuk-body">
+        <a href="/test-list/search" class="govuk-link">Search for a farm to get started</a>
+      </p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

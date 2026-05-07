@@ -1,0 +1,108 @@
+{% extends "layouts/main.html" %}
+
+{% block pageTitle %}
+  Search results – GOV.UK
+{% endblock %}
+
+{% block beforeContent %}
+  <a href="/test-list/search" class="govuk-back-link">Back</a>
+{% endblock %}
+
+{% block content %}
+<style>
+  .app-farm-group {
+    border-top: 1px solid #b1b4b6;
+    padding-top: 20px;
+    margin-top: 20px;
+  }
+  .app-farm-group:first-of-type {
+    border-top: 0;
+    padding-top: 0;
+    margin-top: 0;
+  }
+  .app-farm-group__heading {
+    margin-bottom: 4px;
+  }
+  .app-farm-group__meta {
+    color: #505a5f;
+    margin-top: 0;
+    margin-bottom: 12px;
+  }
+</style>
+
+{% set groups = data['tl_searchResultGroups'] or [] %}
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    {% if errorSummary %}
+      {{ govukErrorSummary(errorSummary) }}
+    {% endif %}
+
+    {% if groups and groups.length > 0 %}
+      <form action="/test-list/search-results" method="post" novalidate>
+        <div class="govuk-form-group {% if errors and errors['tl_selectedCattle'] %}govuk-form-group--error{% endif %}">
+          <fieldset class="govuk-fieldset">
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+              <h1 class="govuk-fieldset__heading">Select a farm</h1>
+            </legend>
+            <p class="govuk-body">
+              Showing results for <strong>{{ data['tl_cattleSearch'] }}</strong>.
+              {{ groups.length }} farm{% if groups.length != 1 %}s{% endif %} matched.
+              Pick the specific CPH you want to work on — larger farms may
+              have more than one holding.
+            </p>
+
+            {% if errors and errors['tl_selectedCattle'] %}
+              <p class="govuk-error-message" id="tl_selectedCattle-error">
+                <span class="govuk-visually-hidden">Error:</span>
+                {{ errors['tl_selectedCattle'].text }}
+              </p>
+            {% endif %}
+
+            {% for group in groups %}
+              <div class="app-farm-group">
+                <h2 class="govuk-heading-s app-farm-group__heading">{{ group.farm }}</h2>
+                <p class="app-farm-group__meta govuk-body-s">
+                  {{ group.location }}
+                  {% if group.postcode %} - {{ group.postcode }}{% endif %}
+                  - {{ group.totalCattle }} cattle
+                  {% if group.cphs.length > 1 %} - {{ group.cphs.length }} holdings{% endif %}
+                </p>
+
+                <div class="govuk-radios govuk-radios--small" data-module="govuk-radios">
+                  {% for cph in group.cphs %}
+                    {% set radioId = "tl_selectedCattle-" + (cph.cph | replace("/", "-")) %}
+                    <div class="govuk-radios__item">
+                      <input class="govuk-radios__input"
+                             id="{{ radioId }}"
+                             name="tl_selectedCattle"
+                             type="radio"
+                             value="{{ cph.cph }}"
+                             {% if data['tl_selectedCattle'] == cph.cph %}checked{% endif %}>
+                      <label class="govuk-label govuk-radios__label" for="{{ radioId }}">
+                        <strong>{{ cph.cph }}</strong>{% if group.cphs.length > 1 %} - {{ cph.holdingLabel }}{% endif %}
+                      </label>
+                      <div class="govuk-hint govuk-radios__hint">
+                        {{ cph.cattle }} cattle
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+            {% endfor %}
+
+          </fieldset>
+        </div>
+
+        {{ govukButton({ text: "Continue" }) }}
+      </form>
+    {% else %}
+      <h1 class="govuk-heading-l">No results found</h1>
+      <p class="govuk-body">
+        Nothing matched <strong>{{ data['tl_cattleSearch'] }}</strong>. Check the CPH, farm name, postcode or ear tag and try again.
+      </p>
+      <p class="govuk-body"><a href="/test-list/search" class="govuk-link">Search again</a></p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

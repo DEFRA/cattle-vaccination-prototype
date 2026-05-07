@@ -1,0 +1,56 @@
+{% extends "layouts/main.html" %}
+
+{% block pageTitle %}
+  Which test would you like to choose cattle for first? – GOV.UK
+{% endblock %}
+
+{% block beforeContent %}
+  <a href="/test-list/prepare-skin-test-assign" class="govuk-back-link">Back</a>
+{% endblock %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+    {% if errorSummary %}
+      {{ govukErrorSummary(errorSummary) }}
+    {% endif %}
+
+    {% if data['tl_herd'] %}
+      <span class="govuk-caption-l">{{ data['tl_herd']['farm'] }} - DIVA and SICCT</span>
+    {% endif %}
+    <h1 class="govuk-heading-l">
+      Which test would you like to choose cattle for first?
+    </h1>
+
+    <p class="govuk-body">
+      Pick the cattle for one test now. After confirming, you'll choose
+      from the remaining cattle for the other test.
+    </p>
+
+    <form action="/test-list/prepare-skin-test-assign-order" method="post" novalidate>
+
+      {{ govukRadios({
+        idPrefix: "tl_prepareAssignFirstTest",
+        name: "tl_prepareAssignFirstTest",
+        value: data['tl_prepareAssignFirstTest'] or 'sicct',
+        errorMessage: { text: errors['tl_prepareAssignFirstTest'].text } if errors and errors['tl_prepareAssignFirstTest'],
+        fieldset: {
+          legend: {
+            text: "Which test would you like to choose cattle for first?",
+            classes: "govuk-visually-hidden"
+          }
+        },
+        items: [
+          { value: "sicct", text: "Choose SICCT cattle first" },
+          { value: "diva",  text: "Choose DIVA cattle first" }
+        ]
+      }) }}
+
+      {{ govukButton({ text: "Continue" }) }}
+
+    </form>
+
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "layouts/main.html" %}
+{% from "components/_cattle-list.html" import cattleList %}
+
+{% set pageName = "List of cattle for skin testing" %}
+
+{% block beforeContent %}
+  <a href="/test-list/test-type" class="govuk-back-link">Back</a>
+{% endblock %}
+
+{% block content %}
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-full">
+
+    <h1 class="govuk-heading-l govuk-!-margin-bottom-4">
+      List of cattle for skin testing
+      {% if settings.testType != 'Both' %}
+        <span class="govuk-caption-l">{{ settings.testType }} list</span>
+      {% else %}
+        <span class="govuk-caption-l">SICCT and DIVA list</span>
+      {% endif %}
+    </h1>
+
+    {% set _columns = ["Age", "DOB", "Sex", "Breed"] %}
+    {% if settings.testType === 'Both' %}
+      {% set _columns = _columns.concat(["Test type"]) %}
+    {% endif %}
+
+    {% set _sortOptions = ["Ear-tag number", "Age", "DOB", "Sex", "Breed"] %}
+    {% if settings.testType === 'Both' %}
+      {% set _sortOptions = _sortOptions.concat(["Test type"]) %}
+    {% endif %}
+
+    {% set _title = "Birch Hollow Farm" %}
+    {% if settings.testType === 'Both' %}
+      {% set _title = _title + " – SICCT and DIVA list" %}
+    {% else %}
+      {% set _title = _title + " – " + settings.testType + " list" %}
+    {% endif %}
+
+    {{ cattleList({
+      tableVariant: "skin-test-simple",
+      formAction: "/test-list/download-list",
+      resetUrl: "/test-list/download-list/reset",
+      namePrefix: "",
+      showFileFormat: true,
+      columns: _columns,
+      sortOptions: _sortOptions,
+      settings: settings,
+      farmSummary: {
+        title: _title,
+        cph: "17/221/6804",
+        cattleLabel: "Cattle on list",
+        cattleCount: cattle | length,
+        dateLabel: "Date populated",
+        dateValue: datePopulated
+      },
+      cattle: cattle
+    }) }}
+
+  </div>
+</div>
+
+{% endblock %}

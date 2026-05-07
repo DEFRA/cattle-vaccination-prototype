@@ -1,0 +1,180 @@
+{% extends "layouts/main.html" %}
+
+{% block pageTitle %}
+  Mark cattle that will not be tested – GOV.UK
+{% endblock %}
+
+{% block beforeContent %}
+  <a href="{{ backHref or '/test-list/prepare-skin-test-type' }}" class="govuk-back-link">Back</a>
+{% endblock %}
+
+{% block content %}
+<style>
+  .app-untested-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: "GDS Transport", arial, sans-serif;
+    margin: 0 0 20px;
+  }
+  .app-untested-table th,
+  .app-untested-table td {
+    border-bottom: 1px solid #b1b4b6;
+    padding: 10px 12px;
+    vertical-align: middle;
+    text-align: left;
+  }
+  .app-untested-table thead th {
+    border-bottom: 2px solid #0b0c0c;
+    font-weight: 700;
+  }
+  .app-untested-table__select { width: 72px; text-align: center; }
+  .app-untested-table__flag {
+    display: inline-block;
+    background: #f3f2f1;
+    color: #505a5f;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    margin-left: 8px;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+  .app-untested-ear-tag {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .app-untested-ear-tag__last4 {
+    padding: 2px 6px;
+    border: 2px solid #0b0c0c;
+    margin-left: 2px;
+  }
+  .app-untested-ear-tag__prefix { margin-right: 0; }
+</style>
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-full">
+
+    {% if errorSummary %}
+      {{ govukErrorSummary(errorSummary) }}
+    {% endif %}
+
+    {% if data['tl_herd'] %}
+      <span class="govuk-caption-l">{{ data['tl_herd']['farm'] }} - {{ (data['tl_prepareSkinTestType'] or 'Skin test list') | replace('Both', 'DIVA and SICCT') }}</span>
+    {% endif %}
+    <h1 class="govuk-heading-l">Remove cattle</h1>
+
+    {% if animals.length == 0 %}
+      <p class="govuk-body">
+        No cattle on this farm match the test type you've chosen.
+      </p>
+      <form action="/test-list/prepare-skin-test-untested" method="post" novalidate>
+        <input type="hidden" name="tl_untested" value="_unchecked">
+        {{ govukButton({ text: "Continue" }) }}
+      </form>
+    {% else %}
+      <p class="govuk-body">
+        Select cattle to be removed.
+      </p>
+
+      <div class="app-page-grid">
+
+        <form method="post" action="/test-list/prepare-skin-test-untested/settings" class="app-filter-panel">
+          <h2 class="govuk-heading-m govuk-!-margin-bottom-3">List settings</h2>
+          <p class="govuk-body govuk-!-margin-bottom-4">Reorder the cattle below to suit how you'll work through them on the farm.</p>
+
+          {{ govukRadios({
+            idPrefix: "tl_sortBy",
+            name: "tl_sortBy",
+            classes: "govuk-!-margin-bottom-4",
+            fieldset: { legend: { text: "Sort by", classes: "govuk-fieldset__legend--s" } },
+            items: [
+              { value: "Ear-tag number (last 5 digits)", text: "Ear tag number (last 4 digits)", checked: (sortBy or 'Ear-tag number (last 5 digits)') == "Ear-tag number (last 5 digits)" },
+              { value: "Ear-tag number",                 text: "Ear tag number (full)",          checked: sortBy == "Ear-tag number" },
+              { value: "Age",                            text: "Age",                            checked: sortBy == "Age" },
+              { value: "Sex",                            text: "Sex",                            checked: sortBy == "Sex" },
+              { value: "Breed",                          text: "Breed",                          checked: sortBy == "Breed" },
+              { value: "DOB",                            text: "DOB",                            checked: sortBy == "DOB" }
+            ]
+          }) }}
+
+          {{ govukRadios({
+            idPrefix: "tl_sortDirection",
+            name: "tl_sortDirection",
+            classes: "govuk-!-margin-bottom-4",
+            fieldset: { legend: { text: "Order", classes: "govuk-fieldset__legend--s" } },
+            items: [
+              { value: "asc",  text: "Ascending",  checked: (sortDirection or 'asc') == "asc" },
+              { value: "desc", text: "Descending", checked: sortDirection == "desc" }
+            ]
+          }) }}
+
+          <div class="govuk-button-group">
+            {{ govukButton({ text: "Apply changes" }) }}
+            <a class="govuk-link" href="/test-list/prepare-skin-test-untested/settings/reset">Clear settings</a>
+          </div>
+        </form>
+
+        <div>
+          <form action="/test-list/prepare-skin-test-untested" method="post" novalidate>
+
+            <input type="hidden" name="tl_untested" value="_unchecked">
+
+            <table class="app-untested-table">
+              <thead>
+                <tr>
+                  <th scope="col" class="app-untested-table__select">Select</th>
+                  <th scope="col">Ear tag</th>
+                  <th scope="col">Age</th>
+                  <th scope="col">DOB</th>
+                  <th scope="col">Sex</th>
+                  <th scope="col">Breed</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for animal in animals %}
+                  <tr>
+                    <td class="app-untested-table__select">
+                      <div class="govuk-checkboxes govuk-checkboxes--small">
+                        <div class="govuk-checkboxes__item govuk-!-margin-bottom-0">
+                          <input class="govuk-checkboxes__input" id="untested-{{ loop.index }}" name="tl_untested" type="checkbox" value="{{ animal.officialId }}" {% if animal.officialId in selectedUntested %}checked{% endif %}>
+                          <label class="govuk-label govuk-checkboxes__label" for="untested-{{ loop.index }}">
+                            <span class="govuk-visually-hidden">{{ animal.officialId }} will not be tested</span>
+                          </label>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="app-untested-ear-tag">
+                        <span class="app-untested-ear-tag__prefix">{{ animal.earTagParts.prefix }}</span><span>{{ animal.earTagParts.herd }}</span><span>{{ animal.earTagParts.check }}</span><span>{{ animal.earTagParts.individualStart }}</span><span class="app-untested-ear-tag__last4">{{ animal.earTagParts.last4 }}</span>
+                      </span>
+                      {% if animal.isVaccinated %}<strong class="app-untested-table__flag" title="BCG vaccinated">VAX</strong>{% endif %}
+                      {% if animal.isDuplicate %}<strong class="app-untested-table__flag" title="Another animal on this farm shares the last 4 digits of this ear tag">DUP</strong>{% endif %}
+                    </td>
+                    <td>{{ animal.age }}</td>
+                    <td>{{ animal.dob }}</td>
+                    <td>{{ animal.sex }}</td>
+                    <td>{{ animal.breed }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+
+            <div class="govuk-button-group">
+              {{ govukButton({ text: "Continue" }) }}
+            </div>
+
+            <p class="govuk-body govuk-!-margin-top-2">
+              <a class="govuk-link" href="/test-list/prepare-skin-test-untested?skip=1">Skip — every animal will be tested</a>
+            </p>
+
+          </form>
+        </div>
+      </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}
