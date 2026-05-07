@@ -332,7 +332,7 @@ router.get('/test-list/prepare-skin-test-assign-cattle', function (req, res) {
     animals,
     selectedAssigned: assignments[currentTest] || [],
     backHref: isSecondPass ? '/test-list/prepare-skin-test-assign-cattle' : '/test-list/prepare-skin-test-assign-order',
-    sortBy: req.session.data['tl_prepareSkinTestUntestedSortBy'] || 'Ear-tag number (last 5 digits)',
+    sortBy: req.session.data['tl_prepareSkinTestUntestedSortBy'] || 'Ear-tag number (last 4 digits)',
     sortDirection: req.session.data['tl_prepareSkinTestUntestedSortDirection'] || 'asc'
   })
 })
@@ -364,13 +364,13 @@ router.post('/test-list/prepare-skin-test-assign-cattle', function (req, res) {
 })
 
 router.post('/test-list/prepare-skin-test-assign-cattle/settings', function (req, res) {
-  req.session.data['tl_prepareSkinTestUntestedSortBy'] = req.body['tl_sortBy'] || 'Ear-tag number (last 5 digits)'
+  req.session.data['tl_prepareSkinTestUntestedSortBy'] = req.body['tl_sortBy'] || 'Ear-tag number (last 4 digits)'
   req.session.data['tl_prepareSkinTestUntestedSortDirection'] = req.body['tl_sortDirection'] || 'asc'
   res.redirect('/test-list/prepare-skin-test-assign-cattle')
 })
 
 router.get('/test-list/prepare-skin-test-assign-cattle/settings/reset', function (req, res) {
-  req.session.data['tl_prepareSkinTestUntestedSortBy'] = 'Ear-tag number (last 5 digits)'
+  req.session.data['tl_prepareSkinTestUntestedSortBy'] = 'Ear-tag number (last 4 digits)'
   req.session.data['tl_prepareSkinTestUntestedSortDirection'] = 'asc'
   res.redirect('/test-list/prepare-skin-test-assign-cattle')
 })
@@ -388,7 +388,7 @@ router.get('/test-list/prepare-skin-test-assign-cattle/edit/:test', function (re
     animals: getPrepareCandidateAnimals(req),
     selectedAssigned: assignments[test] || [],
     backHref: '/test-list/skin-test-list',
-    sortBy: req.session.data['tl_prepareSkinTestUntestedSortBy'] || 'Ear-tag number (last 5 digits)',
+    sortBy: req.session.data['tl_prepareSkinTestUntestedSortBy'] || 'Ear-tag number (last 4 digits)',
     sortDirection: req.session.data['tl_prepareSkinTestUntestedSortDirection'] || 'asc'
   })
 })
@@ -421,19 +421,19 @@ router.get('/test-list/prepare-skin-test-untested', function (req, res) {
   res.render('test-list/prepare-skin-test-untested', {
     animals,
     selectedUntested,
-    sortBy: req.session.data['tl_prepareSkinTestUntestedSortBy'] || 'Ear-tag number (last 5 digits)',
+    sortBy: req.session.data['tl_prepareSkinTestUntestedSortBy'] || 'Ear-tag number (last 4 digits)',
     sortDirection: req.session.data['tl_prepareSkinTestUntestedSortDirection'] || 'asc'
   })
 })
 
 router.post('/test-list/prepare-skin-test-untested/settings', function (req, res) {
-  req.session.data['tl_prepareSkinTestUntestedSortBy'] = req.body['tl_sortBy'] || 'Ear-tag number (last 5 digits)'
+  req.session.data['tl_prepareSkinTestUntestedSortBy'] = req.body['tl_sortBy'] || 'Ear-tag number (last 4 digits)'
   req.session.data['tl_prepareSkinTestUntestedSortDirection'] = req.body['tl_sortDirection'] || 'asc'
   res.redirect('/test-list/prepare-skin-test-untested')
 })
 
 router.get('/test-list/prepare-skin-test-untested/settings/reset', function (req, res) {
-  req.session.data['tl_prepareSkinTestUntestedSortBy'] = 'Ear-tag number (last 5 digits)'
+  req.session.data['tl_prepareSkinTestUntestedSortBy'] = 'Ear-tag number (last 4 digits)'
   req.session.data['tl_prepareSkinTestUntestedSortDirection'] = 'asc'
   res.redirect('/test-list/prepare-skin-test-untested')
 })
@@ -619,7 +619,7 @@ router.get('/test-list/skin-test-list', function (req, res) {
 router.post('/test-list/skin-test-list', function (req, res) {
   req.session.data['tl_skinTestPreviewOptions'] = toArray(req.body['tl_previewOptions'])
   req.session.data['tl_downloadFormat'] = req.body['tl_downloadFormat'] || 'pdf'
-  req.session.data['tl_skinTestSortBy'] = req.body['tl_sortBy'] || 'Ear-tag number (last 5 digits)'
+  req.session.data['tl_skinTestSortBy'] = req.body['tl_sortBy'] || 'Ear-tag number (last 4 digits)'
   req.session.data['tl_skinTestSortDirection'] = req.body['tl_sortDirection'] || 'asc'
   req.session.data['tl_skinTestPreviewTextSize'] = req.body['tl_previewTextSize'] || 'standard'
   req.session.data['tl_skinTestPreviewOrientation'] = req.body['tl_previewOrientation'] || 'portrait'

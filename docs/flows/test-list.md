@@ -6,7 +6,7 @@ For vets or field officers preparing a list of cattle for skin testing at a spec
 
 There are two sub-flows within this feature:
 
-- **Prepare skin test** — the full workflow: find a farm, choose test type, optionally assign cattle to lists (for mixed herds), remove animals that won't be tested, then format and confirm the list.
+- **Prepare skin test** — the full workflow: find a farm, choose test type, optionally assign cattle to lists (for mixed herds), then format and confirm the list. Cattle can be removed from the list using a back-navigation link on the skin test list page.
 - **Simple download list** — a shorter path that goes straight from test-type selection to a formatted preview list without the cattle-removal steps.
 
 ---
@@ -73,7 +73,7 @@ There are two sub-flows within this feature:
 
 ### Step 4: Select Visit Task
 
-**URL:** `/test-list/select-visit-task`
+**URL:** `/test-list/select-visit-task` (GET) — form POSTs to `/test-list/select-journey`
 
 **User sees:**
 
@@ -107,7 +107,7 @@ There are two sub-flows within this feature:
 - SICCT selected + farm has vaccinated cattle → Warning (Step 5a)
 - DIVA selected + farm has unvaccinated cattle → Warning (Step 5a)
 - Both (DIVA and SICCT) → Assign cattle (Step 6)
-- SICCT or DIVA with no mismatch → Remove cattle (Step 7)
+- SICCT or DIVA with no mismatch → Skin test list (Step 10) directly
 
 ---
 
@@ -131,7 +131,7 @@ There are two sub-flows within this feature:
 **Routing logic:**
 
 - Switch to Both → Assign cattle (Step 6)
-- Continue with original → Remove cattle (Step 7)
+- Continue with original → Skin test list (Step 10) directly
 
 ---
 
@@ -154,7 +154,7 @@ These steps only appear when the test type is "Both" (DIVA and SICCT).
 
 **Routing logic:**
 
-- Automatic → Remove cattle (Step 7), cattle split by vaccination status
+- Automatic → Skin test list (Step 10) directly, cattle split by vaccination status
 - Manual → Assign order (Step 6b)
 
 #### Step 6b: Assign Order (manual only)
@@ -188,15 +188,17 @@ These steps only appear when the test type is "Both" (DIVA and SICCT).
 
 **Routing logic (second pass):**
 
-- After confirming second test selection → Remove cattle (Step 7)
+- After confirming second test selection → Skin test list (Step 10) directly
 
 This page is also available as `/test-list/prepare-skin-test-assign-cattle/edit/:test` for editing assignments from the skin test list page.
 
 ---
 
-### Step 7: Remove Cattle
+### Step 7: Remove Cattle (optional — accessed from Step 10)
 
 **URL:** `/test-list/prepare-skin-test-untested`
+
+This step is not part of the forward flow. It is reached by clicking the "Remove cattle from list" link on the skin test list page (Step 10).
 
 **User sees:**
 
@@ -212,7 +214,8 @@ This page is also available as `/test-list/prepare-skin-test-assign-cattle/edit/
 **Routing logic:**
 
 - Some animals ticked → Reason per animal (Step 8), one per selected animal
-- No animals ticked / Skip → Confirm removals (Step 9) (shows "no animals marked" message)
+- No animals ticked → Skin test list (Step 10) directly
+- Skip link → Skin test list (Step 10) directly
 
 ---
 
@@ -262,8 +265,8 @@ This page is also available as `/test-list/prepare-skin-test-assign-cattle/edit/
 - Two-column layout:
   - **Settings panel** (left): sort, order, text size, orientation, line spacing, column toggles, emphasise last 4 digits checkbox — all update live without submitting; "Apply changes" re-sorts
   - **Preview panel** (right): formatted A4-style sheet with farm summary table (CPH, cattle count, date list was made), DUP/VAX key, and the skin test recording table with A and B measurement rows per animal and columns for skin measurements, reaction description, and overall result
-- Continue button (saves the list)
-- "Remove cattle from list" link → back to remove cattle step
+- Continue link (navigates to Confirmed — does not save or submit)
+- "Remove cattle from list" link → Remove cattle step (Step 7)
 - "Change cattle on the SICCT/DIVA list" links (Both journey only)
 
 **Settings panel controls:**
@@ -277,13 +280,11 @@ This page is also available as `/test-list/prepare-skin-test-assign-cattle/edit/
 | Page orientation | Portrait / Landscape |
 | Line spacing | Tight / Standard / Spaced |
 
-**User action:** Adjusts settings, then clicks Continue to confirm the list.
+**User action:** Adjusts settings, then clicks Continue to go to the confirmed page.
 
 **Routing logic:**
 
-- Both journey, SICCT phase confirmed → show DIVA list (Step 10 again, DIVA phase)
-- Both journey, DIVA phase confirmed → Confirmed (Step 11)
-- Single test journey → Confirmed (Step 11)
+- Continue → Skin test list confirmed (Step 11)
 
 ---
 
@@ -294,11 +295,11 @@ This page is also available as `/test-list/prepare-skin-test-assign-cattle/edit/
 **User sees:**
 
 - Heading: "You can now print your list"
-- If Both journey, first list confirmed: prompt to continue to the second list with a Continue button
+- If Both journey, SICCT confirmed: prompt to continue to the DIVA list with a Continue button (POSTs to `/test-list/prepare-skin-test-next`, which sets phase to `diva` and redirects back to Step 10)
 - If Both journey, both lists confirmed: download links for SICCT and DIVA PDFs; "Save lists to print later" button; links to prepare another list or exit
 - If single test journey: download link for PDF; "Save list to print later" button; links to prepare another list or exit
 
-**Journey ends here** (or loops back through Step 10 for the second list in a Both journey).
+**Journey ends here** (or loops back through Step 10 for the second list in a Both journey via POST to `/test-list/prepare-skin-test-next`).
 
 ---
 
@@ -352,22 +353,29 @@ A shorter path for producing a formatted skin test list without the cattle-remov
 search
   → search-results
     → confirm-herd
-      → select-visit-task
+      → select-visit-task (POST: /test-list/select-journey)
         → prepare-skin-test-type
             ├── [mismatch] → prepare-skin-test-warning
             │                   ├── switch-both → prepare-skin-test-assign
-            │                   └── continue    → prepare-skin-test-untested
+            │                   └── continue    → skin-test-list
             ├── Both → prepare-skin-test-assign
-            │             ├── auto  → prepare-skin-test-untested
+            │             ├── auto  → skin-test-list
             │             └── manual → prepare-skin-test-assign-order
             │                            → prepare-skin-test-assign-cattle (×2)
-            │                              → prepare-skin-test-untested
-            └── SICCT/DIVA (no mismatch) → prepare-skin-test-untested
-                                             → prepare-skin-test-untested-reason (×N)
-                                               → prepare-skin-test-untested-confirm
-                                                 → skin-test-list
-                                                     ├── Both, step 1 of 2 → skin-test-list (DIVA)
-                                                     └── final → skin-test-list-confirmed
+            │                              → skin-test-list
+            └── SICCT/DIVA (no mismatch) → skin-test-list
+
+skin-test-list
+  ├── [optional back-nav] "Remove cattle" link
+  │     → prepare-skin-test-untested
+  │           ├── some animals → prepare-skin-test-untested-reason (×N)
+  │           │                    → prepare-skin-test-untested-confirm
+  │           │                      → skin-test-list
+  │           └── none / skip → skin-test-list
+  └── Continue → skin-test-list-confirmed
+                   ├── Both, SICCT confirmed
+                   │     → POST /prepare-skin-test-next → skin-test-list (DIVA phase)
+                   └── final → journey ends
 ```
 
 ---
@@ -385,11 +393,16 @@ search
 | `tl_warningContext`                      | Routes                 | `"SICCT-with-vax"` or `"DIVA-without-vax"` — triggers warning page            |
 | `tl_prepareAssignMode`                   | Assign page            | `"auto"` or `"manual"`                                                        |
 | `tl_prepareAssignFirstTest`              | Assign order page      | `"sicct"` or `"diva"` — which list to fill first                              |
+| `tl_prepareAssignCurrentTest`            | Assign cattle page     | `"sicct"` or `"diva"` — which test is currently being assigned                |
+| `tl_prepareAssignCompletedTests`         | Assign cattle page     | Array of test keys already assigned (e.g. `["sicct"]`)                        |
 | `tl_prepareSkinTestAssignments`          | Assign cattle page     | `{ sicct: [...officialIds], diva: [...officialIds] }`                         |
 | `tl_prepareSkinTestUntested`             | Remove cattle page     | Array of `officialId` strings to exclude                                      |
 | `tl_prepareSkinTestUntestedReasons`      | Reason pages           | Map of `officialId → reason code`                                             |
 | `tl_prepareSkinTestUntestedReasonOthers` | Reason pages           | Map of `officialId → free text`                                               |
-| `tl_skinTestPreviewOptions`              | Skin test list page    | Visible column names + `"show-last-five"` flag                                |
+| `tl_currentPrepareUntestedIndex`         | Reason pages           | Current index in the reason-per-animal loop                                   |
+| `tl_prepareSkinTestUntestedSortBy`       | Remove/assign pages    | Active sort field on remove cattle and assign cattle pages                    |
+| `tl_prepareSkinTestUntestedSortDirection`| Remove/assign pages    | `"asc"` or `"desc"` for those pages                                           |
+| `tl_skinTestPreviewOptions`              | Skin test list page    | Visible column names + `"Emphasise-last-five"` flag                           |
 | `tl_skinTestSortBy`                      | Skin test list page    | Active sort field                                                             |
 | `tl_skinTestSortDirection`               | Skin test list page    | `"asc"` or `"desc"`                                                           |
 | `tl_skinTestPreviewTextSize`             | Skin test list page    | `"small"`, `"standard"`, or `"large"`                                         |
@@ -400,7 +413,7 @@ search
 
 ## Mocked Data
 
-Cattle data is looked up per CPH from `ANIMALS_BY_CPH` in `routes.js`. Each animal record contains:
+Cattle data is looked up per CPH from `ANIMALS_BY_CPH` in `helpers/farm-generator.js`. Each animal record contains:
 
 | Field                | Type    | Notes                                                                                          |
 | -------------------- | ------- | ---------------------------------------------------------------------------------------------- |
@@ -413,4 +426,4 @@ Cattle data is looked up per CPH from `ANIMALS_BY_CPH` in `routes.js`. Each anim
 | `isDuplicate`        | Boolean | Set by `enrichWithFlags` — true if another animal on the farm shares the last 4 ear tag digits |
 | `isVaccinated`       | Boolean | Derived from `vaccinationStatus`                                                               |
 
-The search covers 25 Yorkshire farms defined in `TL_HERD_DATA` in `routes.js`. Farms can be found by CPH, farm name, postcode, or ear tag.
+The search covers 25 Yorkshire farms defined in `TL_HERD_DATA` in `data/test-list-farms.js`. Farms can be found by CPH, farm name, postcode, or ear tag.

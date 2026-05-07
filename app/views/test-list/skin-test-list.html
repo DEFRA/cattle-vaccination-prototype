@@ -137,7 +137,7 @@
       columns: previewAllColumns,
       extraToggleColumns: ['Overall result', 'Remarks'],
       sortOptions: [
-        { value: "Ear-tag number (last 5 digits)", text: "Ear tag number (last 4 digits)" },
+        { value: "Ear-tag number (last 4 digits)", text: "Ear tag number (last 4 digits)" },
         { value: "Ear-tag number",                 text: "Ear tag number (full)" },
         { value: "Age",   text: "Age" },
         { value: "Sex",   text: "Sex" },
@@ -147,7 +147,7 @@
       settings: {
         previewOptions: previewOptions,
         emphasiseLastFive: emphasiseLastFive,
-        sortBy: data['tl_skinTestSortBy'] or 'Ear-tag number (last 5 digits)',
+        sortBy: data['tl_skinTestSortBy'] or 'Ear-tag number (last 4 digits)',
         sortDirection: data['tl_skinTestSortDirection'] or 'asc',
         previewTextSize: previewTextSize or 'standard',
         previewOrientation: previewOrientation or 'portrait',

@@ -38,8 +38,8 @@ function sortCowsByValue(animal, sortBy) {
   switch (sortBy) {
     case 'Age':
       return ageInDaysFromDob(animal.dob)
-    case 'Ear-tag number (last 5 digits)':
-      return String(animal.officialId || '').slice(-5)
+    case 'Ear-tag number (last 4 digits)':
+      return String(animal.officialId || '').slice(-4)
     case 'Ear-tag number':
       return animal.officialId || ''
     case 'DOB':
