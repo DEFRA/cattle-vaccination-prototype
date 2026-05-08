@@ -1,0 +1,74 @@
+{% extends "layouts/main.html" %}
+
+{% block pageTitle %}
+  When was Day 1 of the test? – GOV.UK
+{% endblock %}
+
+{% block beforeContent %}
+  <a href="/test-list/report-who-tested" class="govuk-back-link">Back</a>
+{% endblock %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+    {% if errorSummary %}
+      {{ govukErrorSummary(errorSummary) }}
+    {% endif %}
+
+    {% if data['tl_herd'] %}
+      <span class="govuk-caption-l">{{ data['tl_herd']['farm'] }}</span>
+    {% endif %}
+    <h1 class="govuk-heading-l">When was Day 1 of the test?</h1>
+    <p class="govuk-body">Day 1 is when you injected the tuberculin. Day 2 (the reading) takes place 72 hours later – you'll record that on the next page.</p>
+
+    <form action="/test-list/report-day-1" method="post" novalidate>
+
+      {{ govukDateInput({
+        id: "tl_reportDay1Date",
+        namePrefix: "tl_reportDay1Date",
+        fieldset: {
+          legend: {
+            text: "Day 1 (injection)",
+            classes: "govuk-fieldset__legend--m"
+          }
+        },
+        errorMessage: { text: errors['tl_reportDay1Date'].text } if errors and errors['tl_reportDay1Date'],
+        items: [
+          {
+            name: "day",
+            classes: "govuk-input--width-2" + (" govuk-input--error" if errors and errors['tl_reportDay1Date']),
+            value: (formValues['tl_reportDay1Date-day'] if formValues else data['tl_reportDay1Date-day'])
+          },
+          {
+            name: "month",
+            classes: "govuk-input--width-2" + (" govuk-input--error" if errors and errors['tl_reportDay1Date']),
+            value: (formValues['tl_reportDay1Date-month'] if formValues else data['tl_reportDay1Date-month'])
+          },
+          {
+            name: "year",
+            classes: "govuk-input--width-4" + (" govuk-input--error" if errors and errors['tl_reportDay1Date']),
+            value: (formValues['tl_reportDay1Date-year'] if formValues else data['tl_reportDay1Date-year'])
+          }
+        ]
+      }) }}
+
+      {{ govukCheckboxes({
+        idPrefix: "tl_reportDay1MultiDay",
+        name: "tl_reportDay1MultiDay",
+        items: [
+          {
+            value: "yes",
+            text: "Select if Day 1 took more than a single day to complete",
+            checked: (formValues['tl_reportDay1MultiDay'] == 'yes' if formValues else data['tl_reportDay1MultiDay'] == 'yes')
+          }
+        ]
+      }) }}
+
+      {{ govukButton({ text: "Continue" }) }}
+
+    </form>
+
+  </div>
+</div>
+{% endblock %}

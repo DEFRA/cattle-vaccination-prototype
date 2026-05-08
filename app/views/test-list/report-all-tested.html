@@ -1,0 +1,56 @@
+{% extends "layouts/main.html" %}
+
+{% block pageTitle %}
+  Did you test all cattle? – GOV.UK
+{% endblock %}
+
+{% block beforeContent %}
+  <a href="/test-list/report-reactions" class="govuk-back-link">Back</a>
+{% endblock %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+    {% if errorSummary %}
+      {{ govukErrorSummary(errorSummary) }}
+    {% endif %}
+
+    {% if data['tl_herd'] %}
+      <span class="govuk-caption-l">{{ data['tl_herd']['farm'] }}</span>
+    {% endif %}
+
+    <form action="/test-list/report-all-tested" method="post" novalidate>
+
+      {{ govukRadios({
+        idPrefix: "tl_reportAllTested",
+        name: "tl_reportAllTested",
+        errorMessage: { text: errors['tl_reportAllTested'].text } if errors and errors['tl_reportAllTested'],
+        fieldset: {
+          legend: {
+            text: "Did you test all " + cattleCount + " cattle?",
+            isPageHeading: true,
+            classes: "govuk-fieldset__legend--l"
+          }
+        },
+        items: [
+          {
+            value: "yes",
+            text: "Yes",
+            checked: (formValues['tl_reportAllTested'] or data['tl_reportAllTested']) == "yes"
+          },
+          {
+            value: "no",
+            text: "No",
+            checked: (formValues['tl_reportAllTested'] or data['tl_reportAllTested']) == "no"
+          }
+        ]
+      }) }}
+
+      {{ govukButton({ text: "Continue" }) }}
+
+    </form>
+
+  </div>
+</div>
+{% endblock %}

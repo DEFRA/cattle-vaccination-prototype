@@ -1,0 +1,111 @@
+{% extends "layouts/main.html" %}
+
+{% block pageTitle %}
+  Who tested the cattle? – GOV.UK
+{% endblock %}
+
+{% block beforeContent %}
+  <a href="/test-list/select-visit-task" class="govuk-back-link">Back</a>
+{% endblock %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+    {% if errorSummary %}
+      {{ govukErrorSummary(errorSummary) }}
+    {% endif %}
+
+    {% set testerValue = formValues['tl_reportTester'] if formValues else data['tl_reportTester'] %}
+    {% set testerNameValue = formValues['tl_reportTesterName'] if formValues else data['tl_reportTesterName'] %}
+    {% set testerRoleValue = formValues['tl_reportTesterRole'] if formValues else data['tl_reportTesterRole'] %}
+    {% set testerRoleOtherValue = formValues['tl_reportTesterRoleOther'] if formValues else data['tl_reportTesterRoleOther'] %}
+
+    {% set otherRoleHtml %}
+      {{ govukInput({
+        id: "tl_reportTesterRoleOther",
+        name: "tl_reportTesterRoleOther",
+        label: { text: "Describe their role", classes: "govuk-label--s" },
+        classes: "govuk-!-width-two-thirds",
+        value: testerRoleOtherValue,
+        errorMessage: { text: errors['tl_reportTesterRoleOther'].text } if errors and errors['tl_reportTesterRoleOther']
+      }) }}
+    {% endset %}
+
+    {% set someoneElseHtml %}
+      {{ govukInput({
+        id: "tl_reportTesterName",
+        name: "tl_reportTesterName",
+        label: { text: "Their name", classes: "govuk-label--s" },
+        classes: "govuk-!-width-two-thirds",
+        value: testerNameValue,
+        errorMessage: { text: errors['tl_reportTesterName'].text } if errors and errors['tl_reportTesterName']
+      }) }}
+
+      {{ govukRadios({
+        idPrefix: "tl_reportTesterRole",
+        name: "tl_reportTesterRole",
+        value: testerRoleValue,
+        errorMessage: { text: errors['tl_reportTesterRole'].text } if errors and errors['tl_reportTesterRole'],
+        fieldset: {
+          legend: {
+            text: "Their role",
+            classes: "govuk-fieldset__legend--s"
+          }
+        },
+        items: [
+          {
+            value: "vet",
+            text: "Vet"
+          },
+          {
+            value: "att",
+            text: "An authorised tuberculin tester"
+          },
+          {
+            value: "other",
+            text: "Other",
+            conditional: { html: otherRoleHtml }
+          }
+        ]
+      }) }}
+    {% endset %}
+
+    {% if data['tl_herd'] %}
+      <span class="govuk-caption-l">{{ data['tl_herd']['farm'] }}</span>
+    {% endif %}
+
+    <form action="/test-list/report-who-tested" method="post" novalidate>
+
+      {{ govukRadios({
+        idPrefix: "tl_reportTester",
+        name: "tl_reportTester",
+        value: testerValue,
+        errorMessage: { text: errors['tl_reportTester'].text } if errors and errors['tl_reportTester'],
+        fieldset: {
+          legend: {
+            text: "Who tested the cattle?",
+            isPageHeading: true,
+            classes: "govuk-fieldset__legend--l"
+          }
+        },
+        items: [
+          {
+            value: "me",
+            text: "I did"
+          },
+          {
+            value: "someone-else",
+            text: "Someone else in our organisation",
+            conditional: { html: someoneElseHtml }
+          }
+        ]
+      }) }}
+
+      {{ govukButton({ text: "Continue" }) }}
+
+    </form>
+
+  </div>
+</div>
+{% endblock %}

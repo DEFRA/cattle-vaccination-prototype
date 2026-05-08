@@ -1,0 +1,75 @@
+{% extends "layouts/main.html" %}
+
+{% set pageName="Prototype limitations" %}
+
+{% block content %}
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+    <h1 class="govuk-heading-xl">Prototype limitations</h1>
+
+    <p class="govuk-body">This page lists the known limitations of the cattle TB vaccination prototype. These are areas where the prototype uses mocked, hardcoded, or simplified data instead of real information.</p>
+
+    <h2 class="govuk-heading-m">Mocked data</h2>
+
+    <p class="govuk-body">The following data is not sourced from real systems and has been created for prototype purposes only.</p>
+
+    {{ govukSummaryList({
+      rows: [
+        {
+          key: { text: "Farm and CPH search results" },
+          value: { text: "Farm names, CPH numbers, addresses, and postcode data returned by the search are hardcoded in the prototype. They do not reflect real holdings." }
+        },
+        {
+          key: { text: "Cattle data" },
+          value: { text: "Ear tag numbers, breeds, dates of birth, sex, vaccination status, and all other cattle attributes are generated or hardcoded. They do not reflect real animals registered on a holding." }
+        }
+      ]
+    }) }}
+
+    <h2 class="govuk-heading-m">Salesforce API submission (test list — report results)</h2>
+
+    <p class="govuk-body">When submitting skin test results, several values required by the Salesforce API are not collected in the journey. The following hardcoded or derived values are sent instead.</p>
+
+    {{ govukSummaryList({
+      rows: [
+        {
+          key: { text: "CPH sent to Salesforce" },
+          value: { html: "Hardcoded to <strong>01/001/0006</strong>. The prototype only works with CPH numbers that exist in the Salesforce test environment. The CPH the user searched for is displayed on the check-answers page but is not sent." }
+        },
+        {
+          key: { text: "Reason for test" },
+          value: { html: "Hardcoded to <strong>Pre-Movement</strong>. The journey does not ask the user for a reason for test." }
+        },
+        {
+          key: { text: "Test window start and end" },
+          value: { text: "Derived from the Day 1 and Day 2 dates entered in the journey. The earliest date is used as the window start and the latest as the window end. In a real system these would be provided by the work order." }
+        },
+        {
+          key: { text: "Certifying vet" },
+          value: { html: "Hardcoded to <strong>Dr Bob</strong>. The journey collects who administered the test but not the certifying vet, who may be a different person." }
+        },
+        {
+          key: { text: "Tester (when 'I did')" },
+          value: { html: "Hardcoded to <strong>Farmer John</strong> when the user selects 'I did' as the tester. The prototype has no concept of a logged-in user identity. If the user provides a tester name directly, that name is used." }
+        },
+        {
+          key: { text: "SICCT batch numbers (avian and bovine)" },
+          value: { text: "The Salesforce API has separate batch number fields for avian and bovine tuberculin. The journey collects a single SICCT batch number, which is used for both fields." }
+        },
+        {
+          key: { text: "Animals submitted as results" },
+          value: { text: "Only animals that reacted (reactors and inconclusives) are included in the submitted results, with their measurements. Non-reactor animals are not submitted because no measurement data is collected for them in the journey." }
+        }
+      ]
+    }) }}
+
+    <p class="govuk-body govuk-!-margin-top-4">
+      <a href="/" class="govuk-link">Back to home</a>
+    </p>
+
+  </div>
+</div>
+
+{% endblock %}

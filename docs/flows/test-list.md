@@ -78,12 +78,17 @@ There are two sub-flows within this feature:
 **User sees:**
 
 - Farm name as caption
-- Radio: "Prepare a list of cattle for skin tests" (only option currently)
+- Radios:
+  - "Prepare a list of cattle for skin tests"
+  - "Report skin test results" — hint: Report completed skin tests
 - Continue button
 
 **User action:** Selects the task and continues.
 
-**Next step:** Prepare skin test type
+**Routing logic:**
+
+- Prepare a list → Prepare skin test type (Step 5)
+- Report skin test results → Who tested the cattle? (Flow 3, Step 1)
 
 ---
 
@@ -387,7 +392,7 @@ skin-test-list
 | `tl_cattleSearch`                        | Search page            | Search term entered                                                           |
 | `tl_selectedCattle`                      | Search results         | Chosen CPH                                                                    |
 | `tl_herd`                                | Confirm herd           | Full farm record (farm, CPH, address, cattle count)                           |
-| `tl_journey`                             | Select visit task      | Always `"prepare-skin-test"` for now                                          |
+| `tl_journey`                             | Select visit task      | `"prepare-skin-test"` or `"report-skin-test-results"`                         |
 | `tl_prepareSkinTestType`                 | Prepare skin test type | `"SICCT"`, `"DIVA"`, or `"Both"`                                              |
 | `tl_prepareSkinTestPhase`                | Routes                 | `"sicct"` or `"diva"` — tracks which list is being prepared in a Both journey |
 | `tl_warningContext`                      | Routes                 | `"SICCT-with-vax"` or `"DIVA-without-vax"` — triggers warning page            |
@@ -408,6 +413,365 @@ skin-test-list
 | `tl_skinTestPreviewTextSize`             | Skin test list page    | `"small"`, `"standard"`, or `"large"`                                         |
 | `tl_skinTestPreviewOrientation`          | Skin test list page    | `"portrait"` or `"landscape"`                                                 |
 | `tl_skinTestPreviewSpacing`              | Skin test list page    | `"tight"`, `"standard"`, or `"spaced"`                                        |
+| `tl_reportTester`                        | Who tested page        | `"me"` or `"someone-else"`                                                    |
+| `tl_reportTesterName`                    | Who tested page        | Free-text name of the person who conducted the test (if someone else)         |
+| `tl_reportTesterRole`                    | Who tested page        | `"vet"`, `"att"`, or `"other"` — role of the tester (if someone else)        |
+| `tl_reportTesterRoleOther`               | Who tested page        | Free-text role description (if role is `"other"`)                             |
+| `tl_reportDay1Date`                      | Day 1 page             | Date of Day 1 injection (DD/MM/YYYY)                                          |
+| `tl_reportDay1MultiDay`                  | Day 1 page             | Boolean — true if Day 1 took more than a single day                           |
+| `tl_reportDay2Date`                      | Day 2 page             | Date of Day 2 reading (DD/MM/YYYY)                                            |
+| `tl_reportDay2MultiDay`                  | Day 2 page             | Boolean — true if Day 2 took more than a single day                           |
+| `tl_reportTestTypes`                     | Test type page         | Array of selected test types: `["sicct"]`, `["diva"]`, or `["sicct", "diva"]` |
+| `tl_reportSicctBatchNumbers`             | Test type page         | Array of batch number strings for SICCT                                       |
+| `tl_reportDivaBatchNumbers`              | Test type page         | Array of batch number strings for DIVA                                        |
+| `tl_reportRecordOrder`                   | Record order page      | `"sicct"` or `"diva"` — which test's results to record first (Both only)      |
+| `tl_reportCurrentReactionTest`           | Routes                 | `"sicct"` or `"diva"` — which test is currently being asked about             |
+| `tl_reportCompletedReactionTests`        | Reactions page         | Array of test keys already answered (e.g. `["sicct"]`)                        |
+| `tl_reportSicctPositiveReaction`         | Reactions page         | `"yes"` or `"no"` — whether any SICCT cattle showed a positive reaction       |
+| `tl_reportDivaPositiveReaction`          | Reactions page         | `"yes"` or `"no"` — whether any DIVA cattle showed a positive reaction        |
+| `tl_reportAllTested`                     | All tested page        | `"yes"` or `"no"` — whether all cattle on the holding were tested             |
+| `tl_reportUntestedCattle`                | Untested page          | Array of `officialId` strings for cattle that were not tested                 |
+| `tl_reportUntestedReasons`               | Reason pages           | Map of `officialId → reason code`                                             |
+| `tl_reportUntestedReasonOthers`          | Reason pages           | Map of `officialId → free text`                                               |
+| `tl_reportCurrentUntestedIndex`          | Reason pages           | Current index in the reason-per-animal loop                                   |
+| `tl_reportSicctReactors`                 | Identify reactors page | Array of `officialId` strings for SICCT reactors/inconclusives                |
+| `tl_reportDivaReactors`                  | Identify reactors page | Array of `officialId` strings for DIVA reactors/inconclusives                 |
+| `tl_reportSicctMeasurements`             | Measurements pages     | Map of `officialId → { bovineDay1, bovineDay2, avianDay1, avianDay2 }` (mm)   |
+| `tl_reportDivaMeasurements`              | Measurements pages     | Map of `officialId → { bovineDay1, bovineDay2 }` (mm)                         |
+| `tl_reportCurrentMeasurementIndex`       | Measurements pages     | Current index in the per-animal measurements loop                             |
+
+---
+
+## Flow 3: Report Skin Test Results
+
+Entered from the Select Visit Task page (Step 4 of Flow 1) when the user chooses "Report skin test results". Shares the search, search results, confirm herd, and select visit task steps with Flow 1.
+
+---
+
+### Step 1: Who Tested the Cattle?
+
+**URL:** `/test-list/report-who-tested`
+
+**User sees:**
+
+- Farm name as caption
+- Heading: "Who tested the cattle?"
+- Radios:
+  - "I did"
+  - "Someone else in our organisation" — reveals the following conditional fields:
+    - Text input: their name (no label specified — "Name" or similar)
+    - Radios: "Their role:"
+      - "Vet"
+      - "An authorised tuberculin tester"
+      - "Other" — reveals a text input for the role description
+- Continue button
+
+**User action:** Selects who tested the cattle, filling in name and role if applicable.
+
+**Next step:** Day 1 date (Step 2)
+
+---
+
+### Step 2: When Was Day 1 of the Test?
+
+**URL:** `/test-list/report-day-1`
+
+**User sees:**
+
+- Farm name as caption
+- Heading: "When was Day 1 of the test?"
+- Hint text: "Day 1 is when you injected the tuberculin. Day 2 (the reading) takes place 72 hours later – you'll record that on the next page."
+- Date input labelled "Day 1 (injection)" (DD/MM/YYYY)
+- Checkbox: "Select if Day 1 took more than a single day to complete"
+- Continue button
+
+**Next step:** Day 2 date (Step 3)
+
+---
+
+### Step 3: When Was Day 2 of the Test?
+
+**URL:** `/test-list/report-day-2`
+
+**User sees:**
+
+- Farm name as caption
+- Heading: "When was Day 2 of the test?"
+- Hint text: "Day 2 is when you read the tuberculin reactions, 72 hours after Day 1."
+- Date input labelled "Day 2 (reading)" (DD/MM/YYYY)
+- Checkbox: "Select if Day 2 took more than a single day to complete"
+- Continue button
+
+**Next step:** Test type (Step 4)
+
+---
+
+### Step 4: Which Test Did You Do?
+
+**URL:** `/test-list/report-test-type`
+
+**User sees:**
+
+- Farm name as caption
+- Heading: "Which test did you do?"
+- Hint text: "Select all that apply."
+- Checkboxes:
+  - "SICCT test" — when checked, reveals:
+    - Text input: "Batch number" (for SICCT tuberculin)
+    - Button (JS only): "Add another batch number" — appends an additional batch number text input
+  - "DIVA test" — when checked, reveals:
+    - Text input: "Batch number" (for DIVA tuberculin)
+    - Button (JS only): "Add another batch number" — appends an additional batch number text input
+- Continue button
+
+**User action:** Checks one or both tests, enters batch number(s) for each.
+
+**Routing logic:**
+
+- Both SICCT and DIVA selected → Record order (Step 5)
+- SICCT only → Positive reaction question for SICCT (Step 6)
+- DIVA only → Positive reaction question for DIVA (Step 6)
+
+---
+
+### Step 5: Which Results Would You Like to Record First? (Both only)
+
+**URL:** `/test-list/report-record-order`
+
+**User sees:**
+
+- Farm name as caption
+- Heading: "Which results would you like to record first?"
+- Radios:
+  - "SICCT test results first"
+  - "DIVA test results first"
+- Continue button
+
+**Routing logic:**
+
+- Selection made → Positive reaction question for the chosen test first (Step 6)
+
+---
+
+### Step 6: Did Any Cattle Show a Positive Reaction? (runs once per test type)
+
+**URL:** `/test-list/report-reactions`
+
+**User sees:**
+
+- Farm name as caption
+- Caption suffix for Both journey: "(step 1 of 2)" or "(step 2 of 2)"
+- Heading: "Did any cattle show a positive reaction?" with the current test type (SICCT or DIVA) as a subheading or caption
+- Radios:
+  - "Yes"
+  - "No"
+- Continue button
+
+**Routing logic:**
+
+- Yes → Identify reactors (Step 6a)
+- No + more test types remain (Both journey, first pass) → Same page for the second test type (step 2 of 2)
+- No + all test types answered → Did you test all cattle? (Step 7)
+
+---
+
+### Step 6a: Identify Reactors
+
+**URL:** `/test-list/report-identify-reactors`
+
+**User sees:**
+
+- Farm name as caption, (step N of M) suffix if Both journey
+- Heading: "Identify the cattle"
+- Body text: "Select all cattle that reacted or showed an inconclusive result."
+- Table of all cattle on the holding, each with a checkbox, ear tag, age, DOB, sex, breed — VAX and DUP flags shown where relevant
+- Continue button
+
+**User action:** Ticks every animal that reacted or gave an inconclusive result and continues.
+
+**Routing logic:**
+
+- No animals selected → validation error: "Select at least one animal"
+- Animals selected → Record measurements (Step 6b), one per selected animal
+
+---
+
+### Step 6b: Record Measurements (per animal, loops)
+
+**URL:** `/test-list/report-measurements/:index`
+
+**User sees:**
+
+- Progress indicator: "Cattle X of Y"
+- Heading: "Record measurements for cattle: [ear tag last 4 digits]"
+- Animal details: full ear tag with VAX/DUP flags, age, DOB, sex, breed
+- If current test is **SICCT**:
+  - Bovine tuberculin, Day 1 skin fold thickness (mm) — numeric input
+  - Bovine tuberculin, Day 2 skin fold thickness (mm) — numeric input
+  - Avian tuberculin, Day 1 skin fold thickness (mm) — numeric input
+  - Avian tuberculin, Day 2 skin fold thickness (mm) — numeric input
+- If current test is **DIVA**:
+  - Bovine tuberculin, Day 1 skin fold thickness (mm) — numeric input
+  - Bovine tuberculin, Day 2 skin fold thickness (mm) — numeric input
+- "Save and continue" button
+
+**User action:** Enters measurements and continues. Repeats for each reactor animal.
+
+**Routing logic:**
+
+- After the last animal:
+  - More test types remain (Both journey) → Reactions page for the next test type (Step 6, step 2 of 2)
+  - All test types answered → Did you test all cattle? (Step 7)
+
+---
+
+### Step 7: Did You Test All Cattle?
+
+**URL:** `/test-list/report-all-tested`
+
+**User sees:**
+
+- Farm name as caption
+- Heading: "Did you test all [X] cattle?" where X is the cattle count from the herd record
+- Radios:
+  - "Yes"
+  - "No"
+- Continue button
+
+**Routing logic:**
+
+- Yes → Check your answers (Step 10)
+- No → Which cattle were not tested? (Step 8)
+
+---
+
+### Step 8: Which Cattle Were Not Tested?
+
+**URL:** `/test-list/report-untested`
+
+**User sees:**
+
+- Farm name as caption
+- Heading: "Which cattle were not tested?"
+- Table of all cattle on the holding, each with a checkbox, ear tag, age, DOB, sex, breed — VAX and DUP flags shown where relevant
+- Continue button
+
+**User action:** Ticks every animal that was not tested and continues.
+
+**Routing logic:**
+
+- No animals selected → validation error
+- Animals selected → Reason per animal (Step 9), one per selected animal
+
+---
+
+### Step 9: Why Wasn't This One Tested? (per animal, loops)
+
+**URL:** `/test-list/report-untested-reason/:index`
+
+**User sees:**
+
+- Progress indicator: "Cattle X of Y"
+- Animal details: large ear tag display with VAX/DUP flags, age, DOB, sex, breed
+- Radios: reason why this animal was not tested
+  - "Cattle too young"
+  - "Cattle deceased"
+  - "Other reason" (with conditional text input for free text)
+- "Save and continue" button
+
+**User action:** Selects a reason and continues. Repeats for each untested animal.
+
+**Routing logic:**
+
+- After the last animal → Check your answers (Step 10)
+
+---
+
+### Step 10: Check Your Answers
+
+**URL:** `/test-list/report-check-answers`
+
+**User sees:**
+
+- Heading: "Check your answers"
+- Summary list of all recorded information:
+  - Who tested the cattle (and their name/role if someone else)
+  - Day 1 date (and multi-day flag if applicable)
+  - Day 2 date (and multi-day flag if applicable)
+  - Test type(s) performed and batch number(s)
+  - Positive reaction result per test type
+  - If SICCT had positive reactions: a table of SICCT reactor measurements (ear tag, Bovine D1, Bovine D2, Avian D1, Avian D2)
+  - If DIVA had positive reactions: a table of DIVA reactor measurements (ear tag, Bovine D1, Bovine D2)
+  - Whether all cattle were tested; if not, a table of untested animals with reasons
+- Change links next to each section
+- Submit button
+
+**User also sees (Salesforce API data section):**
+
+A summary list of values required by the Salesforce API that are not collected in this journey, displayed with tags indicating their source:
+- CPH sent to Salesforce: `01/001/0006` (hardcoded — Salesforce only accepts known CPHs in prototype)
+- Reason for test: `Pre-Movement` (hardcoded)
+- Test window start: earliest of Day 1 and Day 2 dates (derived)
+- Test window end: latest of Day 1 and Day 2 dates (derived)
+- Certifying vet: `Dr Bob` (hardcoded)
+- Tester: collected name if someone else did the test; `Farmer John` if "I did" (hardcoded)
+- SICCT batch avian = batch bovine: same value used for both (simplified; only shown for SICCT journeys)
+
+**User action:** Reviews and clicks Submit. The prototype calls the Salesforce API to create a case and add a test part, then redirects to the confirmation page.
+
+**On submission error:** An error summary appears at the top of the page with the API error message. The user can retry.
+
+**Next step:** Report submitted (Step 11)
+
+---
+
+### Step 11: Report Submitted
+
+**URL:** `/test-list/report-submitted`
+
+**User sees:**
+
+- GOV.UK confirmation panel with heading "Results submitted" and the Salesforce case number
+- Link to start a new task
+
+**Note:** This is the end of the Report Skin Test Results journey.
+
+---
+
+## Routing Summary (Report Skin Test Results)
+
+```
+select-visit-task (POST: /test-list/select-journey)
+  → report-who-tested
+    → report-day-1
+      → report-day-2
+        → report-test-type
+            ├── Both → report-record-order
+            │             → report-reactions (step 1 of 2)
+            │                 ├── Yes → report-identify-reactors
+            │                 │           → report-measurements (×N reactors)
+            │                 │             → report-reactions (step 2 of 2)
+            │                 │                 ├── Yes → report-identify-reactors
+            │                 │                 │           → report-measurements (×N reactors)
+            │                 │                 │             → report-all-tested
+            │                 │                 └── No  → report-all-tested
+            │                 └── No  → report-reactions (step 2 of 2)
+            │                              ├── Yes → report-identify-reactors
+            │                              │           → report-measurements (×N reactors)
+            │                              │             → report-all-tested
+            │                              └── No  → report-all-tested
+            └── Single → report-reactions (×1)
+                             ├── Yes → report-identify-reactors
+                             │           → report-measurements (×N reactors)
+                             │             → report-all-tested
+                             └── No  → report-all-tested
+
+report-all-tested
+  ├── Yes → report-check-answers → report-submitted
+  └── No  → report-untested
+               → report-untested-reason (×N)
+                 → report-check-answers → report-submitted
+```
 
 ---
 
