@@ -1,0 +1,299 @@
+{% extends "layouts/main.html" %}
+
+{% block pageTitle %}
+  Check your answers – GOV.UK
+{% endblock %}
+
+{% block beforeContent %}
+  <a href="/test-list/report-all-tested" class="govuk-back-link">Back</a>
+{% endblock %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+    {% if submitError %}
+      {{ govukErrorSummary({
+        titleText: "There was a problem submitting to Salesforce",
+        errorList: [{ text: submitError }]
+      }) }}
+    {% endif %}
+
+    {% if data['tl_herd'] %}
+      <span class="govuk-caption-l">{{ data['tl_herd']['farm'] }}</span>
+    {% endif %}
+    <h1 class="govuk-heading-l">Check your answers</h1>
+
+    <h2 class="govuk-heading-m">Who tested the cattle</h2>
+
+    {% set testerValue %}
+      {% if data['tl_reportTester'] == 'me' %}
+        I did
+      {% elif data['tl_reportTester'] == 'someone-else' %}
+        {{ data['tl_reportTesterName'] }}<br>
+        {% if data['tl_reportTesterRole'] == 'vet' %}Vet
+        {% elif data['tl_reportTesterRole'] == 'att' %}An authorised tuberculin tester
+        {% elif data['tl_reportTesterRole'] == 'other' %}{{ data['tl_reportTesterRoleOther'] }}
+        {% endif %}
+      {% endif %}
+    {% endset %}
+
+    {{ govukSummaryList({
+      classes: "govuk-!-margin-bottom-9",
+      rows: [
+        {
+          key: { text: "Tester" },
+          value: { html: testerValue },
+          actions: { items: [{ href: "/test-list/report-who-tested", text: "Change", visuallyHiddenText: "who tested the cattle" }] }
+        }
+      ]
+    }) }}
+
+    <h2 class="govuk-heading-m">Test dates</h2>
+
+    {% set day1DateValue %}
+      {{ data['tl_reportDay1Date-day'] }}/{{ data['tl_reportDay1Date-month'] }}/{{ data['tl_reportDay1Date-year'] }}
+      {% if data['tl_reportDay1MultiDay'] == 'yes' %}<br><span class="govuk-hint govuk-!-margin-bottom-0">Took more than one day</span>{% endif %}
+    {% endset %}
+
+    {% set day2DateValue %}
+      {{ data['tl_reportDay2Date-day'] }}/{{ data['tl_reportDay2Date-month'] }}/{{ data['tl_reportDay2Date-year'] }}
+      {% if data['tl_reportDay2MultiDay'] == 'yes' %}<br><span class="govuk-hint govuk-!-margin-bottom-0">Took more than one day</span>{% endif %}
+    {% endset %}
+
+    {{ govukSummaryList({
+      classes: "govuk-!-margin-bottom-9",
+      rows: [
+        {
+          key: { text: "Day 1 (injection)" },
+          value: { html: day1DateValue },
+          actions: { items: [{ href: "/test-list/report-day-1", text: "Change", visuallyHiddenText: "Day 1 date" }] }
+        },
+        {
+          key: { text: "Day 2 (reading)" },
+          value: { html: day2DateValue },
+          actions: { items: [{ href: "/test-list/report-day-2", text: "Change", visuallyHiddenText: "Day 2 date" }] }
+        }
+      ]
+    }) }}
+
+    <h2 class="govuk-heading-m">Test type and batch numbers</h2>
+
+    {% set testTypeRows = [] %}
+
+    {% if 'sicct' in data['tl_reportTestTypes'] %}
+      {% set sicctBatches = data['tl_reportSicctBatchNumbers'] %}
+      {% set sicctBatchHtml %}
+        {% if sicctBatches %}
+          {% if sicctBatches is string %}{{ sicctBatches }}
+          {% else %}{% for b in sicctBatches %}{{ b }}{% if not loop.last %}<br>{% endif %}{% endfor %}
+          {% endif %}
+        {% endif %}
+      {% endset %}
+      {% set testTypeRows = (testTypeRows.push({
+        key: { text: "SICCT batch number(s)" },
+        value: { html: sicctBatchHtml },
+        actions: { items: [{ href: "/test-list/report-test-type", text: "Change", visuallyHiddenText: "SICCT batch numbers" }] }
+      }), testTypeRows) %}
+    {% endif %}
+
+    {% if 'diva' in data['tl_reportTestTypes'] %}
+      {% set divaBatches = data['tl_reportDivaBatchNumbers'] %}
+      {% set divaBatchHtml %}
+        {% if divaBatches %}
+          {% if divaBatches is string %}{{ divaBatches }}
+          {% else %}{% for b in divaBatches %}{{ b }}{% if not loop.last %}<br>{% endif %}{% endfor %}
+          {% endif %}
+        {% endif %}
+      {% endset %}
+      {% set testTypeRows = (testTypeRows.push({
+        key: { text: "DIVA batch number(s)" },
+        value: { html: divaBatchHtml },
+        actions: { items: [{ href: "/test-list/report-test-type", text: "Change", visuallyHiddenText: "DIVA batch numbers" }] }
+      }), testTypeRows) %}
+    {% endif %}
+
+    {{ govukSummaryList({
+      classes: "govuk-!-margin-bottom-9",
+      rows: testTypeRows
+    }) }}
+
+    <h2 class="govuk-heading-m">Positive reactions</h2>
+
+    {% set reactionRows = [] %}
+
+    {% if 'sicct' in data['tl_reportTestTypes'] %}
+      {% set sicctReaction = data['tl_reportSicctPositiveReaction'] %}
+      {% set reactionRows = (reactionRows.push({
+        key: { text: "SICCT positive reaction" },
+        value: { text: ("Yes" if sicctReaction == "yes" else ("No" if sicctReaction == "no" else "Not answered")) },
+        actions: { items: [{ href: "/test-list/report-reactions", text: "Change", visuallyHiddenText: "SICCT positive reaction" }] }
+      }), reactionRows) %}
+    {% endif %}
+
+    {% if 'diva' in data['tl_reportTestTypes'] %}
+      {% set divaReaction = data['tl_reportDivaPositiveReaction'] %}
+      {% set reactionRows = (reactionRows.push({
+        key: { text: "DIVA positive reaction" },
+        value: { text: ("Yes" if divaReaction == "yes" else ("No" if divaReaction == "no" else "Not answered")) },
+        actions: { items: [{ href: "/test-list/report-reactions", text: "Change", visuallyHiddenText: "DIVA positive reaction" }] }
+      }), reactionRows) %}
+    {% endif %}
+
+    {{ govukSummaryList({
+      classes: "govuk-!-margin-bottom-9",
+      rows: reactionRows
+    }) }}
+
+    {% if sicctReactors | length %}
+      <h2 class="govuk-heading-m">SICCT reactor measurements</h2>
+      <table class="govuk-table govuk-!-margin-bottom-9">
+        <thead class="govuk-table__head">
+          <tr class="govuk-table__row">
+            <th scope="col" class="govuk-table__header">Ear tag</th>
+            <th scope="col" class="govuk-table__header">Bovine D1 (mm)</th>
+            <th scope="col" class="govuk-table__header">Bovine D2 (mm)</th>
+            <th scope="col" class="govuk-table__header">Avian D1 (mm)</th>
+            <th scope="col" class="govuk-table__header">Avian D2 (mm)</th>
+            <th scope="col" class="govuk-table__header govuk-table__header--numeric">
+              <a class="govuk-link" href="/test-list/report-identify-reactors">Change</a>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+          {% for animal in sicctReactors %}
+            <tr class="govuk-table__row">
+              <td class="govuk-table__cell">{{ animal.officialId }}</td>
+              <td class="govuk-table__cell">{{ animal.measurements.bovineDay1 or '–' }}</td>
+              <td class="govuk-table__cell">{{ animal.measurements.bovineDay2 or '–' }}</td>
+              <td class="govuk-table__cell">{{ animal.measurements.avianDay1 or '–' }}</td>
+              <td class="govuk-table__cell">{{ animal.measurements.avianDay2 or '–' }}</td>
+              <td class="govuk-table__cell"></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+
+    {% if divaReactors | length %}
+      <h2 class="govuk-heading-m">DIVA reactor measurements</h2>
+      <table class="govuk-table govuk-!-margin-bottom-9">
+        <thead class="govuk-table__head">
+          <tr class="govuk-table__row">
+            <th scope="col" class="govuk-table__header">Ear tag</th>
+            <th scope="col" class="govuk-table__header">Bovine D1 (mm)</th>
+            <th scope="col" class="govuk-table__header">Bovine D2 (mm)</th>
+            <th scope="col" class="govuk-table__header govuk-table__header--numeric">
+              <a class="govuk-link" href="/test-list/report-identify-reactors">Change</a>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+          {% for animal in divaReactors %}
+            <tr class="govuk-table__row">
+              <td class="govuk-table__cell">{{ animal.officialId }}</td>
+              <td class="govuk-table__cell">{{ animal.measurements.bovineDay1 or '–' }}</td>
+              <td class="govuk-table__cell">{{ animal.measurements.bovineDay2 or '–' }}</td>
+              <td class="govuk-table__cell"></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+
+    <h2 class="govuk-heading-m">Cattle tested</h2>
+
+    {% set allTestedRows = [
+      {
+        key: { text: "All cattle tested" },
+        value: { text: ("Yes" if data['tl_reportAllTested'] == "yes" else "No") },
+        actions: { items: [{ href: "/test-list/report-all-tested", text: "Change", visuallyHiddenText: "whether all cattle were tested" }] }
+      }
+    ] %}
+
+    {% if data['tl_reportAllTested'] == 'no' and untestedAnimals | length %}
+      {% set untestedTableHtml %}
+        <table class="govuk-table govuk-!-margin-bottom-0">
+          <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+              <th scope="col" class="govuk-table__header">Ear tag</th>
+              <th scope="col" class="govuk-table__header">Reason</th>
+            </tr>
+          </thead>
+          <tbody class="govuk-table__body">
+            {% for animal in untestedAnimals %}
+              <tr class="govuk-table__row">
+                <td class="govuk-table__cell">{{ animal.officialId }}</td>
+                <td class="govuk-table__cell">
+                  {{ animal.reasonLabel }}
+                  {% if animal.reasonOther %} — {{ animal.reasonOther }}{% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endset %}
+      {% set allTestedRows = (allTestedRows.push({
+        key: { text: "Untested cattle" },
+        value: { html: untestedTableHtml },
+        actions: { items: [{ href: "/test-list/report-untested", text: "Change", visuallyHiddenText: "untested cattle" }] }
+      }), allTestedRows) %}
+    {% endif %}
+
+    {{ govukSummaryList({
+      classes: "govuk-!-margin-bottom-9",
+      rows: allTestedRows
+    }) }}
+
+    <h2 class="govuk-heading-m">Salesforce API data</h2>
+    <p class="govuk-body">The following fields are required by the Salesforce API but are not collected in this journey. They are hardcoded or derived for prototype purposes only.</p>
+
+    {% set testerApiValue %}
+      {{ apiPlaceholders.tester }}
+      {% if apiPlaceholders.testerIsHardcoded %}
+        <strong class="govuk-tag govuk-tag--grey govuk-!-margin-left-1">Hardcoded</strong>
+      {% else %}
+        <strong class="govuk-tag govuk-tag--blue govuk-!-margin-left-1">Collected</strong>
+      {% endif %}
+    {% endset %}
+
+    {{ govukSummaryList({
+      classes: "govuk-!-margin-bottom-9",
+      rows: [
+        {
+          key: { text: "CPH sent to Salesforce" },
+          value: { html: "01/001/0006 <strong class=\"govuk-tag govuk-tag--grey govuk-!-margin-left-1\">Hardcoded</strong><br><span class=\"govuk-hint govuk-!-margin-bottom-0\">You entered: " + apiPlaceholders.cphEntered + "</span>" }
+        },
+        {
+          key: { text: "Reason for test" },
+          value: { html: "Pre-Movement <strong class=\"govuk-tag govuk-tag--grey govuk-!-margin-left-1\">Hardcoded</strong>" }
+        },
+        {
+          key: { text: "Test window start" },
+          value: { html: apiPlaceholders.testWindowStart + " <strong class=\"govuk-tag govuk-tag--blue govuk-!-margin-left-1\">Derived from dates</strong>" }
+        },
+        {
+          key: { text: "Test window end" },
+          value: { html: apiPlaceholders.testWindowEnd + " <strong class=\"govuk-tag govuk-tag--blue govuk-!-margin-left-1\">Derived from dates</strong>" }
+        },
+        {
+          key: { text: "Certifying vet" },
+          value: { html: "Dr Bob <strong class=\"govuk-tag govuk-tag--grey govuk-!-margin-left-1\">Hardcoded</strong>" }
+        },
+        {
+          key: { text: "Tester" },
+          value: { html: testerApiValue }
+        }
+      ] + ([{
+          key: { text: "SICCT batch avian = batch bovine" },
+          value: { html: "Same value used for both <strong class=\"govuk-tag govuk-tag--grey govuk-!-margin-left-1\">Simplified</strong>" }
+        }] if 'sicct' in data['tl_reportTestTypes'] else [])
+    }) }}
+
+    <form action="/test-list/report-check-answers" method="post" novalidate>
+      {{ govukButton({ text: "Submit" }) }}
+    </form>
+
+  </div>
+</div>
+{% endblock %}

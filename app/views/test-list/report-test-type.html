@@ -1,0 +1,149 @@
+{% extends "layouts/main.html" %}
+
+{% block pageTitle %}
+  Which test did you do? – GOV.UK
+{% endblock %}
+
+{% block beforeContent %}
+  <a href="/test-list/report-day-2" class="govuk-back-link">Back</a>
+{% endblock %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+    {% if errorSummary %}
+      {{ govukErrorSummary(errorSummary) }}
+    {% endif %}
+
+    {% if data['tl_herd'] %}
+      <span class="govuk-caption-l">{{ data['tl_herd']['farm'] }}</span>
+    {% endif %}
+
+    {% set resolvedTestTypes = selectedTestTypes if selectedTestTypes else (data['tl_reportTestTypes'] or []) %}
+    {% set resolvedSicctBatches = sicctBatchValues if sicctBatchValues else (data['tl_reportSicctBatchNumbers'] or []) %}
+    {% set resolvedDivaBatches = divaBatchValues if divaBatchValues else (data['tl_reportDivaBatchNumbers'] or []) %}
+
+    {% set sicctBatchHtml %}
+      <div class="app-batch-group" id="sicct-batch-group">
+        {% set batchCount = resolvedSicctBatches | length %}
+        {% if batchCount > 0 %}
+          {% for value in resolvedSicctBatches %}
+            <div class="app-batch-item govuk-form-group govuk-!-margin-bottom-3">
+              <label class="govuk-label govuk-label--s" for="tl_reportSicctBatchNumbers_{{ loop.index0 }}">
+                Batch number
+              </label>
+              <input class="govuk-input govuk-!-width-two-thirds" type="text"
+                     id="tl_reportSicctBatchNumbers_{{ loop.index0 }}"
+                     name="tl_reportSicctBatchNumbers"
+                     value="{{ value }}">
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="app-batch-item govuk-form-group govuk-!-margin-bottom-3">
+            <label class="govuk-label govuk-label--s" for="tl_reportSicctBatchNumbers_0">
+              Batch number
+            </label>
+            <input class="govuk-input govuk-!-width-two-thirds" type="text"
+                   id="tl_reportSicctBatchNumbers_0"
+                   name="tl_reportSicctBatchNumbers"
+                   value="">
+          </div>
+        {% endif %}
+        <button type="button" class="govuk-button govuk-button--secondary app-add-batch-btn" data-group="sicct-batch-group">
+          Add another batch number
+        </button>
+      </div>
+    {% endset %}
+
+    {% set divaBatchHtml %}
+      <div class="app-batch-group" id="diva-batch-group">
+        {% set batchCount = resolvedDivaBatches | length %}
+        {% if batchCount > 0 %}
+          {% for value in resolvedDivaBatches %}
+            <div class="app-batch-item govuk-form-group govuk-!-margin-bottom-3">
+              <label class="govuk-label govuk-label--s" for="tl_reportDivaBatchNumbers_{{ loop.index0 }}">
+                Batch number
+              </label>
+              <input class="govuk-input govuk-!-width-two-thirds" type="text"
+                     id="tl_reportDivaBatchNumbers_{{ loop.index0 }}"
+                     name="tl_reportDivaBatchNumbers"
+                     value="{{ value }}">
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="app-batch-item govuk-form-group govuk-!-margin-bottom-3">
+            <label class="govuk-label govuk-label--s" for="tl_reportDivaBatchNumbers_0">
+              Batch number
+            </label>
+            <input class="govuk-input govuk-!-width-two-thirds" type="text"
+                   id="tl_reportDivaBatchNumbers_0"
+                   name="tl_reportDivaBatchNumbers"
+                   value="">
+          </div>
+        {% endif %}
+        <button type="button" class="govuk-button govuk-button--secondary app-add-batch-btn" data-group="diva-batch-group">
+          Add another batch number
+        </button>
+      </div>
+    {% endset %}
+
+    <form action="/test-list/report-test-type" method="post" novalidate>
+
+      {{ govukCheckboxes({
+        idPrefix: "tl_reportTestTypes",
+        name: "tl_reportTestTypes",
+        errorMessage: { text: errors['tl_reportTestTypes'].text } if errors and errors['tl_reportTestTypes'],
+        fieldset: {
+          legend: {
+            text: "Which test did you do?",
+            isPageHeading: true,
+            classes: "govuk-fieldset__legend--l"
+          }
+        },
+        hint: { text: "Select all that apply." },
+        items: [
+          {
+            value: "sicct",
+            text: "SICCT test",
+            checked: "sicct" in resolvedTestTypes,
+            conditional: { html: sicctBatchHtml }
+          },
+          {
+            value: "diva",
+            text: "DIVA test",
+            checked: "diva" in resolvedTestTypes,
+            conditional: { html: divaBatchHtml }
+          }
+        ]
+      }) }}
+
+      {{ govukButton({ text: "Continue" }) }}
+
+    </form>
+
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.app-add-batch-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var groupId = btn.getAttribute('data-group')
+      var group = document.getElementById(groupId)
+      var items = group.querySelectorAll('.app-batch-item')
+      var last = items[items.length - 1]
+      var clone = last.cloneNode(true)
+      var newIndex = items.length
+      var input = clone.querySelector('input')
+      var label = clone.querySelector('label')
+      var newId = input.id.replace(/_\d+$/, '_' + newIndex)
+      input.id = newId
+      input.value = ''
+      label.setAttribute('for', newId)
+      btn.before(clone)
+      input.focus()
+    })
+  })
+</script>
+
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "layouts/main.html" %}
+
+{% block pageTitle %}
+  Which results would you like to record first? – GOV.UK
+{% endblock %}
+
+{% block beforeContent %}
+  <a href="/test-list/report-test-type" class="govuk-back-link">Back</a>
+{% endblock %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+    {% if errorSummary %}
+      {{ govukErrorSummary(errorSummary) }}
+    {% endif %}
+
+    {% if data['tl_herd'] %}
+      <span class="govuk-caption-l">{{ data['tl_herd']['farm'] }}</span>
+    {% endif %}
+
+    <form action="/test-list/report-record-order" method="post" novalidate>
+
+      {{ govukRadios({
+        idPrefix: "tl_reportRecordOrder",
+        name: "tl_reportRecordOrder",
+        errorMessage: { text: errors['tl_reportRecordOrder'].text } if errors and errors['tl_reportRecordOrder'],
+        fieldset: {
+          legend: {
+            text: "Which results would you like to record first?",
+            isPageHeading: true,
+            classes: "govuk-fieldset__legend--l"
+          }
+        },
+        items: [
+          {
+            value: "sicct",
+            text: "SICCT test results first",
+            checked: (formValues['tl_reportRecordOrder'] or data['tl_reportRecordOrder']) == "sicct"
+          },
+          {
+            value: "diva",
+            text: "DIVA test results first",
+            checked: (formValues['tl_reportRecordOrder'] or data['tl_reportRecordOrder']) == "diva"
+          }
+        ]
+      }) }}
+
+      {{ govukButton({ text: "Continue" }) }}
+
+    </form>
+
+  </div>
+</div>
+{% endblock %}

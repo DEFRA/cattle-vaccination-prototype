@@ -127,6 +127,9 @@ router.post('/test-list/select-journey', function (req, res) {
     req.session.data['tl_prepareSkinTestPhase'] = null
     return res.redirect('/test-list/prepare-skin-test-type')
   }
+  if (journey === 'report-skin-test-results') {
+    return res.redirect('/test-list/report-who-tested')
+  }
   return res.redirect('/test-list/select-visit-task')
 })
 
@@ -753,6 +756,708 @@ router.get('/test-list/download-list/reset', (req, res) => {
     delete req.session.data[key]
   }
   res.redirect('/test-list/download-list')
+})
+
+// ============================================================
+// Test list — Report skin test results
+// ============================================================
+
+router.get('/test-list/report-who-tested', function (_req, res) {
+  res.render('test-list/report-who-tested')
+})
+
+router.post('/test-list/report-who-tested', function (req, res) {
+  const tester = req.body['tl_reportTester']
+  const testerName = (req.body['tl_reportTesterName'] || '').trim()
+  const testerRole = req.body['tl_reportTesterRole']
+  const testerRoleOther = (req.body['tl_reportTesterRoleOther'] || '').trim()
+
+  const errors = {}
+  const errorList = []
+
+  if (!tester) {
+    errors.tl_reportTester = { text: 'Select who tested the cattle' }
+    errorList.push({ text: 'Select who tested the cattle', href: '#tl_reportTester' })
+  }
+
+  if (tester === 'someone-else') {
+    if (!testerName) {
+      errors.tl_reportTesterName = { text: "Enter the tester's name" }
+      errorList.push({ text: "Enter the tester's name", href: '#tl_reportTesterName' })
+    }
+    if (!testerRole) {
+      errors.tl_reportTesterRole = { text: "Select the tester's role" }
+      errorList.push({ text: "Select the tester's role", href: '#tl_reportTesterRole' })
+    } else if (testerRole === 'other' && !testerRoleOther) {
+      errors.tl_reportTesterRoleOther = { text: "Enter the tester's role" }
+      errorList.push({ text: "Enter the tester's role", href: '#tl_reportTesterRoleOther' })
+    }
+  }
+
+  if (errorList.length) {
+    return res.render('test-list/report-who-tested', {
+      errors,
+      errorSummary: { titleText: 'There is a problem', errorList },
+      formValues: req.body
+    })
+  }
+
+  req.session.data['tl_reportTester'] = tester
+  req.session.data['tl_reportTesterName'] = testerName || null
+  req.session.data['tl_reportTesterRole'] = testerRole || null
+  req.session.data['tl_reportTesterRoleOther'] = testerRoleOther || null
+
+  return res.redirect('/test-list/report-day-1')
+})
+
+router.get('/test-list/report-day-1', function (_req, res) {
+  res.render('test-list/report-day-1')
+})
+
+router.post('/test-list/report-day-1', function (req, res) {
+  const day = (req.body['tl_reportDay1Date-day'] || '').trim()
+  const month = (req.body['tl_reportDay1Date-month'] || '').trim()
+  const year = (req.body['tl_reportDay1Date-year'] || '').trim()
+
+  const errors = {}
+  const errorList = []
+
+  if (!day || !month || !year) {
+    errors.tl_reportDay1Date = { text: 'Enter the date of Day 1' }
+    errorList.push({ text: 'Enter the date of Day 1', href: '#tl_reportDay1Date-day' })
+  }
+
+  if (errorList.length) {
+    return res.render('test-list/report-day-1', {
+      errors,
+      errorSummary: { titleText: 'There is a problem', errorList },
+      formValues: req.body
+    })
+  }
+
+  req.session.data['tl_reportDay1Date'] = `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`
+  req.session.data['tl_reportDay1MultiDay'] = req.body['tl_reportDay1MultiDay'] === 'yes'
+
+  return res.redirect('/test-list/report-day-2')
+})
+
+router.get('/test-list/report-day-2', function (_req, res) {
+  res.render('test-list/report-day-2')
+})
+
+router.post('/test-list/report-day-2', function (req, res) {
+  const day = (req.body['tl_reportDay2Date-day'] || '').trim()
+  const month = (req.body['tl_reportDay2Date-month'] || '').trim()
+  const year = (req.body['tl_reportDay2Date-year'] || '').trim()
+
+  const errors = {}
+  const errorList = []
+
+  if (!day || !month || !year) {
+    errors.tl_reportDay2Date = { text: 'Enter the date of Day 2' }
+    errorList.push({ text: 'Enter the date of Day 2', href: '#tl_reportDay2Date-day' })
+  }
+
+  if (errorList.length) {
+    return res.render('test-list/report-day-2', {
+      errors,
+      errorSummary: { titleText: 'There is a problem', errorList },
+      formValues: req.body
+    })
+  }
+
+  req.session.data['tl_reportDay2Date'] = `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`
+  req.session.data['tl_reportDay2MultiDay'] = req.body['tl_reportDay2MultiDay'] === 'yes'
+
+  return res.redirect('/test-list/report-test-type')
+})
+
+router.get('/test-list/report-test-type', function (req, res) {
+  res.render('test-list/report-test-type', {
+    sicctBatchValues: toArray(req.session.data['tl_reportSicctBatchNumbers']),
+    divaBatchValues: toArray(req.session.data['tl_reportDivaBatchNumbers'])
+  })
+})
+
+router.post('/test-list/report-test-type', function (req, res) {
+  const testTypes = toArray(req.body['tl_reportTestTypes']).filter(v => v !== '_unchecked')
+  const sicctBatchNumbers = toArray(req.body['tl_reportSicctBatchNumbers']).filter(Boolean)
+  const divaBatchNumbers = toArray(req.body['tl_reportDivaBatchNumbers']).filter(Boolean)
+
+  const errors = {}
+  const errorList = []
+
+  if (!testTypes.length) {
+    errors.tl_reportTestTypes = { text: 'Select which test you did' }
+    errorList.push({ text: 'Select which test you did', href: '#tl_reportTestTypes' })
+  }
+
+  if (errorList.length) {
+    return res.render('test-list/report-test-type', {
+      errors,
+      errorSummary: { titleText: 'There is a problem', errorList },
+      formValues: req.body,
+      selectedTestTypes: testTypes,
+      sicctBatchValues: sicctBatchNumbers.length ? sicctBatchNumbers : [''],
+      divaBatchValues: divaBatchNumbers.length ? divaBatchNumbers : ['']
+    })
+  }
+
+  req.session.data['tl_reportTestTypes'] = testTypes
+  req.session.data['tl_reportSicctBatchNumbers'] = sicctBatchNumbers
+  req.session.data['tl_reportDivaBatchNumbers'] = divaBatchNumbers
+
+  const bothSelected = testTypes.includes('sicct') && testTypes.includes('diva')
+  if (bothSelected) {
+    return res.redirect('/test-list/report-record-order')
+  }
+  req.session.data['tl_reportCurrentReactionTest'] = testTypes[0]
+  req.session.data['tl_reportCompletedReactionTests'] = []
+  return res.redirect('/test-list/report-reactions')
+})
+
+// ============================================================
+// Flow 3: Report skin test results — steps 5–10
+// ============================================================
+
+router.get('/test-list/report-record-order', function (req, res) {
+  res.render('test-list/report-record-order')
+})
+
+router.post('/test-list/report-record-order', function (req, res) {
+  const order = (req.body['tl_reportRecordOrder'] || '').trim()
+
+  if (!order) {
+    return res.render('test-list/report-record-order', {
+      errors: { tl_reportRecordOrder: { text: 'Select which results you would like to record first' } },
+      errorSummary: { titleText: 'There is a problem', errorList: [{ text: 'Select which results you would like to record first', href: '#tl_reportRecordOrder' }] },
+      formValues: req.body
+    })
+  }
+
+  req.session.data['tl_reportRecordOrder'] = order
+  req.session.data['tl_reportCurrentReactionTest'] = order
+  req.session.data['tl_reportCompletedReactionTests'] = []
+  return res.redirect('/test-list/report-reactions')
+})
+
+router.get('/test-list/report-reactions/back', function (req, res) {
+  const testTypes = toArray(req.session.data['tl_reportTestTypes'])
+  const firstTest = req.session.data['tl_reportRecordOrder'] || testTypes[0]
+  req.session.data['tl_reportCurrentReactionTest'] = firstTest
+  req.session.data['tl_reportCompletedReactionTests'] = []
+  if (firstTest === 'sicct') {
+    delete req.session.data['tl_reportSicctPositiveReaction']
+  } else {
+    delete req.session.data['tl_reportDivaPositiveReaction']
+  }
+  return res.redirect('/test-list/report-reactions')
+})
+
+router.get('/test-list/report-reactions', function (req, res) {
+  const testTypes = toArray(req.session.data['tl_reportTestTypes'])
+  const currentTest = req.session.data['tl_reportCurrentReactionTest'] || testTypes[0]
+  const completed = toArray(req.session.data['tl_reportCompletedReactionTests'])
+  const isBoth = testTypes.length > 1
+  const stepNumber = completed.length + 1
+  const totalSteps = testTypes.length
+
+  let backHref
+  if (isBoth && stepNumber > 1) {
+    backHref = '/test-list/report-reactions/back'
+  } else if (isBoth) {
+    backHref = '/test-list/report-record-order'
+  } else {
+    backHref = '/test-list/report-test-type'
+  }
+
+  res.render('test-list/report-reactions', { currentTest, stepNumber, totalSteps, isBoth, backHref })
+})
+
+router.post('/test-list/report-reactions', function (req, res) {
+  const testTypes = toArray(req.session.data['tl_reportTestTypes'])
+  const currentTest = req.session.data['tl_reportCurrentReactionTest'] || testTypes[0]
+  const completed = toArray(req.session.data['tl_reportCompletedReactionTests'])
+  const isBoth = testTypes.length > 1
+  const stepNumber = completed.length + 1
+  const totalSteps = testTypes.length
+  const reaction = (req.body['tl_reportReaction'] || '').trim()
+
+  if (!reaction) {
+    const backHref = isBoth && stepNumber > 1 ? '/test-list/report-reactions/back' : (isBoth ? '/test-list/report-record-order' : '/test-list/report-test-type')
+    return res.render('test-list/report-reactions', {
+      errors: { tl_reportReaction: { text: 'Select yes or no' } },
+      errorSummary: { titleText: 'There is a problem', errorList: [{ text: 'Select yes or no', href: '#tl_reportReaction' }] },
+      formValues: req.body,
+      currentTest,
+      stepNumber,
+      totalSteps,
+      isBoth,
+      backHref
+    })
+  }
+
+  if (currentTest === 'sicct') {
+    req.session.data['tl_reportSicctPositiveReaction'] = reaction
+  } else {
+    req.session.data['tl_reportDivaPositiveReaction'] = reaction
+  }
+
+  const newCompleted = completed.concat([currentTest])
+  req.session.data['tl_reportCompletedReactionTests'] = newCompleted
+
+  if (reaction === 'yes') {
+    return res.redirect('/test-list/report-identify-reactors')
+  }
+
+  const remaining = testTypes.filter(function (t) { return !newCompleted.includes(t) })
+  if (remaining.length > 0) {
+    req.session.data['tl_reportCurrentReactionTest'] = remaining[0]
+    return res.redirect('/test-list/report-reactions')
+  }
+
+  return res.redirect('/test-list/report-all-tested')
+})
+
+router.get('/test-list/report-all-tested', function (req, res) {
+  const cph = req.session.data['tl_selectedCattle']
+  const animals = ANIMALS_BY_CPH[cph] || []
+  res.render('test-list/report-all-tested', { cattleCount: animals.length })
+})
+
+router.post('/test-list/report-all-tested', function (req, res) {
+  const allTested = (req.body['tl_reportAllTested'] || '').trim()
+
+  if (!allTested) {
+    const cph = req.session.data['tl_selectedCattle']
+    const animals = ANIMALS_BY_CPH[cph] || []
+    return res.render('test-list/report-all-tested', {
+      cattleCount: animals.length,
+      errors: { tl_reportAllTested: { text: 'Select yes or no' } },
+      errorSummary: { titleText: 'There is a problem', errorList: [{ text: 'Select yes or no', href: '#tl_reportAllTested' }] },
+      formValues: req.body
+    })
+  }
+
+  req.session.data['tl_reportAllTested'] = allTested
+
+  if (allTested === 'yes') {
+    return res.redirect('/test-list/report-check-answers')
+  }
+  return res.redirect('/test-list/report-untested')
+})
+
+router.get('/test-list/report-untested', function (req, res) {
+  const cph = req.session.data['tl_selectedCattle']
+  const animals = enrichWithFlags(ANIMALS_BY_CPH[cph] || [])
+  const selectedUntested = toArray(req.session.data['tl_reportUntestedCattle'])
+  res.render('test-list/report-untested', { animals, selectedUntested })
+})
+
+router.post('/test-list/report-untested', function (req, res) {
+  const submitted = toArray(req.body['tl_reportUntested'])
+  const untested = submitted.filter(function (id) { return id && id !== '_unchecked' })
+
+  if (!untested.length) {
+    const cph = req.session.data['tl_selectedCattle']
+    const animals = enrichWithFlags(ANIMALS_BY_CPH[cph] || [])
+    return res.render('test-list/report-untested', {
+      animals,
+      selectedUntested: [],
+      errors: { tl_reportUntested: { text: 'Select at least one animal that was not tested' } },
+      errorSummary: { titleText: 'There is a problem', errorList: [{ text: 'Select at least one animal that was not tested', href: '#report-untested-0' }] }
+    })
+  }
+
+  req.session.data['tl_reportUntestedCattle'] = untested
+
+  const existingReasons = req.session.data['tl_reportUntestedReasons'] || {}
+  const existingOthers = req.session.data['tl_reportUntestedReasonOthers'] || {}
+  const prunedReasons = {}
+  const prunedOthers = {}
+  untested.forEach(function (id) {
+    if (existingReasons[id]) prunedReasons[id] = existingReasons[id]
+    if (existingOthers[id]) prunedOthers[id] = existingOthers[id]
+  })
+  req.session.data['tl_reportUntestedReasons'] = prunedReasons
+  req.session.data['tl_reportUntestedReasonOthers'] = prunedOthers
+  req.session.data['tl_reportCurrentUntestedIndex'] = 0
+
+  return res.redirect('/test-list/report-untested-reason/0')
+})
+
+function getReportUntestedAnimals(req) {
+  const cph = req.session.data['tl_selectedCattle']
+  const ids = toArray(req.session.data['tl_reportUntestedCattle'])
+  if (!ids.length) return []
+  const idSet = new Set(ids)
+  return enrichWithFlags(ANIMALS_BY_CPH[cph] || []).filter(function (a) { return idSet.has(a.officialId) })
+}
+
+function reportRenderUntestedReason(req, res, index, options) {
+  const animals = getReportUntestedAnimals(req)
+  const total = animals.length
+  if (total === 0) return res.redirect('/test-list/report-untested')
+  const safeIndex = Math.max(0, Math.min(index, total - 1))
+  const currentAnimal = animals[safeIndex]
+  const reasons = req.session.data['tl_reportUntestedReasons'] || {}
+  const others = req.session.data['tl_reportUntestedReasonOthers'] || {}
+  res.render('test-list/report-untested-reason', {
+    currentIndex: safeIndex,
+    currentPosition: safeIndex + 1,
+    totalUntested: total,
+    currentAnimal,
+    savedReason: reasons[currentAnimal.officialId] || '',
+    savedReasonOther: others[currentAnimal.officialId] || '',
+    backHref: safeIndex > 0 ? '/test-list/report-untested-reason/' + (safeIndex - 1) : '/test-list/report-untested',
+    errors: options && options.errors,
+    errorSummary: options && options.errorSummary,
+    formValues: (options && options.formValues) || {}
+  })
+}
+
+router.get('/test-list/report-untested-reason/:index', function (req, res) {
+  const animals = getReportUntestedAnimals(req)
+  if (animals.length === 0) return res.redirect('/test-list/report-untested')
+  const index = Math.max(0, Math.min(parseInt(req.params.index, 10) || 0, animals.length - 1))
+  req.session.data['tl_reportCurrentUntestedIndex'] = index
+  reportRenderUntestedReason(req, res, index)
+})
+
+router.post('/test-list/report-untested-reason/:index', function (req, res) {
+  const animals = getReportUntestedAnimals(req)
+  if (animals.length === 0) return res.redirect('/test-list/report-untested')
+  const index = Math.max(0, Math.min(parseInt(req.params.index, 10) || 0, animals.length - 1))
+  const currentAnimal = animals[index]
+  const reason = (req.body['tl_reportReason'] || '').trim()
+  const reasonOther = (req.body['tl_reportReasonOther'] || '').trim()
+
+  if (!reason) {
+    return reportRenderUntestedReason(req, res, index, {
+      errors: { tl_reportReason: { text: 'Select a reason this animal was not tested' } },
+      errorSummary: { titleText: 'There is a problem', errorList: [{ text: 'Select a reason this animal was not tested', href: '#tl_reportReason' }] },
+      formValues: { tl_reportReason: reason, tl_reportReasonOther: reasonOther }
+    })
+  }
+
+  const reasons = Object.assign({}, req.session.data['tl_reportUntestedReasons'] || {})
+  const others = Object.assign({}, req.session.data['tl_reportUntestedReasonOthers'] || {})
+  reasons[currentAnimal.officialId] = reason
+  if (reason === 'other') {
+    others[currentAnimal.officialId] = reasonOther
+  } else {
+    delete others[currentAnimal.officialId]
+  }
+  req.session.data['tl_reportUntestedReasons'] = reasons
+  req.session.data['tl_reportUntestedReasonOthers'] = others
+
+  if (index < animals.length - 1) {
+    const nextIndex = index + 1
+    req.session.data['tl_reportCurrentUntestedIndex'] = nextIndex
+    return res.redirect('/test-list/report-untested-reason/' + nextIndex)
+  }
+  req.session.data['tl_reportCurrentUntestedIndex'] = animals.length - 1
+  return res.redirect('/test-list/report-check-answers')
+})
+
+function getReportReactorAnimals(req) {
+  const cph = req.session.data['tl_selectedCattle']
+  const currentTest = req.session.data['tl_reportCurrentReactionTest']
+  const key = currentTest === 'sicct' ? 'tl_reportSicctReactors' : 'tl_reportDivaReactors'
+  const ids = toArray(req.session.data[key])
+  if (!ids.length) return []
+  const idSet = new Set(ids)
+  return enrichWithFlags(ANIMALS_BY_CPH[cph] || []).filter(function (a) { return idSet.has(a.officialId) })
+}
+
+router.get('/test-list/report-identify-reactors', function (req, res) {
+  const cph = req.session.data['tl_selectedCattle']
+  const animals = enrichWithFlags(ANIMALS_BY_CPH[cph] || [])
+  const currentTest = req.session.data['tl_reportCurrentReactionTest']
+  const key = currentTest === 'sicct' ? 'tl_reportSicctReactors' : 'tl_reportDivaReactors'
+  const selectedReactors = toArray(req.session.data[key])
+  const testTypes = toArray(req.session.data['tl_reportTestTypes'])
+  const completed = toArray(req.session.data['tl_reportCompletedReactionTests'])
+  const isBoth = testTypes.length > 1
+  const stepNumber = completed.length
+  const totalSteps = testTypes.length
+  res.render('test-list/report-identify-reactors', { animals, selectedReactors, currentTest, isBoth, stepNumber, totalSteps })
+})
+
+router.post('/test-list/report-identify-reactors', function (req, res) {
+  const submitted = toArray(req.body['tl_reportReactors'])
+  const reactors = submitted.filter(function (id) { return id && id !== '_unchecked' })
+  const currentTest = req.session.data['tl_reportCurrentReactionTest']
+
+  if (!reactors.length) {
+    const cph = req.session.data['tl_selectedCattle']
+    const animals = enrichWithFlags(ANIMALS_BY_CPH[cph] || [])
+    const testTypes = toArray(req.session.data['tl_reportTestTypes'])
+    const completed = toArray(req.session.data['tl_reportCompletedReactionTests'])
+    const isBoth = testTypes.length > 1
+    return res.render('test-list/report-identify-reactors', {
+      animals,
+      selectedReactors: [],
+      currentTest,
+      isBoth,
+      stepNumber: completed.length,
+      totalSteps: testTypes.length,
+      errors: { tl_reportReactors: { text: 'Select at least one animal' } },
+      errorSummary: { titleText: 'There is a problem', errorList: [{ text: 'Select at least one animal', href: '#report-reactor-0' }] }
+    })
+  }
+
+  const key = currentTest === 'sicct' ? 'tl_reportSicctReactors' : 'tl_reportDivaReactors'
+  req.session.data[key] = reactors
+
+  const measurementsKey = currentTest === 'sicct' ? 'tl_reportSicctMeasurements' : 'tl_reportDivaMeasurements'
+  const existingMeasurements = req.session.data[measurementsKey] || {}
+  const prunedMeasurements = {}
+  reactors.forEach(function (id) {
+    if (existingMeasurements[id]) prunedMeasurements[id] = existingMeasurements[id]
+  })
+  req.session.data[measurementsKey] = prunedMeasurements
+  req.session.data['tl_reportCurrentMeasurementIndex'] = 0
+
+  return res.redirect('/test-list/report-measurements/0')
+})
+
+function reportRenderMeasurements(req, res, index, options) {
+  const animals = getReportReactorAnimals(req)
+  const total = animals.length
+  if (total === 0) return res.redirect('/test-list/report-identify-reactors')
+  const safeIndex = Math.max(0, Math.min(index, total - 1))
+  const currentAnimal = animals[safeIndex]
+  const currentTest = req.session.data['tl_reportCurrentReactionTest']
+  const measurementsKey = currentTest === 'sicct' ? 'tl_reportSicctMeasurements' : 'tl_reportDivaMeasurements'
+  const allMeasurements = req.session.data[measurementsKey] || {}
+  const savedMeasurements = allMeasurements[currentAnimal.officialId] || {}
+  res.render('test-list/report-measurements', {
+    currentIndex: safeIndex,
+    currentPosition: safeIndex + 1,
+    totalReactors: total,
+    currentAnimal,
+    currentTest,
+    savedMeasurements,
+    backHref: safeIndex > 0 ? '/test-list/report-measurements/' + (safeIndex - 1) : '/test-list/report-identify-reactors',
+    errors: options && options.errors,
+    errorSummary: options && options.errorSummary,
+    formValues: (options && options.formValues) || {}
+  })
+}
+
+router.get('/test-list/report-measurements/:index', function (req, res) {
+  const animals = getReportReactorAnimals(req)
+  if (animals.length === 0) return res.redirect('/test-list/report-identify-reactors')
+  const index = Math.max(0, Math.min(parseInt(req.params.index, 10) || 0, animals.length - 1))
+  req.session.data['tl_reportCurrentMeasurementIndex'] = index
+  reportRenderMeasurements(req, res, index)
+})
+
+router.post('/test-list/report-measurements/:index', function (req, res) {
+  const animals = getReportReactorAnimals(req)
+  if (animals.length === 0) return res.redirect('/test-list/report-identify-reactors')
+  const index = Math.max(0, Math.min(parseInt(req.params.index, 10) || 0, animals.length - 1))
+  const currentAnimal = animals[index]
+  const currentTest = req.session.data['tl_reportCurrentReactionTest']
+  const isSicct = currentTest === 'sicct'
+
+  const bovineDay1 = (req.body['tl_bovineDay1'] || '').trim()
+  const bovineDay2 = (req.body['tl_bovineDay2'] || '').trim()
+  const avianDay1 = isSicct ? (req.body['tl_avianDay1'] || '').trim() : null
+  const avianDay2 = isSicct ? (req.body['tl_avianDay2'] || '').trim() : null
+
+  const errors = {}
+  const errorList = []
+  if (!bovineDay1) {
+    errors.tl_bovineDay1 = { text: 'Enter the bovine tuberculin Day 1 measurement' }
+    errorList.push({ text: 'Enter the bovine tuberculin Day 1 measurement', href: '#tl_bovineDay1' })
+  }
+  if (!bovineDay2) {
+    errors.tl_bovineDay2 = { text: 'Enter the bovine tuberculin Day 2 measurement' }
+    errorList.push({ text: 'Enter the bovine tuberculin Day 2 measurement', href: '#tl_bovineDay2' })
+  }
+  if (isSicct && !avianDay1) {
+    errors.tl_avianDay1 = { text: 'Enter the avian tuberculin Day 1 measurement' }
+    errorList.push({ text: 'Enter the avian tuberculin Day 1 measurement', href: '#tl_avianDay1' })
+  }
+  if (isSicct && !avianDay2) {
+    errors.tl_avianDay2 = { text: 'Enter the avian tuberculin Day 2 measurement' }
+    errorList.push({ text: 'Enter the avian tuberculin Day 2 measurement', href: '#tl_avianDay2' })
+  }
+
+  if (errorList.length) {
+    return reportRenderMeasurements(req, res, index, {
+      errors,
+      errorSummary: { titleText: 'There is a problem', errorList },
+      formValues: req.body
+    })
+  }
+
+  const measurementsKey = isSicct ? 'tl_reportSicctMeasurements' : 'tl_reportDivaMeasurements'
+  const allMeasurements = Object.assign({}, req.session.data[measurementsKey] || {})
+  const measurements = { bovineDay1, bovineDay2 }
+  if (isSicct) {
+    measurements.avianDay1 = avianDay1
+    measurements.avianDay2 = avianDay2
+  }
+  allMeasurements[currentAnimal.officialId] = measurements
+  req.session.data[measurementsKey] = allMeasurements
+
+  if (index < animals.length - 1) {
+    const nextIndex = index + 1
+    req.session.data['tl_reportCurrentMeasurementIndex'] = nextIndex
+    return res.redirect('/test-list/report-measurements/' + nextIndex)
+  }
+  req.session.data['tl_reportCurrentMeasurementIndex'] = animals.length - 1
+
+  const testTypes = toArray(req.session.data['tl_reportTestTypes'])
+  const completed = toArray(req.session.data['tl_reportCompletedReactionTests'])
+  const remaining = testTypes.filter(function (t) { return !completed.includes(t) })
+
+  if (remaining.length > 0) {
+    req.session.data['tl_reportCurrentReactionTest'] = remaining[0]
+    return res.redirect('/test-list/report-reactions')
+  }
+  return res.redirect('/test-list/report-all-tested')
+})
+
+router.get('/test-list/report-check-answers', function (req, res) {
+  const untestedIds = toArray(req.session.data['tl_reportUntestedCattle'])
+  const reasons = req.session.data['tl_reportUntestedReasons'] || {}
+  const others = req.session.data['tl_reportUntestedReasonOthers'] || {}
+
+  const untestedAnimals = untestedIds.length
+    ? getReportUntestedAnimals(req).map(function (a) {
+        const reasonCode = reasons[a.officialId] || ''
+        return Object.assign({}, a, {
+          reasonLabel: UNTESTED_REASON_LABELS[reasonCode] || reasonCode,
+          reasonOther: others[a.officialId] || ''
+        })
+      })
+    : []
+
+  const cph = req.session.data['tl_selectedCattle']
+  const allAnimals = enrichWithFlags(ANIMALS_BY_CPH[cph] || [])
+  const animalById = {}
+  allAnimals.forEach(function (a) { animalById[a.officialId] = a })
+
+  function buildReactorList(reactorKey, measurementsKey) {
+    const ids = toArray(req.session.data[reactorKey])
+    const measurements = req.session.data[measurementsKey] || {}
+    return ids.map(function (id) {
+      return Object.assign({}, animalById[id] || { officialId: id }, { measurements: measurements[id] || {} })
+    })
+  }
+
+  const sicctReactors = buildReactorList('tl_reportSicctReactors', 'tl_reportSicctMeasurements')
+  const divaReactors = buildReactorList('tl_reportDivaReactors', 'tl_reportDivaMeasurements')
+
+  const d = req.session.data
+  const day1ISO = `${d['tl_reportDay1Date-year']}-${String(d['tl_reportDay1Date-month']).padStart(2, '0')}-${String(d['tl_reportDay1Date-day']).padStart(2, '0')}`
+  const day2ISO = `${d['tl_reportDay2Date-year']}-${String(d['tl_reportDay2Date-month']).padStart(2, '0')}-${String(d['tl_reportDay2Date-day']).padStart(2, '0')}`
+  const apiPlaceholders = {
+    reasonForTest: 'Pre-Movement',
+    testWindowStart: day1ISO < day2ISO ? day1ISO : day2ISO,
+    testWindowEnd: day1ISO > day2ISO ? day1ISO : day2ISO,
+    certifyingVet: 'Dr Bob',
+    tester: d['tl_reportTester'] === 'me' ? 'Farmer John' : (d['tl_reportTesterName'] || 'Farmer John'),
+    testerIsHardcoded: d['tl_reportTester'] === 'me',
+    cphNumber: '01/001/0006',
+    cphEntered: d['tl_selectedCattle']
+  }
+
+  const submitError = req.session.data['tl_submitError'] || null
+  delete req.session.data['tl_submitError']
+
+  res.render('test-list/report-check-answers', { untestedAnimals, sicctReactors, divaReactors, apiPlaceholders, submitError })
+})
+
+router.get('/test-list/report-submitted', function (req, res) {
+  res.locals.caseNumber = req.session.data['tl_submittedCaseNumber'] || null
+  res.render('test-list/report-submitted')
+})
+
+router.post('/test-list/report-check-answers', async function (req, res) {
+  const d = req.session.data
+
+  const day1ISO = `${d['tl_reportDay1Date-year']}-${String(d['tl_reportDay1Date-month']).padStart(2, '0')}-${String(d['tl_reportDay1Date-day']).padStart(2, '0')}`
+  const day2ISO = `${d['tl_reportDay2Date-year']}-${String(d['tl_reportDay2Date-month']).padStart(2, '0')}-${String(d['tl_reportDay2Date-day']).padStart(2, '0')}`
+
+  const tester = d['tl_reportTester'] === 'me' ? 'Farmer John' : (d['tl_reportTesterName'] || 'Farmer John')
+  const sicctBatch = toArray(d['tl_reportSicctBatchNumbers'])[0] || null
+  const divaBatch = toArray(d['tl_reportDivaBatchNumbers'])[0] || null
+
+  function buildReactorResults(reactorKey, measurementsKey, testType) {
+    const ids = toArray(d[reactorKey])
+    const measurements = d[measurementsKey] || {}
+    return ids.map(function (id) {
+      const m = measurements[id] || {}
+      const parseNum = function (v) { return (v !== '' && v !== undefined && v !== null) ? Number(v) : null }
+      if (testType === 'SICCT') {
+        return {
+          testType: 'SICCT',
+          earTagNo: id,
+          batchAvian: sicctBatch,
+          batchBovine: sicctBatch,
+          batchDiva: null,
+          day1Avian: parseNum(m.avianDay1),
+          day1Bovine: parseNum(m.bovineDay1),
+          day1Diva: null,
+          day2Avian: parseNum(m.avianDay2),
+          day2Bovine: parseNum(m.bovineDay2),
+          day2Diva: null
+        }
+      }
+      return {
+        testType: 'DIVA',
+        earTagNo: id,
+        batchAvian: null,
+        batchBovine: null,
+        batchDiva: divaBatch,
+        day1Avian: null,
+        day1Bovine: null,
+        day1Diva: parseNum(m.bovineDay1),
+        day2Avian: null,
+        day2Bovine: null,
+        day2Diva: parseNum(m.bovineDay2)
+      }
+    })
+  }
+
+  const results = [
+    ...buildReactorResults('tl_reportSicctReactors', 'tl_reportSicctMeasurements', 'SICCT'),
+    ...buildReactorResults('tl_reportDivaReactors', 'tl_reportDivaMeasurements', 'DIVA')
+  ]
+
+  try {
+    const caseResult = await cattleVaxApiRequest('/cases', 'POST', {
+      cphNumber: '01/001/0006',
+      reasonForTest: 'Pre-Movement',
+      testWindowStart: day1ISO < day2ISO ? day1ISO : day2ISO,
+      testWindowEnd: day1ISO > day2ISO ? day1ISO : day2ISO
+    })
+    const caseId = caseResult.caseId
+
+    await cattleVaxApiRequest(`/cases/${encodeURIComponent(caseId)}/test-parts`, 'POST', {
+      testParts: [{
+        day1: day1ISO,
+        day2: day2ISO,
+        certifyingVet: 'Dr Bob',
+        tester,
+        results
+      }]
+    })
+
+    const caseData = await cattleVaxApiRequest(`/cases/${encodeURIComponent(caseId)}`)
+    req.session.data['tl_submittedCaseNumber'] = caseData.caseNumber
+    return res.redirect('/test-list/report-submitted')
+  } catch (err) {
+    const plainError = errorToPlainObject(err)
+    console.log(JSON.stringify(plainError, null, 2))
+    req.session.data['tl_submitError'] = err.message
+    return res.redirect('/test-list/report-check-answers')
+  }
 })
 
 // ============================================================

@@ -1,0 +1,57 @@
+{% extends "layouts/main.html" %}
+
+{% block pageTitle %}
+  Did any cattle show a positive reaction? – GOV.UK
+{% endblock %}
+
+{% block beforeContent %}
+  <a href="{{ backHref }}" class="govuk-back-link">Back</a>
+{% endblock %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+    {% if errorSummary %}
+      {{ govukErrorSummary(errorSummary) }}
+    {% endif %}
+
+    {% if data['tl_herd'] %}
+      <span class="govuk-caption-l">{{ data['tl_herd']['farm'] }}{% if isBoth %} (step {{ stepNumber }} of {{ totalSteps }}){% endif %}</span>
+    {% endif %}
+
+    <form action="/test-list/report-reactions" method="post" novalidate>
+
+      {{ govukRadios({
+        idPrefix: "tl_reportReaction",
+        name: "tl_reportReaction",
+        errorMessage: { text: errors['tl_reportReaction'].text } if errors and errors['tl_reportReaction'],
+        fieldset: {
+          legend: {
+            text: "Did any cattle show a positive reaction?",
+            isPageHeading: true,
+            classes: "govuk-fieldset__legend--l"
+          }
+        },
+        hint: { text: ("SICCT test" if currentTest == "sicct" else "DIVA test") },
+        items: [
+          {
+            value: "yes",
+            text: "Yes",
+            checked: (formValues['tl_reportReaction'] or '') == "yes"
+          },
+          {
+            value: "no",
+            text: "No",
+            checked: (formValues['tl_reportReaction'] or '') == "no"
+          }
+        ]
+      }) }}
+
+      {{ govukButton({ text: "Continue" }) }}
+
+    </form>
+
+  </div>
+</div>
+{% endblock %}

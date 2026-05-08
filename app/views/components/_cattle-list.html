@@ -9,10 +9,12 @@
 <div class="app-page-grid">
 
   {# ── Settings panel ─────────────────────────────────────── #}
-  <form method="post" action="{{ p.formAction }}" class="app-filter-panel">
+  <details class="app-filter-panel govuk-details">
+    <summary class="govuk-details__summary">
+      <span class="govuk-details__summary-text">List settings</span>
+    </summary>
+    <form method="post" action="{{ p.formAction }}">
     <input type="hidden" name="_csrf" value="{{ p.csrfToken }}">
-
-    <h2 class="govuk-heading-m govuk-!-margin-bottom-3">List settings</h2>
 
     {# File format #}
     {% if p.showFileFormat %}
@@ -165,7 +167,8 @@
       <button type="submit" class="govuk-button" data-module="govuk-button">Apply changes</button>
       <a class="govuk-link" href="{{ p.resetUrl }}">Clear settings</a>
     </div>
-  </form>
+    </form>
+  </details>
 
   {# ── Preview panel ───────────────────────────────────────── #}
   <div>
