@@ -4,3 +4,206 @@
 // 
 
 // Add extra styles here
+
+// download-list page
+.app-page-grid {
+  display: block;
+}
+
+.app-filter-panel {
+  border: 1px solid #b1b4b6;
+  background: #f8f8f8;
+  padding: 20px;
+  margin-bottom: 20px;
+  font-family: "GDS Transport", arial, sans-serif;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  column-gap: 30px;
+  align-items: start;
+}
+
+.app-filter-panel > h2,
+.app-filter-panel > p,
+.app-filter-panel > .govuk-button-group {
+  grid-column: 1 / -1;
+}
+
+.app-filter-panel .govuk-label,
+.app-filter-panel .govuk-fieldset__legend,
+.app-filter-panel .govuk-radios__label,
+.app-filter-panel .govuk-checkboxes__label,
+.app-filter-panel .govuk-button,
+.app-filter-panel .govuk-link,
+.app-filter-panel .govuk-body,
+.app-filter-panel .govuk-body-s {
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.app-filter-panel .govuk-heading-m {
+  font-family: "GDS Transport", arial, sans-serif;
+}
+
+.app-filter-panel .govuk-form-group {
+  margin-bottom: 12px !important;
+}
+
+.app-filter-panel .govuk-radios,
+.app-filter-panel .govuk-checkboxes,
+.app-filter-panel .govuk-form-group:last-child {
+  margin-bottom: 0;
+}
+
+.app-results-header {
+  margin-bottom: 20px;
+}
+
+.app-sheet,
+.app-sheet * {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.app-sheet {
+  background: #ffffff;
+  border: 2px solid #0b0c0c;
+  padding: 18px;
+}
+
+.app-sheet--text-compact  { font-size: 11px; }
+.app-sheet--text-small    { font-size: 14px; }
+.app-sheet--text-standard { font-size: 16px; }
+.app-sheet--text-large    { font-size: 19px; }
+
+.app-sheet--spacing-compact  .app-record-table th,
+.app-sheet--spacing-compact  .app-record-table td { padding: 1px 3px; }
+
+.app-sheet--spacing-tight    .app-record-table th,
+.app-sheet--spacing-tight    .app-record-table td { padding: 3px 5px; }
+
+.app-sheet--spacing-standard .app-record-table th,
+.app-sheet--spacing-standard .app-record-table td { padding: 8px; }
+
+.app-sheet--spacing-spaced   .app-record-table th,
+.app-sheet--spacing-spaced   .app-record-table td { padding: 12px 10px; }
+
+.app-record-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.app-record-table th,
+.app-record-table td {
+  border: 1px solid #0b0c0c;
+  vertical-align: middle;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.app-record-table th {
+  background: #f3f2f1;
+  text-align: left;
+  font-weight: 700;
+}
+
+.app-col-ear-tag            { width: 11rem; }
+.app-col-vaccination-status { width: 8rem; }
+.app-col-test-type          { width: 5rem; }
+.app-col-notes              { width: 10rem; }
+.app-col-narrow {
+  width: 3.25rem;
+  text-align: center !important;
+}
+
+.app-vertical-heading {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  white-space: nowrap;
+  display: inline-block;
+  line-height: 1;
+}
+
+.app-ear-tag {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.app-ear-tag__prefix { margin-right: 0.35ch; }
+.app-ear-tag__part   { display: inline-block; }
+.app-ear-tag__part--last4 { padding: 0 2px; }
+
+.border-toggle {
+  padding: 3px 6px;
+  border: 2px solid #0b0c0c;
+}
+
+.app-results-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.app-csv-note {
+  margin-bottom: 0;
+}
+
+
+// Note: skin-test-list.html has its own inline print styles with column widths and @page overrides.
+// Changes here may need mirroring there.
+@media print {
+  .govuk-back-link,
+  .govuk-button,
+  .govuk-link,
+  .app-filter-panel,
+  .govuk-header,
+  .govuk-footer,
+  .govuk-phase-banner,
+  .govuk-breadcrumbs,
+  .govuk-service-navigation,
+  .app-results-actions,
+  .app-results-header {
+    display: none !important;
+  }
+
+  body,
+  .govuk-width-container,
+  .govuk-main-wrapper {
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: none !important;
+  }
+
+  h1 { display: none !important; }
+
+  .app-sheet {
+    margin: 0;
+    border: none;
+  }
+
+  .app-record-table thead {
+    display: table-header-group;
+  }
+
+  .app-sheet .govuk-table {
+    margin-bottom: 8px;
+  }
+
+  .app-sheet .govuk-table__caption {
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+
+  .app-sheet .govuk-table__cell {
+    padding: 3px 8px;
+    font-size: 11px;
+  }
+}

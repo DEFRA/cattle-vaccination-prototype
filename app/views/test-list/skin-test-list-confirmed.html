@@ -1,0 +1,97 @@
+{% extends "layouts/main.html" %}
+
+{% block pageTitle %}
+  {% if bothHasNextStep %}
+    {{ listTestLabel }} list is ready – GOV.UK
+  {% elif isBothJourney %}
+    Lists are ready – GOV.UK
+  {% else %}
+    {{ listTestLabel or 'Skin test' }} list is ready – GOV.UK
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+{% set otherTestLabel = 'DIVA' if listTestLabel == 'SICCT' else 'SICCT' %}
+{% set otherTestSubject = 'vaccinated cattle' if otherTestLabel == 'DIVA' else 'unvaccinated cattle' %}
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+    {% if bothHasNextStep %}
+      <h1 class="govuk-heading-l">You can now print your list</h1>
+
+      <p class="govuk-body">
+        Next, format the {{ otherTestLabel }} list for {{ otherTestSubject }}.
+      </p>
+      <p class="govuk-body">
+        You can download or print both lists when you've finished.
+      </p>
+
+      <form method="post" action="/test-list/prepare-skin-test-next">
+        {{ govukButton({ text: "Continue" }) }}
+      </form>
+
+    {% elif isBothJourney %}
+      <h1 class="govuk-heading-l">You can now print your list</h1>
+
+      <p class="govuk-body">
+        You can now download or print the SICCT and DIVA lists.
+      </p>
+
+      <ul class="govuk-list govuk-!-margin-bottom-6">
+          <li>
+            <a class="govuk-link" href="/test-list/skin-test-list?sublist=sicct&print=1">Download your SICCT list (PDF)</a>
+          </li>
+          <li>
+            <a class="govuk-link" href="/test-list/skin-test-list?sublist=diva&print=1">Download your DIVA list (PDF)</a>
+          </li>
+        </ul>
+
+      {{ govukButton({
+        text: "Save lists to print later",
+        href: "/"
+      }) }}
+
+      <h2 class="govuk-heading-m govuk-!-margin-top-6">What to do next</h2>
+      <ul class="govuk-list">
+        <li>
+          <a class="govuk-link" href="/test-list/search">Prepare another list</a>
+        </li>
+        <li>
+          <a class="govuk-link" href="/">Exit the service</a>
+        </li>
+      </ul>
+
+    {% else %}
+      <h1 class="govuk-heading-l">You can now print your list</h1>
+
+      <p class="govuk-body">
+        You can now download or print the list.
+      </p>
+
+      <ul class="govuk-list govuk-!-margin-bottom-6">
+          <li>
+            <a class="govuk-link" href="/test-list/skin-test-list?print=1">Download your {{ listTestLabel or 'skin test' }} list (PDF)</a>
+          </li>
+        </ul>
+
+      {{ govukButton({
+        text: "Save list to print later",
+        href: "/"
+      }) }}
+
+      <h2 class="govuk-heading-m govuk-!-margin-top-6">What to do next</h2>
+      <ul class="govuk-list">
+        <li>
+          <a class="govuk-link" href="/test-list/search">Prepare another list</a>
+        </li>
+        <li>
+          <a class="govuk-link" href="/">Exit the service</a>
+        </li>
+      </ul>
+
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,171 @@
+{% extends "layouts/main.html" %}
+{% from "components/_cattle-list.html" import cattleList %}
+
+{% block pageTitle %}
+  List of cattle for skin tests – GOV.UK
+{% endblock %}
+
+{% block beforeContent %}
+  <a href="/test-list/prepare-skin-test-type" class="govuk-back-link">Back</a>
+{% endblock %}
+
+{% block content %}
+
+<style>
+  .app-col-age      { width: 3.5rem; text-align: center !important; }
+  .app-col-sex      { width: 3.5rem; text-align: center !important; }
+  .app-col-breed    { width: 4.5rem; text-align: center !important; }
+  .app-col-dob      { width: 7rem;   text-align: center !important; }
+  .app-col-narrow   { width: 3.5rem; text-align: center !important; }
+  .app-col-label    { width: 2.75rem; text-align: center !important; font-weight: 700; background: #ffffff; }
+  .app-col-skin     { width: 3.5rem; text-align: center !important; }
+  .app-col-reaction { width: 4.5rem; text-align: center !important; }
+  .app-col-overall  { width: 3.5rem; text-align: center !important; }
+  .app-col-ear-tag  { width: 11rem; }
+  .app-record-table tbody + tbody th,
+  .app-record-table tbody + tbody td {
+    border-top: 2px solid #0b0c0c;
+  }
+  .app-record-table th {
+    background: #ffffff;
+    text-align: center;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .app-record-table td {
+    height: 2.4em;
+  }
+  .app-ear-tag-wrapper {
+    display: inline-grid;
+    grid-template-columns: max-content;
+  }
+  .app-ear-tag-flags {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 6px;
+    line-height: 1;
+  }
+  .app-tag-dark {
+    display: inline-block;
+    background-color: #f3f2f1;
+    color: #505a5f;
+    font-family: "GDS Transport", arial, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 4px 10px;
+    text-transform: uppercase;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+  @media print {
+    .govuk-back-link, .govuk-button, .govuk-link, .app-filter-panel,
+    .govuk-header, .govuk-footer, .govuk-phase-banner,
+    .govuk-breadcrumbs, .govuk-service-navigation,
+    h1, .govuk-caption-l, .govuk-inset-text,
+    .app-results-header, .app-results-actions { display: none !important; }
+    body, .govuk-width-container, .govuk-main-wrapper {
+      margin: 0 !important;
+      padding: 0 !important;
+      max-width: none !important;
+    }
+    .app-sheet { margin: 0; border: 1px solid #0b0c0c; }
+    .app-record-table thead { display: table-header-group; }
+    .app-record-table tbody { page-break-inside: avoid; break-inside: avoid; }
+    @page { size: A4 portrait; margin: 10mm; }
+  }
+</style>
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-full">
+
+    {% if data['tl_herd'] %}
+      <span class="govuk-caption-l">
+        {{ data['tl_herd']['farm'] }} - {{ listTestLabel }}{% if bothStepText %} - {{ bothStepText }}{% endif %}
+      </span>
+    {% endif %}
+    <h1 class="govuk-heading-l govuk-!-margin-bottom-4">List of cattle for testing</h1>
+
+    {% if isBothJourney and prepareSkinTestPhase == 'sicct' %}
+      {{ govukInsetText({
+        html: "This list is for SICCT only. You'll prepare a separate DIVA list for the vaccinated cattle after you confirm this one."
+      }) }}
+    {% elif isBothJourney and prepareSkinTestPhase == 'diva' %}
+      {{ govukInsetText({
+        html: "This list is for DIVA only. It includes the BCG vaccinated cattle on the farm."
+      }) }}
+    {% endif %}
+
+    {# Build preview groups #}
+    {% set _previewGroups = [] %}
+    {% if prepareSkinTestPhase == 'diva' and divaPreviewRows %}
+      {% set _previewGroups = _previewGroups.concat([{
+        key: 'diva',
+        label: 'DIVA',
+        description: 'For the BCG vaccinated cattle on this farm.',
+        rows: divaPreviewRows,
+        count: divaPreviewCount
+      }]) %}
+    {% elif sicctPreviewRows %}
+      {% set _previewGroups = _previewGroups.concat([{
+        key: 'sicct',
+        label: 'SICCT',
+        description: 'For the unvaccinated cattle on this farm.',
+        rows: sicctPreviewRows,
+        count: sicctPreviewCount
+      }]) %}
+    {% endif %}
+
+    {# Build additional links for both-journey #}
+    {% set _additionalLinks = [] %}
+    {% if isBothJourney %}
+      {% set _additionalLinks = _additionalLinks.concat([
+        { text: "Change cattle on the SICCT list", href: "/test-list/prepare-skin-test-assign-cattle/edit/sicct" },
+        { text: "Change cattle on the DIVA list",  href: "/test-list/prepare-skin-test-assign-cattle/edit/diva" }
+      ]) %}
+    {% endif %}
+
+    {{ cattleList({
+      tableVariant: "skin-test-full",
+      formAction: "/test-list/skin-test-list",
+      resetUrl: "/test-list/skin-test-list/reset",
+      csrfToken: csrfToken,
+      namePrefix: "tl_",
+      showFileFormat: false,
+      columns: previewAllColumns,
+      extraToggleColumns: ['Overall result', 'Remarks'],
+      sortOptions: [
+        { value: "Ear-tag number (last 4 digits)", text: "Ear tag number (last 4 digits)" },
+        { value: "Ear-tag number",                 text: "Ear tag number (full)" },
+        { value: "Age",   text: "Age" },
+        { value: "Sex",   text: "Sex" },
+        { value: "Breed", text: "Breed" },
+        { value: "DOB",   text: "DOB" }
+      ],
+      settings: {
+        previewOptions: previewOptions,
+        emphasiseLastFive: emphasiseLastFive,
+        sortBy: data['tl_skinTestSortBy'] or 'Ear-tag number (last 4 digits)',
+        sortDirection: data['tl_skinTestSortDirection'] or 'asc',
+        previewTextSize: previewTextSize or 'standard',
+        previewOrientation: previewOrientation or 'portrait',
+        previewSpacing: previewSpacing or 'standard'
+      },
+      farmSummary: {
+        title: data['tl_herd']['farm'] if data['tl_herd'] else "",
+        cph: data['tl_herd']['cph'] if data['tl_herd'] else data['tl_selectedCattle'],
+        dateLabel: "Date list was made",
+        showDivaBatchNumber: true
+      },
+      previewGroups: _previewGroups,
+      continueUrl: "/test-list/skin-test-list-confirmed",
+      removeUrl: "/test-list/prepare-skin-test-untested",
+      additionalLinks: _additionalLinks
+    }) }}
+
+  </div>
+</div>
+
+{% endblock %}

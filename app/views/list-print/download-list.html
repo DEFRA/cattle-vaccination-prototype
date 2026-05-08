@@ -1,0 +1,42 @@
+{% extends "layouts/main.html" %}
+{% from "components/_cattle-list.html" import cattleList %}
+
+{% set pageName = "List of cattle to vaccinate" %}
+
+{% block beforeContent %}
+  <a href="/list-print/select-visit-task" class="govuk-back-link">Back</a>
+{% endblock %}
+
+{% block content %}
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-full">
+
+    <h1 class="govuk-heading-l govuk-!-margin-bottom-4">List of cattle to vaccinate</h1>
+
+    {{ cattleList({
+      tableVariant: "vaccination",
+      formAction: "/list-print/download-list",
+      resetUrl: "/list-print/download-list/reset",
+      csrfToken: csrfToken,
+      namePrefix: "",
+      showFileFormat: true,
+      textSizeOptions: ["compact", "small", "standard", "large"],
+      spacingOptions: ["compact", "tight", "standard", "spaced"],
+      columns: ["Age", "DOB", "Sex", "Breed", "Vaccination status"],
+      sortOptions: ["Ear-tag number", "Age", "DOB", "Sex", "Breed", "Vaccination status"],
+      settings: settings,
+      farmSummary: {
+        title: "Birch Hollow Farm",
+        cph: "17/221/6804",
+        cattleCount: cattle | length,
+        dateLabel: "Date populated",
+        dateValue: datePopulated
+      },
+      cattle: cattle
+    }) }}
+
+  </div>
+</div>
+
+{% endblock %}

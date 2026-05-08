@@ -1,0 +1,66 @@
+{% extends "layouts/main.html" %}
+
+{% block pageTitle %}
+  Which skin test are you preparing for? – GOV.UK
+{% endblock %}
+
+{% block beforeContent %}
+  <a href="/test-list/select-visit-task" class="govuk-back-link">Back</a>
+{% endblock %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+    {% if errorSummary %}
+      {{ govukErrorSummary(errorSummary) }}
+    {% endif %}
+
+    {% if data['tl_herd'] %}
+      <span class="govuk-caption-l">{{ data['tl_herd']['farm'] }}</span>
+    {% endif %}
+    <h1 class="govuk-heading-l">Are the cattle vaccinated against bovine TB?</h1>
+
+    <p class="govuk-body">
+      Select the skin tests that need to be done on this visit.
+    </p>
+
+    <form action="/test-list/prepare-skin-test-type" method="post" novalidate>
+
+      {{ govukRadios({
+        idPrefix: "tl_prepareSkinTestType",
+        name: "tl_prepareSkinTestType",
+        value: data['tl_prepareSkinTestType'],
+        errorMessage: { text: errors['tl_prepareSkinTestType'].text } if errors and errors['tl_prepareSkinTestType'],
+        fieldset: {
+          legend: {
+            text: "Which skin test are you preparing a list for?",
+            classes: "govuk-visually-hidden"
+          }
+        },
+        items: [
+          {
+            text: "Yes, the herd is all BCG vaccinated",
+            hint: { text: "DIVA is the skin test used for cattle that have been BCG vaccinated." },
+            value: "DIVA"
+          },
+          {
+            text: "None of the herd has been BCG vaccinated",
+            hint: { text: "SICCT is the skin test used for cattle that have not been BCG vaccinated." },
+            value: "SICCT"
+          },
+          {
+            text: "The herd has a mix of vaccinated and unvaccinated cattle",
+            hint: { text: "You'll need to take both DIVA and SICCT skin tests to the farm." },
+            value: "DIVA and SICCT"
+          }
+        ]
+      }) }}
+
+      {{ govukButton({ text: "Continue" }) }}
+
+    </form>
+
+  </div>
+</div>
+{% endblock %}
