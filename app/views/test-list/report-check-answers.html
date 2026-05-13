@@ -245,51 +245,6 @@
       rows: allTestedRows
     }) }}
 
-    <h2 class="govuk-heading-m">Salesforce API data</h2>
-    <p class="govuk-body">The following fields are required by the Salesforce API but are not collected in this journey. They are hardcoded or derived for prototype purposes only.</p>
-
-    {% set testerApiValue %}
-      {{ apiPlaceholders.tester }}
-      {% if apiPlaceholders.testerIsHardcoded %}
-        <strong class="govuk-tag govuk-tag--grey govuk-!-margin-left-1">Hardcoded</strong>
-      {% else %}
-        <strong class="govuk-tag govuk-tag--blue govuk-!-margin-left-1">Collected</strong>
-      {% endif %}
-    {% endset %}
-
-    {{ govukSummaryList({
-      classes: "govuk-!-margin-bottom-9",
-      rows: [
-        {
-          key: { text: "CPH sent to Salesforce" },
-          value: { html: "01/001/0006 <strong class=\"govuk-tag govuk-tag--grey govuk-!-margin-left-1\">Hardcoded</strong><br><span class=\"govuk-hint govuk-!-margin-bottom-0\">You entered: " + apiPlaceholders.cphEntered + "</span>" }
-        },
-        {
-          key: { text: "Reason for test" },
-          value: { html: "Pre-Movement <strong class=\"govuk-tag govuk-tag--grey govuk-!-margin-left-1\">Hardcoded</strong>" }
-        },
-        {
-          key: { text: "Test window start" },
-          value: { html: apiPlaceholders.testWindowStart + " <strong class=\"govuk-tag govuk-tag--blue govuk-!-margin-left-1\">Derived from dates</strong>" }
-        },
-        {
-          key: { text: "Test window end" },
-          value: { html: apiPlaceholders.testWindowEnd + " <strong class=\"govuk-tag govuk-tag--blue govuk-!-margin-left-1\">Derived from dates</strong>" }
-        },
-        {
-          key: { text: "Certifying vet" },
-          value: { html: "Dr Bob <strong class=\"govuk-tag govuk-tag--grey govuk-!-margin-left-1\">Hardcoded</strong>" }
-        },
-        {
-          key: { text: "Tester" },
-          value: { html: testerApiValue }
-        }
-      ] + ([{
-          key: { text: "SICCT batch avian = batch bovine" },
-          value: { html: "Same value used for both <strong class=\"govuk-tag govuk-tag--grey govuk-!-margin-left-1\">Simplified</strong>" }
-        }] if 'sicct' in data['tl_reportTestTypes'] else [])
-    }) }}
-
     <form action="/test-list/report-check-answers" method="post" novalidate>
       {{ govukButton({ text: "Submit" }) }}
     </form>

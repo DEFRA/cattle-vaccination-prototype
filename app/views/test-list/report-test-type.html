@@ -21,71 +21,25 @@
     {% endif %}
 
     {% set resolvedTestTypes = selectedTestTypes if selectedTestTypes else (data['tl_reportTestTypes'] or []) %}
-    {% set resolvedSicctBatches = sicctBatchValues if sicctBatchValues else (data['tl_reportSicctBatchNumbers'] or []) %}
-    {% set resolvedDivaBatches = divaBatchValues if divaBatchValues else (data['tl_reportDivaBatchNumbers'] or []) %}
 
     {% set sicctBatchHtml %}
-      <div class="app-batch-group" id="sicct-batch-group">
-        {% set batchCount = resolvedSicctBatches | length %}
-        {% if batchCount > 0 %}
-          {% for value in resolvedSicctBatches %}
-            <div class="app-batch-item govuk-form-group govuk-!-margin-bottom-3">
-              <label class="govuk-label govuk-label--s" for="tl_reportSicctBatchNumbers_{{ loop.index0 }}">
-                Batch number
-              </label>
-              <input class="govuk-input govuk-!-width-two-thirds" type="text"
-                     id="tl_reportSicctBatchNumbers_{{ loop.index0 }}"
-                     name="tl_reportSicctBatchNumbers"
-                     value="{{ value }}">
-            </div>
-          {% endfor %}
-        {% else %}
-          <div class="app-batch-item govuk-form-group govuk-!-margin-bottom-3">
-            <label class="govuk-label govuk-label--s" for="tl_reportSicctBatchNumbers_0">
-              Batch number
-            </label>
-            <input class="govuk-input govuk-!-width-two-thirds" type="text"
-                   id="tl_reportSicctBatchNumbers_0"
-                   name="tl_reportSicctBatchNumbers"
-                   value="">
-          </div>
-        {% endif %}
-        <button type="button" class="govuk-button govuk-button--secondary app-add-batch-btn" data-group="sicct-batch-group">
-          Add another batch number
-        </button>
-      </div>
+      {{ govukInput({
+        id: "tl_reportSicctBatchNumbers_0",
+        name: "tl_reportSicctBatchNumbers",
+        label: { text: "Batch number", classes: "govuk-label--s" },
+        classes: "govuk-!-width-two-thirds",
+        value: sicctBatchValue
+      }) }}
     {% endset %}
 
     {% set divaBatchHtml %}
-      <div class="app-batch-group" id="diva-batch-group">
-        {% set batchCount = resolvedDivaBatches | length %}
-        {% if batchCount > 0 %}
-          {% for value in resolvedDivaBatches %}
-            <div class="app-batch-item govuk-form-group govuk-!-margin-bottom-3">
-              <label class="govuk-label govuk-label--s" for="tl_reportDivaBatchNumbers_{{ loop.index0 }}">
-                Batch number
-              </label>
-              <input class="govuk-input govuk-!-width-two-thirds" type="text"
-                     id="tl_reportDivaBatchNumbers_{{ loop.index0 }}"
-                     name="tl_reportDivaBatchNumbers"
-                     value="{{ value }}">
-            </div>
-          {% endfor %}
-        {% else %}
-          <div class="app-batch-item govuk-form-group govuk-!-margin-bottom-3">
-            <label class="govuk-label govuk-label--s" for="tl_reportDivaBatchNumbers_0">
-              Batch number
-            </label>
-            <input class="govuk-input govuk-!-width-two-thirds" type="text"
-                   id="tl_reportDivaBatchNumbers_0"
-                   name="tl_reportDivaBatchNumbers"
-                   value="">
-          </div>
-        {% endif %}
-        <button type="button" class="govuk-button govuk-button--secondary app-add-batch-btn" data-group="diva-batch-group">
-          Add another batch number
-        </button>
-      </div>
+      {{ govukInput({
+        id: "tl_reportDivaBatchNumbers_0",
+        name: "tl_reportDivaBatchNumbers",
+        label: { text: "Batch number", classes: "govuk-label--s" },
+        classes: "govuk-!-width-two-thirds",
+        value: divaBatchValue
+      }) }}
     {% endset %}
 
     <form action="/test-list/report-test-type" method="post" novalidate>
@@ -124,26 +78,4 @@
 
   </div>
 </div>
-
-<script>
-  document.querySelectorAll('.app-add-batch-btn').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      var groupId = btn.getAttribute('data-group')
-      var group = document.getElementById(groupId)
-      var items = group.querySelectorAll('.app-batch-item')
-      var last = items[items.length - 1]
-      var clone = last.cloneNode(true)
-      var newIndex = items.length
-      var input = clone.querySelector('input')
-      var label = clone.querySelector('label')
-      var newId = input.id.replace(/_\d+$/, '_' + newIndex)
-      input.id = newId
-      input.value = ''
-      label.setAttribute('for', newId)
-      btn.before(clone)
-      input.focus()
-    })
-  })
-</script>
-
 {% endblock %}
