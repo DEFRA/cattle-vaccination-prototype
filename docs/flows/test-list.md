@@ -422,8 +422,8 @@ skin-test-list
 | `tl_reportDay2Date`                      | Day 2 page             | Date of Day 2 reading (DD/MM/YYYY)                                            |
 | `tl_reportDay2MultiDay`                  | Day 2 page             | Boolean — true if Day 2 took more than a single day                           |
 | `tl_reportTestTypes`                     | Test type page         | Array of selected test types: `["sicct"]`, `["diva"]`, or `["sicct", "diva"]` |
-| `tl_reportSicctBatchNumbers`             | Test type page         | Array of batch number strings for SICCT                                       |
-| `tl_reportDivaBatchNumbers`              | Test type page         | Array of batch number strings for DIVA                                        |
+| `tl_reportSicctBatchNumbers`             | Test type page         | Batch number string for SICCT                                                 |
+| `tl_reportDivaBatchNumbers`              | Test type page         | Batch number string for DIVA                                                  |
 | `tl_reportRecordOrder`                   | Record order page      | `"sicct"` or `"diva"` — which test's results to record first (Both only)      |
 | `tl_reportCurrentReactionTest`           | Routes                 | `"sicct"` or `"diva"` — which test is currently being asked about             |
 | `tl_reportCompletedReactionTests`        | Reactions page         | Array of test keys already answered (e.g. `["sicct"]`)                        |
@@ -518,10 +518,8 @@ Entered from the Select Visit Task page (Step 4 of Flow 1) when the user chooses
 - Checkboxes:
   - "SICCT test" — when checked, reveals:
     - Text input: "Batch number" (for SICCT tuberculin)
-    - Button (JS only): "Add another batch number" — appends an additional batch number text input
   - "DIVA test" — when checked, reveals:
     - Text input: "Batch number" (for DIVA tuberculin)
-    - Button (JS only): "Add another batch number" — appends an additional batch number text input
 - Continue button
 
 **User action:** Checks one or both tests, enters batch number(s) for each.
@@ -706,18 +704,7 @@ Entered from the Select Visit Task page (Step 4 of Flow 1) when the user chooses
 - Change links next to each section
 - Submit button
 
-**User also sees (Salesforce API data section):**
-
-A summary list of values required by the Salesforce API that are not collected in this journey, displayed with tags indicating their source:
-- CPH sent to Salesforce: `01/001/0006` (hardcoded — Salesforce only accepts known CPHs in prototype)
-- Reason for test: `Pre-Movement` (hardcoded)
-- Test window start: earliest of Day 1 and Day 2 dates (derived)
-- Test window end: latest of Day 1 and Day 2 dates (derived)
-- Certifying vet: `Dr Bob` (hardcoded)
-- Tester: collected name if someone else did the test; `Farmer John` if "I did" (hardcoded)
-- SICCT batch avian = batch bovine: same value used for both (simplified; only shown for SICCT journeys)
-
-**User action:** Reviews and clicks Submit. The prototype calls the Salesforce API to create a case and add a test part, then redirects to the confirmation page.
+**User action:** Reviews and clicks Submit. The prototype calls the Salesforce API to create a case and add a test part, then redirects to the confirmation page. All tested cattle are sent (herd minus untested cattle). Reactors are sent with their recorded measurements; non-reactors are sent with zero for all measurement fields.
 
 **On submission error:** An error summary appears at the top of the page with the API error message. The user can retry.
 

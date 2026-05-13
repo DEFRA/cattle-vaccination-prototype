@@ -836,7 +836,7 @@ router.post('/test-list/report-day-1', function (req, res) {
   }
 
   req.session.data['tl_reportDay1Date'] = `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`
-  req.session.data['tl_reportDay1MultiDay'] = req.body['tl_reportDay1MultiDay'] === 'yes'
+  req.session.data['tl_reportDay1MultiDay'] = toArray(req.body['tl_reportDay1MultiDay']).includes('yes') ? 'yes' : null
 
   return res.redirect('/test-list/report-day-2')
 })
@@ -867,15 +867,15 @@ router.post('/test-list/report-day-2', function (req, res) {
   }
 
   req.session.data['tl_reportDay2Date'] = `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`
-  req.session.data['tl_reportDay2MultiDay'] = req.body['tl_reportDay2MultiDay'] === 'yes'
+  req.session.data['tl_reportDay2MultiDay'] = toArray(req.body['tl_reportDay2MultiDay']).includes('yes') ? 'yes' : null
 
   return res.redirect('/test-list/report-test-type')
 })
 
 router.get('/test-list/report-test-type', function (req, res) {
   res.render('test-list/report-test-type', {
-    sicctBatchValues: toArray(req.session.data['tl_reportSicctBatchNumbers']),
-    divaBatchValues: toArray(req.session.data['tl_reportDivaBatchNumbers'])
+    sicctBatchValue: toArray(req.session.data['tl_reportSicctBatchNumbers'])[0] || '',
+    divaBatchValue: toArray(req.session.data['tl_reportDivaBatchNumbers'])[0] || ''
   })
 })
 
@@ -896,16 +896,15 @@ router.post('/test-list/report-test-type', function (req, res) {
     return res.render('test-list/report-test-type', {
       errors,
       errorSummary: { titleText: 'There is a problem', errorList },
-      formValues: req.body,
       selectedTestTypes: testTypes,
-      sicctBatchValues: sicctBatchNumbers.length ? sicctBatchNumbers : [''],
-      divaBatchValues: divaBatchNumbers.length ? divaBatchNumbers : ['']
+      sicctBatchValue: sicctBatchNumbers[0] || '',
+      divaBatchValue: divaBatchNumbers[0] || ''
     })
   }
 
   req.session.data['tl_reportTestTypes'] = testTypes
-  req.session.data['tl_reportSicctBatchNumbers'] = sicctBatchNumbers
-  req.session.data['tl_reportDivaBatchNumbers'] = divaBatchNumbers
+  req.session.data['tl_reportSicctBatchNumbers'] = sicctBatchNumbers[0] || null
+  req.session.data['tl_reportDivaBatchNumbers'] = divaBatchNumbers[0] || null
 
   const bothSelected = testTypes.includes('sicct') && testTypes.includes('diva')
   if (bothSelected) {
@@ -1353,24 +1352,10 @@ router.get('/test-list/report-check-answers', function (req, res) {
   const sicctReactors = buildReactorList('tl_reportSicctReactors', 'tl_reportSicctMeasurements')
   const divaReactors = buildReactorList('tl_reportDivaReactors', 'tl_reportDivaMeasurements')
 
-  const d = req.session.data
-  const day1ISO = `${d['tl_reportDay1Date-year']}-${String(d['tl_reportDay1Date-month']).padStart(2, '0')}-${String(d['tl_reportDay1Date-day']).padStart(2, '0')}`
-  const day2ISO = `${d['tl_reportDay2Date-year']}-${String(d['tl_reportDay2Date-month']).padStart(2, '0')}-${String(d['tl_reportDay2Date-day']).padStart(2, '0')}`
-  const apiPlaceholders = {
-    reasonForTest: 'Pre-Movement',
-    testWindowStart: day1ISO < day2ISO ? day1ISO : day2ISO,
-    testWindowEnd: day1ISO > day2ISO ? day1ISO : day2ISO,
-    certifyingVet: 'Dr Bob',
-    tester: d['tl_reportTester'] === 'me' ? 'Farmer John' : (d['tl_reportTesterName'] || 'Farmer John'),
-    testerIsHardcoded: d['tl_reportTester'] === 'me',
-    cphNumber: '01/001/0006',
-    cphEntered: d['tl_selectedCattle']
-  }
-
   const submitError = req.session.data['tl_submitError'] || null
   delete req.session.data['tl_submitError']
 
-  res.render('test-list/report-check-answers', { untestedAnimals, sicctReactors, divaReactors, apiPlaceholders, submitError })
+  res.render('test-list/report-check-answers', { untestedAnimals, sicctReactors, divaReactors, submitError })
 })
 
 router.get('/test-list/report-submitted', function (req, res) {
@@ -1388,24 +1373,31 @@ router.post('/test-list/report-check-answers', async function (req, res) {
   const sicctBatch = toArray(d['tl_reportSicctBatchNumbers'])[0] || null
   const divaBatch = toArray(d['tl_reportDivaBatchNumbers'])[0] || null
 
-  function buildReactorResults(reactorKey, measurementsKey, testType) {
-    const ids = toArray(d[reactorKey])
+  const cph = d['tl_selectedCattle']
+  const untestedSet = new Set(toArray(d['tl_reportUntestedCattle']))
+  const testedAnimals = (ANIMALS_BY_CPH[cph] || []).filter(function (a) { return !untestedSet.has(a.officialId) })
+  const testTypes = toArray(d['tl_reportTestTypes'])
+
+  function buildAllTestedResults(testType, reactorKey, measurementsKey, batch) {
+    const reactorIds = new Set(toArray(d[reactorKey]))
     const measurements = d[measurementsKey] || {}
-    return ids.map(function (id) {
-      const m = measurements[id] || {}
-      const parseNum = function (v) { return (v !== '' && v !== undefined && v !== null) ? Number(v) : null }
+    const parseNum = function (v) { return (v !== '' && v !== undefined && v !== null) ? Number(v) : null }
+    return testedAnimals.map(function (animal) {
+      const id = animal.officialId
+      const isReactor = reactorIds.has(id)
+      const m = isReactor ? (measurements[id] || {}) : {}
       if (testType === 'SICCT') {
         return {
           testType: 'SICCT',
           earTagNo: id,
-          batchAvian: sicctBatch,
-          batchBovine: sicctBatch,
+          batchAvian: batch,
+          batchBovine: batch,
           batchDiva: null,
-          day1Avian: parseNum(m.avianDay1),
-          day1Bovine: parseNum(m.bovineDay1),
+          day1Avian: isReactor ? parseNum(m.avianDay1) : 0,
+          day1Bovine: isReactor ? parseNum(m.bovineDay1) : 0,
           day1Diva: null,
-          day2Avian: parseNum(m.avianDay2),
-          day2Bovine: parseNum(m.bovineDay2),
+          day2Avian: isReactor ? parseNum(m.avianDay2) : 0,
+          day2Bovine: isReactor ? parseNum(m.bovineDay2) : 0,
           day2Diva: null
         }
       }
@@ -1414,21 +1406,24 @@ router.post('/test-list/report-check-answers', async function (req, res) {
         earTagNo: id,
         batchAvian: null,
         batchBovine: null,
-        batchDiva: divaBatch,
+        batchDiva: batch,
         day1Avian: null,
         day1Bovine: null,
-        day1Diva: parseNum(m.bovineDay1),
+        day1Diva: isReactor ? parseNum(m.bovineDay1) : 0,
         day2Avian: null,
         day2Bovine: null,
-        day2Diva: parseNum(m.bovineDay2)
+        day2Diva: isReactor ? parseNum(m.bovineDay2) : 0
       }
     })
   }
 
-  const results = [
-    ...buildReactorResults('tl_reportSicctReactors', 'tl_reportSicctMeasurements', 'SICCT'),
-    ...buildReactorResults('tl_reportDivaReactors', 'tl_reportDivaMeasurements', 'DIVA')
-  ]
+  const results = []
+  if (testTypes.includes('sicct')) {
+    results.push(...buildAllTestedResults('SICCT', 'tl_reportSicctReactors', 'tl_reportSicctMeasurements', sicctBatch))
+  }
+  if (testTypes.includes('diva')) {
+    results.push(...buildAllTestedResults('DIVA', 'tl_reportDivaReactors', 'tl_reportDivaMeasurements', divaBatch))
+  }
 
   try {
     const caseResult = await cattleVaxApiRequest('/cases', 'POST', {
