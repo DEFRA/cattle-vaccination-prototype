@@ -53,18 +53,6 @@
         ]
       }) }}
 
-      {{ govukCheckboxes({
-        idPrefix: "tl_reportDay2MultiDay",
-        name: "tl_reportDay2MultiDay",
-        items: [
-          {
-            value: "yes",
-            text: "Select if Day 2 took more than a single day to complete",
-            checked: (formValues['tl_reportDay2MultiDay'] == 'yes' if formValues else data['tl_reportDay2MultiDay'] == 'yes')
-          }
-        ]
-      }) }}
-
       {{ govukButton({ text: "Continue" }) }}
 
     </form>

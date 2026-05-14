@@ -418,9 +418,7 @@ skin-test-list
 | `tl_reportTesterRole`                    | Who tested page        | `"vet"`, `"att"`, or `"other"` — role of the tester (if someone else)        |
 | `tl_reportTesterRoleOther`               | Who tested page        | Free-text role description (if role is `"other"`)                             |
 | `tl_reportDay1Date`                      | Day 1 page             | Date of Day 1 injection (DD/MM/YYYY)                                          |
-| `tl_reportDay1MultiDay`                  | Day 1 page             | Boolean — true if Day 1 took more than a single day                           |
 | `tl_reportDay2Date`                      | Day 2 page             | Date of Day 2 reading (DD/MM/YYYY)                                            |
-| `tl_reportDay2MultiDay`                  | Day 2 page             | Boolean — true if Day 2 took more than a single day                           |
 | `tl_reportTestTypes`                     | Test type page         | Array of selected test types: `["sicct"]`, `["diva"]`, or `["sicct", "diva"]` |
 | `tl_reportSicctBatchNumbers`             | Test type page         | Batch number string for SICCT                                                 |
 | `tl_reportDivaBatchNumbers`              | Test type page         | Batch number string for DIVA                                                  |
@@ -482,7 +480,6 @@ Entered from the Select Visit Task page (Step 4 of Flow 1) when the user chooses
 - Heading: "When was Day 1 of the test?"
 - Hint text: "Day 1 is when you injected the tuberculin. Day 2 (the reading) takes place 72 hours later – you'll record that on the next page."
 - Date input labelled "Day 1 (injection)" (DD/MM/YYYY)
-- Checkbox: "Select if Day 1 took more than a single day to complete"
 - Continue button
 
 **Next step:** Day 2 date (Step 3)
@@ -499,7 +496,6 @@ Entered from the Select Visit Task page (Step 4 of Flow 1) when the user chooses
 - Heading: "When was Day 2 of the test?"
 - Hint text: "Day 2 is when you read the tuberculin reactions, 72 hours after Day 1."
 - Date input labelled "Day 2 (reading)" (DD/MM/YYYY)
-- Checkbox: "Select if Day 2 took more than a single day to complete"
 - Continue button
 
 **Next step:** Test type (Step 4)
@@ -694,8 +690,8 @@ Entered from the Select Visit Task page (Step 4 of Flow 1) when the user chooses
 - Heading: "Check your answers"
 - Summary list of all recorded information:
   - Who tested the cattle (and their name/role if someone else)
-  - Day 1 date (and multi-day flag if applicable)
-  - Day 2 date (and multi-day flag if applicable)
+  - Day 1 date
+  - Day 2 date
   - Test type(s) performed and batch number(s)
   - Positive reaction result per test type
   - If SICCT had positive reactions: a table of SICCT reactor measurements (ear tag, Bovine D1, Bovine D2, Avian D1, Avian D2)
@@ -704,7 +700,7 @@ Entered from the Select Visit Task page (Step 4 of Flow 1) when the user chooses
 - Change links next to each section
 - Submit button
 
-**User action:** Reviews and clicks Submit. The prototype calls the Salesforce API to create a case and add a test part, then redirects to the confirmation page. All tested cattle are sent (herd minus untested cattle). Reactors are sent with their recorded measurements; non-reactors are sent with zero for all measurement fields.
+**User action:** Reviews and clicks Submit. The prototype calls the Salesforce API to create a case and add a test part, then redirects to the confirmation page. All cattle on the holding are sent: tested animals (herd minus untested) with their measurement results (reactors with recorded values, non-reactors with zero for all measurement fields), and untested animals with `testType: 'Not Tested'` and their reason code.
 
 **On submission error:** An error summary appears at the top of the page with the API error message. The user can retry.
 

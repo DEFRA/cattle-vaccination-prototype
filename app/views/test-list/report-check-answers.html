@@ -53,12 +53,10 @@
 
     {% set day1DateValue %}
       {{ data['tl_reportDay1Date-day'] }}/{{ data['tl_reportDay1Date-month'] }}/{{ data['tl_reportDay1Date-year'] }}
-      {% if data['tl_reportDay1MultiDay'] == 'yes' %}<br><span class="govuk-hint govuk-!-margin-bottom-0">Took more than one day</span>{% endif %}
     {% endset %}
 
     {% set day2DateValue %}
       {{ data['tl_reportDay2Date-day'] }}/{{ data['tl_reportDay2Date-month'] }}/{{ data['tl_reportDay2Date-year'] }}
-      {% if data['tl_reportDay2MultiDay'] == 'yes' %}<br><span class="govuk-hint govuk-!-margin-bottom-0">Took more than one day</span>{% endif %}
     {% endset %}
 
     {{ govukSummaryList({

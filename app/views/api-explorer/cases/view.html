@@ -42,6 +42,10 @@
           <dd class="govuk-summary-list__value">{{ caseData.cph }}</dd>
         </div>
         <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">Type</dt>
+          <dd class="govuk-summary-list__value">{{ caseData.type }}</dd>
+        </div>
+        <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">Date opened</dt>
           <dd class="govuk-summary-list__value">{{ caseData.openedDate }}</dd>
         </div>
@@ -117,6 +121,7 @@
                   <th scope="col" class="govuk-table__header">Day 2 Avian</th>
                   <th scope="col" class="govuk-table__header">Day 2 Bovine</th>
                   <th scope="col" class="govuk-table__header">Day 2 DIVA</th>
+                  <th scope="col" class="govuk-table__header">Not tested reason</th>
                 </tr>
               </thead>
               <tbody class="govuk-table__body">
@@ -133,6 +138,7 @@
                     <td class="govuk-table__cell">{{ result.day2Avian if result.day2Avian !== null else "—" }}</td>
                     <td class="govuk-table__cell">{{ result.day2Bovine if result.day2Bovine !== null else "—" }}</td>
                     <td class="govuk-table__cell">{{ result.day2Diva if result.day2Diva !== null else "—" }}</td>
+                    <td class="govuk-table__cell">{{ result.notTestedReason if result.notTestedReason else "—" }}</td>
                   </tr>
                 {% endfor %}
               </tbody>

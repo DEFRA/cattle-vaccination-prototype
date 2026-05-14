@@ -8,7 +8,7 @@ const { toArray } = require('./helpers/utils')
 const { getDownloadListSettings, sortCattle, getTestListSettings, sortTestCattle } = require('./helpers/list-settings')
 const { ANIMALS_BY_CPH, getTbStatus, searchFarms } = require('./helpers/farm-generator')
 const { TL_SKIN_TEST_COLUMNS, tlBuildPreviewSettings, tlBuildPreviewRows } = require('./helpers/preview')
-const { enrichWithFlags, sortCows } = require('./helpers/cattle')
+const { enrichWithFlags } = require('./helpers/cattle')
 const { formatDate } = require('./helpers/date')
 const { UNTESTED_REASON_LABELS } = require('./data/untested-reason-labels')
 const { getPrepareCandidateAnimals, getUntestedAnimals, getBaseAnimals } = require('./helpers/animal-testing')
@@ -836,7 +836,6 @@ router.post('/test-list/report-day-1', function (req, res) {
   }
 
   req.session.data['tl_reportDay1Date'] = `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`
-  req.session.data['tl_reportDay1MultiDay'] = toArray(req.body['tl_reportDay1MultiDay']).includes('yes') ? 'yes' : null
 
   return res.redirect('/test-list/report-day-2')
 })
@@ -867,7 +866,6 @@ router.post('/test-list/report-day-2', function (req, res) {
   }
 
   req.session.data['tl_reportDay2Date'] = `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`
-  req.session.data['tl_reportDay2MultiDay'] = toArray(req.body['tl_reportDay2MultiDay']).includes('yes') ? 'yes' : null
 
   return res.redirect('/test-list/report-test-type')
 })
@@ -1425,6 +1423,16 @@ router.post('/test-list/report-check-answers', async function (req, res) {
     results.push(...buildAllTestedResults('DIVA', 'tl_reportDivaReactors', 'tl_reportDivaMeasurements', divaBatch))
   }
 
+  const untestedReasons = d['tl_reportUntestedReasons'] || {}
+  for (const id of untestedSet) {
+    const reasonCode = untestedReasons[id] || ''
+    results.push({
+      testType: 'Not Tested',
+      earTagNo: id,
+      notTestedReason: UNTESTED_REASON_LABELS[reasonCode] || 'Other reason'
+    })
+  }
+
   try {
     const caseResult = await cattleVaxApiRequest('/cases', 'POST', {
       cphNumber: '01/001/0006',
@@ -1445,7 +1453,11 @@ router.post('/test-list/report-check-answers', async function (req, res) {
     })
 
     const caseData = await cattleVaxApiRequest(`/cases/${encodeURIComponent(caseId)}`)
-    req.session.data['tl_submittedCaseNumber'] = caseData.caseNumber
+    const caseNumber = caseData.caseNumber
+    for (const key of Object.keys(req.session.data)) {
+      if (key.startsWith('tl_')) delete req.session.data[key]
+    }
+    req.session.data['tl_submittedCaseNumber'] = caseNumber
     return res.redirect('/test-list/report-submitted')
   } catch (err) {
     const plainError = errorToPlainObject(err)
