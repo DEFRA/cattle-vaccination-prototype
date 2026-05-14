@@ -197,31 +197,6 @@ test.describe('Prepare a test list', () => {
 // ============================================================
 
 test.describe('Report skin test results', () => {
-  test('SICCT: multi-day Day 1 flag shows on check-answers', async ({ page }) => {
-    await searchAndConfirmHerd(page)
-    await page.getByLabel('Report skin test results').check()
-    await page.getByRole('button', { name: 'Continue' }).click()
-    await page.getByLabel('I did').check()
-    await page.getByRole('button', { name: 'Continue' }).click()
-    await page.getByLabel('Day', { exact: true }).fill('01')
-    await page.getByLabel('Month', { exact: true }).fill('03')
-    await page.getByLabel('Year', { exact: true }).fill('2025')
-    await page.getByLabel('Select if Day 1 took more than a single day to complete').check()
-    await page.getByRole('button', { name: 'Continue' }).click()
-    await page.getByLabel('Day', { exact: true }).fill('04')
-    await page.getByLabel('Month', { exact: true }).fill('03')
-    await page.getByLabel('Year', { exact: true }).fill('2025')
-    await page.getByRole('button', { name: 'Continue' }).click()
-    await selectTestTypes(page, ['sicct'])
-    await page.getByLabel('No').check()
-    await page.getByRole('button', { name: 'Continue' }).click()
-    await page.getByLabel('Yes').check()
-    await page.getByRole('button', { name: 'Continue' }).click()
-
-    await expect(page).toHaveURL(/report-check-answers/)
-    await expect(page.getByText('Took more than one day')).toBeVisible()
-  })
-
   test('SICCT: no reactions, all cattle tested → check-answers', async ({ page }) => {
     await startReport(page)
     await selectTestTypes(page, ['sicct'])
