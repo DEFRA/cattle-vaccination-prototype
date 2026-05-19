@@ -29,11 +29,9 @@ async function startReport(page) {
   await page.getByLabel('Day', { exact: true }).fill('01')
   await page.getByLabel('Month', { exact: true }).fill('03')
   await page.getByLabel('Year', { exact: true }).fill('2025')
-  await page.getByRole('button', { name: 'Continue' }).click()
-  // Day 2
-  await page.getByLabel('Day', { exact: true }).fill('04')
-  await page.getByLabel('Month', { exact: true }).fill('03')
-  await page.getByLabel('Year', { exact: true }).fill('2025')
+  await page.getByLabel('Hour').fill('9')
+  await page.getByLabel('Minute').fill('00')
+  await page.getByLabel('AM or PM').selectOption('AM')
   await page.getByRole('button', { name: 'Continue' }).click()
 }
 
