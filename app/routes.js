@@ -818,6 +818,9 @@ router.post('/test-list/report-day-1', function (req, res) {
   const day = (req.body['tl_reportDay1Date-day'] || '').trim()
   const month = (req.body['tl_reportDay1Date-month'] || '').trim()
   const year = (req.body['tl_reportDay1Date-year'] || '').trim()
+  const hour = (req.body['tl_reportDay1Time-hour'] || '').trim()
+  const minute = (req.body['tl_reportDay1Time-minute'] || '').trim()
+  const ampm = (req.body['tl_reportDay1Time-ampm'] || '').trim()
 
   const errors = {}
   const errorList = []
@@ -825,6 +828,13 @@ router.post('/test-list/report-day-1', function (req, res) {
   if (!day || !month || !year) {
     errors.tl_reportDay1Date = { text: 'Enter the date of Day 1' }
     errorList.push({ text: 'Enter the date of Day 1', href: '#tl_reportDay1Date-day' })
+  }
+
+  const hourNum = parseInt(hour, 10)
+  const minuteNum = parseInt(minute, 10)
+  if (!hour || !minute || !ampm || isNaN(hourNum) || isNaN(minuteNum) || hourNum < 1 || hourNum > 12 || minuteNum < 0 || minuteNum > 59) {
+    errors.tl_reportDay1Time = { text: 'Enter a valid time Day 1 began' }
+    errorList.push({ text: 'Enter a valid time Day 1 began', href: '#tl_reportDay1Time-hour' })
   }
 
   if (errorList.length) {
@@ -836,39 +846,18 @@ router.post('/test-list/report-day-1', function (req, res) {
   }
 
   req.session.data['tl_reportDay1Date'] = `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`
+  req.session.data['tl_reportDay1Time'] = `${hour.padStart(2, '0')}:${minute.padStart(2, '0')} ${ampm}`
 
-  return res.redirect('/test-list/report-day-2')
-})
-
-router.get('/test-list/report-day-2', function (_req, res) {
-  res.render('test-list/report-day-2')
-})
-
-router.post('/test-list/report-day-2', function (req, res) {
-  const day = (req.body['tl_reportDay2Date-day'] || '').trim()
-  const month = (req.body['tl_reportDay2Date-month'] || '').trim()
-  const year = (req.body['tl_reportDay2Date-year'] || '').trim()
-
-  const errors = {}
-  const errorList = []
-
-  if (!day || !month || !year) {
-    errors.tl_reportDay2Date = { text: 'Enter the date of Day 2' }
-    errorList.push({ text: 'Enter the date of Day 2', href: '#tl_reportDay2Date-day' })
-  }
-
-  if (errorList.length) {
-    return res.render('test-list/report-day-2', {
-      errors,
-      errorSummary: { titleText: 'There is a problem', errorList },
-      formValues: req.body
-    })
-  }
-
-  req.session.data['tl_reportDay2Date'] = `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`
+  const d1 = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day)))
+  const d2 = new Date(d1.getTime() + 72 * 60 * 60 * 1000)
+  req.session.data['tl_reportDay2Date-day'] = String(d2.getUTCDate())
+  req.session.data['tl_reportDay2Date-month'] = String(d2.getUTCMonth() + 1)
+  req.session.data['tl_reportDay2Date-year'] = String(d2.getUTCFullYear())
+  req.session.data['tl_reportDay2Date'] = `${String(d2.getUTCDate()).padStart(2, '0')}/${String(d2.getUTCMonth() + 1).padStart(2, '0')}/${d2.getUTCFullYear()}`
 
   return res.redirect('/test-list/report-test-type')
 })
+
 
 router.get('/test-list/report-test-type', function (req, res) {
   res.render('test-list/report-test-type', {
@@ -1365,7 +1354,14 @@ router.post('/test-list/report-check-answers', async function (req, res) {
   const d = req.session.data
 
   const day1ISO = `${d['tl_reportDay1Date-year']}-${String(d['tl_reportDay1Date-month']).padStart(2, '0')}-${String(d['tl_reportDay1Date-day']).padStart(2, '0')}`
-  const day2ISO = `${d['tl_reportDay2Date-year']}-${String(d['tl_reportDay2Date-month']).padStart(2, '0')}-${String(d['tl_reportDay2Date-day']).padStart(2, '0')}`
+  const day1DateObj = new Date(Date.UTC(parseInt(d['tl_reportDay1Date-year']), parseInt(d['tl_reportDay1Date-month']) - 1, parseInt(d['tl_reportDay1Date-day'])))
+  const day2DateObj = new Date(day1DateObj.getTime() + 72 * 60 * 60 * 1000)
+  const day2ISO = `${day2DateObj.getUTCFullYear()}-${String(day2DateObj.getUTCMonth() + 1).padStart(2, '0')}-${String(day2DateObj.getUTCDate()).padStart(2, '0')}`
+  const day1TimeMatch = (d['tl_reportDay1Time'] || '').match(/^(\d{1,2}):(\d{2})\s+(AM|PM)$/)
+  let day1Hour24 = day1TimeMatch ? parseInt(day1TimeMatch[1], 10) : 0
+  if (day1TimeMatch && day1TimeMatch[3] === 'PM' && day1Hour24 !== 12) day1Hour24 += 12
+  if (day1TimeMatch && day1TimeMatch[3] === 'AM' && day1Hour24 === 12) day1Hour24 = 0
+  const day1StartTime = day1TimeMatch ? `${String(day1Hour24).padStart(2, '0')}:${day1TimeMatch[2]}` : null
 
   const tester = d['tl_reportTester'] === 'me' ? 'Farmer John' : (d['tl_reportTesterName'] || 'Farmer John')
   const sicctBatch = toArray(d['tl_reportSicctBatchNumbers'])[0] || null
@@ -1445,6 +1441,7 @@ router.post('/test-list/report-check-answers', async function (req, res) {
     await cattleVaxApiRequest(`/cases/${encodeURIComponent(caseId)}/test-parts`, 'POST', {
       testParts: [{
         day1: day1ISO,
+        day1StartTime,
         day2: day2ISO,
         certifyingVet: 'Dr Bob',
         tester,

@@ -418,7 +418,8 @@ skin-test-list
 | `tl_reportTesterRole`                    | Who tested page        | `"vet"`, `"att"`, or `"other"` — role of the tester (if someone else)        |
 | `tl_reportTesterRoleOther`               | Who tested page        | Free-text role description (if role is `"other"`)                             |
 | `tl_reportDay1Date`                      | Day 1 page             | Date of Day 1 injection (DD/MM/YYYY)                                          |
-| `tl_reportDay2Date`                      | Day 2 page             | Date of Day 2 reading (DD/MM/YYYY)                                            |
+| `tl_reportDay1Time`                      | Day 1 page             | Start time of Day 1 injection (e.g. `09:00 AM`) — treated as UTC on submission |
+| `tl_reportDay2Date`                      | Derived (not collected) | Date of Day 2 reading — calculated as Day 1 date + 72 hours, never entered by the user |
 | `tl_reportTestTypes`                     | Test type page         | Array of selected test types: `["sicct"]`, `["diva"]`, or `["sicct", "diva"]` |
 | `tl_reportSicctBatchNumbers`             | Test type page         | Batch number string for SICCT                                                 |
 | `tl_reportDivaBatchNumbers`              | Test type page         | Batch number string for DIVA                                                  |
@@ -478,31 +479,20 @@ Entered from the Select Visit Task page (Step 4 of Flow 1) when the user chooses
 
 - Farm name as caption
 - Heading: "When was Day 1 of the test?"
-- Hint text: "Day 1 is when you injected the tuberculin. Day 2 (the reading) takes place 72 hours later – you'll record that on the next page."
+- Subtitle: "Day 1 is when you injected the tuberculin. Day 2 (the reading) is 72 hours later – we'll work that out for you unless you tell us the test ran over more than one day."
 - Date input labelled "Day 1 (injection)" (DD/MM/YYYY)
+- Heading: "What time did the test begin?"
+- Time inputs:
+  - Hour (numeric)
+  - Minute (numeric)
+  - AM / PM (select)
 - Continue button
 
-**Next step:** Day 2 date (Step 3)
+**Next step:** Which test did you do? (Step 3) — Day 2 is calculated automatically as Day 1 + 72 hours
 
 ---
 
-### Step 3: When Was Day 2 of the Test?
-
-**URL:** `/test-list/report-day-2`
-
-**User sees:**
-
-- Farm name as caption
-- Heading: "When was Day 2 of the test?"
-- Hint text: "Day 2 is when you read the tuberculin reactions, 72 hours after Day 1."
-- Date input labelled "Day 2 (reading)" (DD/MM/YYYY)
-- Continue button
-
-**Next step:** Test type (Step 4)
-
----
-
-### Step 4: Which Test Did You Do?
+### Step 3: Which Test Did You Do?
 
 **URL:** `/test-list/report-test-type`
 
@@ -522,13 +512,13 @@ Entered from the Select Visit Task page (Step 4 of Flow 1) when the user chooses
 
 **Routing logic:**
 
-- Both SICCT and DIVA selected → Record order (Step 5)
-- SICCT only → Positive reaction question for SICCT (Step 6)
-- DIVA only → Positive reaction question for DIVA (Step 6)
+- Both SICCT and DIVA selected → Record order (Step 4)
+- SICCT only → Positive reaction question for SICCT (Step 5)
+- DIVA only → Positive reaction question for DIVA (Step 5)
 
 ---
 
-### Step 5: Which Results Would You Like to Record First? (Both only)
+### Step 4: Which Results Would You Like to Record First? (Both only)
 
 **URL:** `/test-list/report-record-order`
 
@@ -543,11 +533,11 @@ Entered from the Select Visit Task page (Step 4 of Flow 1) when the user chooses
 
 **Routing logic:**
 
-- Selection made → Positive reaction question for the chosen test first (Step 6)
+- Selection made → Positive reaction question for the chosen test first (Step 5)
 
 ---
 
-### Step 6: Did Any Cattle Show a Positive Reaction? (runs once per test type)
+### Step 5: Did Any Cattle Show a Positive Reaction? (runs once per test type)
 
 **URL:** `/test-list/report-reactions`
 
@@ -563,13 +553,13 @@ Entered from the Select Visit Task page (Step 4 of Flow 1) when the user chooses
 
 **Routing logic:**
 
-- Yes → Identify reactors (Step 6a)
+- Yes → Identify reactors (Step 5a)
 - No + more test types remain (Both journey, first pass) → Same page for the second test type (step 2 of 2)
-- No + all test types answered → Did you test all cattle? (Step 7)
+- No + all test types answered → Did you test all cattle? (Step 6)
 
 ---
 
-### Step 6a: Identify Reactors
+### Step 5a: Identify Reactors
 
 **URL:** `/test-list/report-identify-reactors`
 
@@ -586,11 +576,11 @@ Entered from the Select Visit Task page (Step 4 of Flow 1) when the user chooses
 **Routing logic:**
 
 - No animals selected → validation error: "Select at least one animal"
-- Animals selected → Record measurements (Step 6b), one per selected animal
+- Animals selected → Record measurements (Step 5b), one per selected animal
 
 ---
 
-### Step 6b: Record Measurements (per animal, loops)
+### Step 5b: Record Measurements (per animal, loops)
 
 **URL:** `/test-list/report-measurements/:index`
 
@@ -614,12 +604,12 @@ Entered from the Select Visit Task page (Step 4 of Flow 1) when the user chooses
 **Routing logic:**
 
 - After the last animal:
-  - More test types remain (Both journey) → Reactions page for the next test type (Step 6, step 2 of 2)
-  - All test types answered → Did you test all cattle? (Step 7)
+  - More test types remain (Both journey) → Reactions page for the next test type (Step 5, step 2 of 2)
+  - All test types answered → Did you test all cattle? (Step 6)
 
 ---
 
-### Step 7: Did You Test All Cattle?
+### Step 6: Did You Test All Cattle?
 
 **URL:** `/test-list/report-all-tested`
 
@@ -634,12 +624,12 @@ Entered from the Select Visit Task page (Step 4 of Flow 1) when the user chooses
 
 **Routing logic:**
 
-- Yes → Check your answers (Step 10)
-- No → Which cattle were not tested? (Step 8)
+- Yes → Check your answers (Step 9)
+- No → Which cattle were not tested? (Step 7)
 
 ---
 
-### Step 8: Which Cattle Were Not Tested?
+### Step 7: Which Cattle Were Not Tested?
 
 **URL:** `/test-list/report-untested`
 
@@ -655,11 +645,11 @@ Entered from the Select Visit Task page (Step 4 of Flow 1) when the user chooses
 **Routing logic:**
 
 - No animals selected → validation error
-- Animals selected → Reason per animal (Step 9), one per selected animal
+- Animals selected → Reason per animal (Step 8), one per selected animal
 
 ---
 
-### Step 9: Why Wasn't This One Tested? (per animal, loops)
+### Step 8: Why Wasn't This One Tested? (per animal, loops)
 
 **URL:** `/test-list/report-untested-reason/:index`
 
@@ -677,11 +667,11 @@ Entered from the Select Visit Task page (Step 4 of Flow 1) when the user chooses
 
 **Routing logic:**
 
-- After the last animal → Check your answers (Step 10)
+- After the last animal → Check your answers (Step 9)
 
 ---
 
-### Step 10: Check Your Answers
+### Step 9: Check Your Answers
 
 **URL:** `/test-list/report-check-answers`
 
@@ -690,8 +680,8 @@ Entered from the Select Visit Task page (Step 4 of Flow 1) when the user chooses
 - Heading: "Check your answers"
 - Summary list of all recorded information:
   - Who tested the cattle (and their name/role if someone else)
-  - Day 1 date
-  - Day 2 date
+  - Day 1 date and start time
+  - Day 2 date (calculated as Day 1 + 72 hours, display only)
   - Test type(s) performed and batch number(s)
   - Positive reaction result per test type
   - If SICCT had positive reactions: a table of SICCT reactor measurements (ear tag, Bovine D1, Bovine D2, Avian D1, Avian D2)
@@ -700,15 +690,15 @@ Entered from the Select Visit Task page (Step 4 of Flow 1) when the user chooses
 - Change links next to each section
 - Submit button
 
-**User action:** Reviews and clicks Submit. The prototype calls the Salesforce API to create a case and add a test part, then redirects to the confirmation page. All cattle on the holding are sent: tested animals (herd minus untested) with their measurement results (reactors with recorded values, non-reactors with zero for all measurement fields), and untested animals with `testType: 'Not Tested'` and their reason code.
+**User action:** Reviews and clicks Submit. The prototype calls the Salesforce API to create a case and add a test part, then redirects to the confirmation page. All cattle on the holding are sent: tested animals (herd minus untested) with their measurement results (reactors with recorded values, non-reactors with zero for all measurement fields), and untested animals with `testType: 'Not Tested'` and their reason code. The test part also includes `day1StartTime` (24-hour `HH:MM`).
 
 **On submission error:** An error summary appears at the top of the page with the API error message. The user can retry.
 
-**Next step:** Report submitted (Step 11)
+**Next step:** Report submitted (Step 10)
 
 ---
 
-### Step 11: Report Submitted
+### Step 10: Report Submitted
 
 **URL:** `/test-list/report-submitted`
 
@@ -726,9 +716,8 @@ Entered from the Select Visit Task page (Step 4 of Flow 1) when the user chooses
 ```
 select-visit-task (POST: /test-list/select-journey)
   → report-who-tested
-    → report-day-1
-      → report-day-2
-        → report-test-type
+    → report-day-1 (Day 2 calculated as Day 1 + 72 hours)
+      → report-test-type
             ├── Both → report-record-order
             │             → report-reactions (step 1 of 2)
             │                 ├── Yes → report-identify-reactors

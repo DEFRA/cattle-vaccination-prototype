@@ -68,9 +68,13 @@
           actions: { items: [{ href: "/test-list/report-day-1", text: "Change", visuallyHiddenText: "Day 1 date" }] }
         },
         {
+          key: { text: "Day 1 start time" },
+          value: { text: data['tl_reportDay1Time'] },
+          actions: { items: [{ href: "/test-list/report-day-1", text: "Change", visuallyHiddenText: "Day 1 start time" }] }
+        },
+        {
           key: { text: "Day 2 (reading)" },
-          value: { html: day2DateValue },
-          actions: { items: [{ href: "/test-list/report-day-2", text: "Change", visuallyHiddenText: "Day 2 date" }] }
+          value: { html: day2DateValue }
         }
       ]
     }) }}

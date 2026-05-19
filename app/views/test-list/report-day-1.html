@@ -20,7 +20,7 @@
       <span class="govuk-caption-l">{{ data['tl_herd']['farm'] }}</span>
     {% endif %}
     <h1 class="govuk-heading-l">When was Day 1 of the test?</h1>
-    <p class="govuk-body">Day 1 is when you injected the tuberculin. Day 2 (the reading) takes place 72 hours later – you'll record that on the next page.</p>
+    <p class="govuk-body">Day 1 is when you injected the tuberculin. Day 2 (the reading) is 72 hours later – we'll work that out for you unless you tell us the test ran over more than one day.</p>
 
     <form action="/test-list/report-day-1" method="post" novalidate>
 
@@ -52,6 +52,56 @@
           }
         ]
       }) }}
+
+      <div class="govuk-form-group{% if errors and errors['tl_reportDay1Time'] %} govuk-form-group--error{% endif %}">
+        <fieldset class="govuk-fieldset" role="group" aria-describedby="{% if errors and errors['tl_reportDay1Time'] %}tl_reportDay1Time-error{% endif %}">
+          <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+            What time did the test begin?
+          </legend>
+          {% if errors and errors['tl_reportDay1Time'] %}
+            <p id="tl_reportDay1Time-error" class="govuk-error-message">
+              <span class="govuk-visually-hidden">Error:</span> {{ errors['tl_reportDay1Time'].text }}
+            </p>
+          {% endif %}
+          <div class="govuk-date-input">
+            <div class="govuk-date-input__item">
+              <div class="govuk-form-group">
+                <label class="govuk-label govuk-date-input__label" for="tl_reportDay1Time-hour">Hour</label>
+                <input class="govuk-input govuk-date-input__input govuk-input--width-2{% if errors and errors['tl_reportDay1Time'] %} govuk-input--error{% endif %}"
+                       id="tl_reportDay1Time-hour"
+                       name="tl_reportDay1Time-hour"
+                       type="text"
+                       inputmode="numeric"
+                       value="{{ formValues['tl_reportDay1Time-hour'] if formValues else data['tl_reportDay1Time-hour'] }}">
+              </div>
+            </div>
+            <div class="govuk-date-input__item">
+              <div class="govuk-form-group">
+                <label class="govuk-label govuk-date-input__label" for="tl_reportDay1Time-minute">Minute</label>
+                <input class="govuk-input govuk-date-input__input govuk-input--width-2{% if errors and errors['tl_reportDay1Time'] %} govuk-input--error{% endif %}"
+                       id="tl_reportDay1Time-minute"
+                       name="tl_reportDay1Time-minute"
+                       type="text"
+                       inputmode="numeric"
+                       value="{{ formValues['tl_reportDay1Time-minute'] if formValues else data['tl_reportDay1Time-minute'] }}">
+              </div>
+            </div>
+            <div class="govuk-date-input__item">
+              <div class="govuk-form-group">
+                <label class="govuk-label govuk-date-input__label" for="tl_reportDay1Time-ampm">AM or PM</label>
+                {% set ampmValue = formValues['tl_reportDay1Time-ampm'] if formValues else data['tl_reportDay1Time-ampm'] %}
+                <select class="govuk-select{% if errors and errors['tl_reportDay1Time'] %} govuk-select--error{% endif %}"
+                        id="tl_reportDay1Time-ampm"
+                        name="tl_reportDay1Time-ampm">
+                  <option value=""></option>
+                  <option value="AM"{% if ampmValue == 'AM' %} selected{% endif %}>AM</option>
+                  <option value="PM"{% if ampmValue == 'PM' %} selected{% endif %}>PM</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+      </div>
 
       {{ govukButton({ text: "Continue" }) }}
 
