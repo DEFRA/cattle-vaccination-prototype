@@ -322,6 +322,18 @@ test.describe('Report skin test results', () => {
     await expect(page.getByRole('heading', { name: 'SICCT reactor measurements' })).toBeVisible()
   })
 
+  test('report-all-tested shows cattle table', async ({ page }) => {
+    await startReport(page)
+    await selectTestTypes(page, ['sicct'])
+
+    await page.getByLabel('No').check()
+    await page.getByRole('button', { name: 'Continue' }).click()
+
+    await expect(page).toHaveURL(/report-all-tested/)
+    await expect(page.locator('table.app-all-tested-table')).toBeVisible()
+    await expect(page.locator('table.app-all-tested-table tbody tr').first()).toBeVisible()
+  })
+
   test('Both SICCT+DIVA: reactors on both tests → check-answers', async ({ page }) => {
     await startReport(page)
     await selectTestTypes(page, ['sicct', 'diva'])
