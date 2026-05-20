@@ -1007,8 +1007,8 @@ router.post('/test-list/report-reactions', function (req, res) {
 
 router.get('/test-list/report-all-tested', function (req, res) {
   const cph = req.session.data['tl_selectedCattle']
-  const animals = ANIMALS_BY_CPH[cph] || []
-  res.render('test-list/report-all-tested', { cattleCount: animals.length })
+  const animals = enrichWithFlags(ANIMALS_BY_CPH[cph] || [])
+  res.render('test-list/report-all-tested', { cattleCount: animals.length, animals })
 })
 
 router.post('/test-list/report-all-tested', function (req, res) {

@@ -9,8 +9,52 @@
 {% endblock %}
 
 {% block content %}
+<style>
+  .app-all-tested-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: "GDS Transport", arial, sans-serif;
+    margin: 0 0 20px;
+  }
+  .app-all-tested-table th,
+  .app-all-tested-table td {
+    border-bottom: 1px solid #b1b4b6;
+    padding: 10px 12px;
+    vertical-align: middle;
+    text-align: left;
+  }
+  .app-all-tested-table thead th {
+    border-bottom: 2px solid #0b0c0c;
+    font-weight: 700;
+  }
+  .app-all-tested-table__flag {
+    display: inline-block;
+    background: #f3f2f1;
+    color: #505a5f;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    margin-left: 8px;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+  .app-all-tested-ear-tag {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .app-all-tested-ear-tag__last4 {
+    padding: 2px 6px;
+    border: 2px solid #0b0c0c;
+    margin-left: 2px;
+  }
+  .app-all-tested-ear-tag__prefix { margin-right: 0; }
+</style>
+
 <div class="govuk-grid-row">
-  <div class="govuk-grid-column-two-thirds">
+  <div class="govuk-grid-column-full">
 
     {% if errorSummary %}
       {{ govukErrorSummary(errorSummary) }}
@@ -19,6 +63,37 @@
     {% if data['tl_herd'] %}
       <span class="govuk-caption-l">{{ data['tl_herd']['farm'] }}</span>
     {% endif %}
+
+    <h1 class="govuk-heading-l">Did you test all {{ cattleCount }} cattle?</h1>
+
+    <table class="app-all-tested-table" id="app-all-tested-table">
+      <thead>
+        <tr>
+          <th scope="col">Ear tag</th>
+          <th scope="col">Age</th>
+          <th scope="col">DOB</th>
+          <th scope="col">Sex</th>
+          <th scope="col">Breed</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for animal in animals %}
+          <tr>
+            <td>
+              <span class="app-all-tested-ear-tag">
+                <span class="app-all-tested-ear-tag__prefix">{{ animal.earTagParts.prefix }}</span><span>{{ animal.earTagParts.herd }}</span><span>{{ animal.earTagParts.check }}</span><span>{{ animal.earTagParts.individualStart }}</span><span class="app-all-tested-ear-tag__last4">{{ animal.earTagParts.last4 }}</span>
+              </span>
+              {% if animal.isVaccinated %}<strong class="app-all-tested-table__flag" title="BCG vaccinated">VAX</strong>{% endif %}
+              {% if animal.isDuplicate %}<strong class="app-all-tested-table__flag" title="Another animal on this farm shares the last 4 digits of this ear tag">DUP</strong>{% endif %}
+            </td>
+            <td>{{ animal.age }}</td>
+            <td>{{ animal.dob }}</td>
+            <td>{{ animal.sex }}</td>
+            <td>{{ animal.breed }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
 
     <form action="/test-list/report-all-tested" method="post" novalidate>
 
@@ -29,8 +104,7 @@
         fieldset: {
           legend: {
             text: "Did you test all " + cattleCount + " cattle?",
-            isPageHeading: true,
-            classes: "govuk-fieldset__legend--l"
+            classes: "govuk-fieldset__legend--m"
           }
         },
         items: [
@@ -53,4 +127,5 @@
 
   </div>
 </div>
+
 {% endblock %}

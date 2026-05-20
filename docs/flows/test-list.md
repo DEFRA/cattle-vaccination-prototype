@@ -479,7 +479,7 @@ Entered from the Select Visit Task page (Step 4 of Flow 1) when the user chooses
 
 - Farm name as caption
 - Heading: "When was Day 1 of the test?"
-- Subtitle: "Day 1 is when you injected the tuberculin. Day 2 (the reading) is 72 hours later – we'll work that out for you unless you tell us the test ran over more than one day."
+- Subtitle: "Day 1 is when you injected the tuberculin. Day 2 (the reading) is 72 hours later – we'll work that out for you."
 - Date input labelled "Day 1 (injection)" (DD/MM/YYYY)
 - Heading: "What time did the test begin?"
 - Time inputs:
@@ -617,6 +617,7 @@ Entered from the Select Visit Task page (Step 4 of Flow 1) when the user chooses
 
 - Farm name as caption
 - Heading: "Did you test all [X] cattle?" where X is the cattle count from the herd record
+- Table of all cattle on the holding; ear tag, age, DOB, sex, breed — VAX and DUP flags shown where relevant.
 - Radios:
   - "Yes"
   - "No"
